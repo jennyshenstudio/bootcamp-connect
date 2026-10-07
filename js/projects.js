@@ -23,7 +23,11 @@ function memberName(id, full) {
 }
 function memberAvatar(id, cls) { return id === 'me' ? myAvatar(cls) : personAvatar(person(id), cls); }
 function shortTitle(post) { return post.title.length > 42 ? post.title.slice(0, 40).trim() + '…' : post.title; }
-function payLabel(pay) { return pay.type === 'Paid' ? 'Paid · $' + Number(pay.amount || 0).toLocaleString('en') : PAY_TYPES[pay.type].short; }
+function formatMoney(amount, currency) {
+  try { return new Intl.NumberFormat('en-GB', { style: 'currency', currency: currency || 'GBP', maximumFractionDigits: 0 }).format(amount || 0); }
+  catch { return '£' + Number(amount || 0).toLocaleString('en-GB'); }
+}
+function payLabel(pay) { return pay.type === 'Paid' ? 'Paid · ' + formatMoney(pay.amount, pay.currency) : PAY_TYPES[pay.type].short; }
 
 function refreshProjectViews() {
   renderFeed();

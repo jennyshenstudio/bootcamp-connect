@@ -10,6 +10,9 @@ const POST_TYPES = {
   community: { label: 'Community', plural: 'Community', icon: 'i-megaphone', cls: 'bg-fill text-label-2' },
 };
 
+// British app: fixed fees default to pounds sterling; other currencies are available.
+const CURRENCIES = [['GBP', '£ GBP'], ['EUR', '€ EUR'], ['USD', '$ USD'], ['CAD', '$ CAD'], ['AUD', '$ AUD']];
+
 const PAY_TYPES = {
   Paid: { label: 'Paid (fixed fee)', short: 'Paid', goal: 'Paid work' },
   Unpaid: { label: 'Unpaid / volunteer', short: 'Unpaid · portfolio', goal: 'Passion project' },
@@ -34,7 +37,7 @@ const DEMO_POSTS = [
     title: 'TableTurn: booking page + deposit checkout for 3 pilot restaurants',
     body: 'Three independent restaurants in Miami have agreed to pilot a simple booking page with a refundable deposit to cut no-shows. I handle the restaurants; I need a developer to build it.',
     roles: [{ track: 'Software Developer', count: 1, skills: ['React', 'Node.js', 'PostgreSQL', 'Stripe'] }],
-    hours: '10–20', weeks: 6, setting: 'Remote', pay: { type: 'Paid', amount: 1200 }, industry: 'Marketplaces',
+    hours: '10–20', weeks: 6, setting: 'Remote', pay: { type: 'Paid', amount: 950, currency: 'GBP' }, industry: 'Marketplaces',
     deliverable: 'Booking page and deposit checkout live for 3 restaurants',
     status: 'open', team: ['diego'], applicants: 2,
     attachments: [{ id: 'a-tt1', kind: 'image', name: 'tableturn-mockup.png', src: mockBrowser({ url: 'tableturn.app/casa-brava', accent: '#FF9500', heading: 'Book a table', rows: [['Fri 7:00 PM · 2 guests', 'Available'], ['Fri 7:30 PM · 4 guests', '$20 deposit'], ['Sat 8:00 PM · 2 guests', 'Waitlist']] }) }],
@@ -75,7 +78,7 @@ const DEMO_POSTS = [
     body: 'My three pilot restaurants want to try TableTurn first. Free for 6 weeks, or a small fee from day one so they take it seriously? Would love input from anyone who has run a pilot.',
     solved: false,
     likes: 6, comments: [
-      { from: 'elena', time: '7h', text: 'Charge something small (even $49) and credit it back if they convert. Free pilots rarely get used.' },
+      { from: 'elena', time: '7h', text: 'Charge something small (even £39) and credit it back if they convert. Free pilots rarely get used.' },
       { from: 'sarah', time: '6h', text: 'Agree with Elena. Also agree the success metric up front: no-shows down by X%.' },
     ],
   },
@@ -104,7 +107,7 @@ const DEMO_POSTS = [
     title: 'Unit economics template for your Demo Day pitch',
     body: 'One-page template I use with founders: CAC, LTV, payback, churn, with example numbers. Fill in your own before Demo Day; investors always ask.',
     tags: ['Pitch decks', 'Financial modeling'],
-    attachments: [{ id: 'a-ue', kind: 'doc', name: 'Unit economics template.pdf', mime: 'application/pdf', size: 57477, src: DEMO_FILES.unitEcon }],
+    attachments: [{ id: 'a-ue', kind: 'doc', name: 'Unit economics template.pdf', mime: 'application/pdf', size: 57492, src: DEMO_FILES.unitEcon }],
     likes: 28, saves: 21, comments: [{ from: 'tom', time: 'Yesterday', text: 'This is exactly what I needed for the GradeLoop pitch. Thank you!' }],
   },
   {
@@ -123,7 +126,7 @@ const DEMO_POSTS = [
     title: 'Landing page copy and launch plan for Footprint',
     body: 'Footprint is almost ready to publish. I need a Business Dev partner to write the landing page and plan a small launch (Product Hunt + two climate newsletters).',
     roles: [{ track: 'Business Developer', count: 1, skills: ['Copywriting', 'Growth marketing'] }],
-    hours: 'Under 10', weeks: 2, setting: 'Remote', pay: { type: 'Paid', amount: 400 }, industry: 'Climate',
+    hours: 'Under 10', weeks: 2, setting: 'Remote', pay: { type: 'Paid', amount: 300, currency: 'GBP' }, industry: 'Climate',
     deliverable: 'Published landing page + launch checklist executed',
     status: 'open', team: ['hannah'], applicants: 1,
     likes: 7, comments: [],

@@ -332,7 +332,9 @@ function setComposerType(type) {
         '<div class="col-span-2 sm:col-span-1"><label for="cp-industry" class="pf-label">Industry</label><select id="cp-industry" class="pf-input">' + INDUSTRIES.map(s => '<option>' + s + '</option>').join('') + '</select></div>' +
       '</div>' +
       '<fieldset><legend class="pf-label">Pay</legend><div class="flex flex-wrap gap-2">' + Object.entries(PAY_TYPES).map(([k, t], i) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-pay" value="' + k + '"' + (i === 0 ? ' checked' : '') + ' onchange="$(\'cp-amount-wrap\').classList.toggle(\'hidden\', this.value !== \'Paid\')"><span class="chip">' + t.label + '</span></label>').join('') + '</div>' +
-        '<div id="cp-amount-wrap" class="mt-2 sm:w-1/2"><label for="cp-amount" class="pf-label">Fixed fee (USD)</label><input id="cp-amount" type="number" min="1" step="1" placeholder="e.g. 800" class="pf-input"><p id="cp-amount-error" class="pf-error hidden"></p></div></fieldset>' +
+        '<div id="cp-amount-wrap" class="mt-2 sm:w-2/3"><label for="cp-amount" class="pf-label">Fixed fee</label><div class="flex gap-2">' +
+          '<label for="cp-currency" class="sr-only">Currency</label><select id="cp-currency" class="pf-input !w-auto shrink-0">' + CURRENCIES.map(([c, l]) => '<option value="' + c + '"' + (c === 'GBP' ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>' +
+          '<input id="cp-amount" type="number" min="1" step="1" placeholder="e.g. 750" class="pf-input"></div><p id="cp-amount-error" class="pf-error hidden"></p></div></fieldset>' +
       '<div><label for="cp-deliverable" class="pf-label">Deliverable</label><input id="cp-deliverable" class="pf-input" maxlength="200" placeholder="What exists when the project is done?"><p id="cp-deliverable-error" class="pf-error hidden"></p></div>';
     renderRoles();
   } else if (type === 'resource') {
@@ -464,7 +466,7 @@ function submitPost(e) {
     Object.assign(post, {
       roles, hours: document.querySelector('input[name="cp-hours"]:checked').value,
       weeks: Math.min(26, Math.max(1, Number($('cp-weeks').value) || 4)), setting: $('cp-setting').value, industry: $('cp-industry').value,
-      pay: pay === 'Paid' ? { type: pay, amount } : { type: pay }, deliverable, status: 'open', team: ['me'], applicants: 0,
+      pay: pay === 'Paid' ? { type: pay, amount, currency: $('cp-currency').value } : { type: pay }, deliverable, status: 'open', team: ['me'], applicants: 0,
     });
   } else if (type === 'resource') {
     Object.assign(post, { kind: $('cp-kind').value, tags: $('cp-tags').value.split(',').map(s => s.trim()).filter(Boolean).slice(0, 6), saves: 0 });

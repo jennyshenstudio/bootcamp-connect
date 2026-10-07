@@ -6,7 +6,7 @@ The feed is where members find experience-building projects and share with their
 ## Post Types
 | Type | Fields | Extra actions |
 | --- | --- | --- |
-| Project (work) | Title, description, roles needed (track, number of people, skills), hours/week, duration in weeks, work setting, industry, pay (Paid fixed fee with amount, Unpaid / volunteer, or Equity / co-founder), deliverable, status (Open / In progress / Completed) | Apply, Manage, Project chat, Mark complete (Spec 07) |
+| Project (work) | Title, description, roles needed (track, number of people, skills), hours/week, duration in weeks, work setting, industry, pay (Paid fixed fee with amount and currency, defaulting to pounds sterling (£ GBP) with EUR, USD, CAD, and AUD available; Unpaid / volunteer; or Equity / co-founder), deliverable, status (Open / In progress / Completed) | Apply, Manage, Project chat, Mark complete (Spec 07) |
 | Resource | Title, why it's useful, kind (Link, Doc, Video, Screenshot, Other), tags | Save |
 | Personal project | Name, what you built, "feedback wanted" toggle | |
 | Support | Question, details | Answers (comments); the author can mark solved |
