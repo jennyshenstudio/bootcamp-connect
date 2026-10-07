@@ -26,7 +26,7 @@ Bootcamp Connect is **experience first**: members join real projects (paid, unpa
 - One-page profile setup: photo, headline, track, location, About, links, work experience, skills, projects, and what you're looking for, with a live preview card and profile strength meter
 - Import from a CV or LinkedIn profile PDF (PDF, .docx, or text): extracts experience, skills, projects, and more, with a review step before anything is added. Uses Claude on the published claude.ai page, or a built-in reader when opened as a local file
 - New sign-ups land on profile setup; returning members land on the Project Feed
-- Demo community: 8 sample members with full profiles, a ranked Matchmaker with Connect and profile view, 3 group chats and direct messages with unread badges, typing indicators, and replies (written by Claude on the published page)
+- Demo community: 8 sample members with full profiles, a ranked Connect tab (projects and people) with connection requests and profile view, 3 group chats and direct messages with unread badges, typing indicators, and replies (written by Claude on the published page)
 - Project feed with upvotes
 
 Accounts and profiles (including photos, resized to 256px) are stored only in the viewer's browser (`localStorage`); there is no backend yet, and passwords are not stored or checked.

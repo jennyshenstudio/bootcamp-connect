@@ -8,7 +8,7 @@ Make the prototype feel like the real app for demos: a populated community with 
 - 5 start as connections; 3 are suggestions.
 - 3 group chats (Freelancer Finance MVP, Cohort 12 · Dev × Biz Mixer, Health Tech Builders) and 2 direct messages, with realistic history across Monday, Yesterday, and Today, and unread counts.
 
-## Matchmaker
+## Connect (formerly Matchmaker)
 - Cards ranked by a match score with All / Connections / Suggested filters.
 - Score: complementary track, shared industries, shared goals (co-founder weighs most), and similar weekly hours, using the member's own profile.
 - **Connect** sends a request that is accepted after a moment (demo behaviour) and shows a confirmation.
@@ -25,7 +25,7 @@ Make the prototype feel like the real app for demos: a populated community with 
 Connections, sent messages, replies, and read state are saved per signed-in account in this browser only.
 
 ## Acceptance Criteria
-1. Matchmaker shows 8 members; Connections shows 5 and Suggested 3 for a new account.
+1. Connect (People view) shows 8 members; Connections shows 5 and Suggested 3 for a new account.
 2. Connecting moves a member to Connections and enables Message.
 3. Opening a conversation clears its unread count and updates the tab badge.
 4. Sending a message shows a typing indicator, then a reply; both remain after a reload.

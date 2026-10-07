@@ -20,7 +20,7 @@ From the member's profile: track, skills, **skills I want to learn** (up to 5), 
 CATME-style: for each open role slot, pick the best-fitting member who isn't already on the team or an applicant, filling the role with the fewest eligible candidates first so no slot is left with a weak fit.
 
 ## Where it shows
-Feed For you ranking and fit lines on project cards; Matchmaker **Projects** (ranked, plus a collapsed "Not a fit right now" list) and **People** views; the Manage sheet's applicant fit and Suggested team.
+Feed For you ranking and fit lines on project cards; Connect tab **Projects** (ranked, plus a collapsed "Not a fit right now" list) and **People** views; the Manage sheet's applicant fit and Suggested team.
 
 ## Research basis
 YC Co-Founder Matching (preferences with importance; commitment matters most), CATME Team-Maker (criteria-based team formation), Hinge "Most Compatible" / Gale-Shapley (two-sided preferences), reciprocal recommender research (mutual interest, fairness), Upwork (skill overlap and reputation from finished work), Lunchclub (feedback improves matches).

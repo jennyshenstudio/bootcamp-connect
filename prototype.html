@@ -131,7 +131,7 @@
 
       <ul class="flex flex-wrap gap-x-6 gap-y-2 text-footnote text-white/60">
         <li class="flex items-center gap-1.5"><svg class="icon w-4 h-4"><use href="#i-feed"/></svg>Project Feed</li>
-        <li class="flex items-center gap-1.5"><svg class="icon w-4 h-4"><use href="#i-match"/></svg>Smart Matchmaker</li>
+        <li class="flex items-center gap-1.5"><svg class="icon w-4 h-4"><use href="#i-match"/></svg>Connect with people &amp; projects</li>
         <li class="flex items-center gap-1.5"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Direct Messages</li>
       </ul>
     </aside>
@@ -265,7 +265,7 @@
         <nav class="hidden md:block" aria-label="Main sections">
           <div class="segmented" role="tablist">
             <button onclick="switchTab('feed')" id="btn-feed" data-tab="feed" class="segmented-btn active" role="tab">Feed</button>
-            <button onclick="switchTab('matching')" id="btn-matching" data-tab="matching" class="segmented-btn" role="tab">Matchmaker</button>
+            <button onclick="switchTab('matching')" id="btn-matching" data-tab="matching" class="segmented-btn" role="tab">Connect</button>
             <button onclick="switchTab('chat')" id="btn-chat" data-tab="chat" class="segmented-btn" role="tab">Messages<span data-badge hidden class="nav-badge ml-1.5"></span></button>
             <button onclick="switchTab('profile')" id="btn-profile" data-tab="profile" class="segmented-btn" role="tab">Profile</button>
           </div>
@@ -315,11 +315,11 @@
         </div>
       </section>
 
-      <!-- TAB 2: MATCHMAKER (specs/04-connections-messages.md) -->
+      <!-- TAB 2: CONNECT (specs/04-connections-messages.md, specs/06-matching.md) -->
       <section id="tab-matching" class="space-y-5 hidden">
         <div class="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Matchmaker</h2>
+            <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Connect</h2>
             <p class="text-subhead text-label-2">Projects and people ranked by how well they fit you, with the reasons. Members and projects are samples for the demo.</p>
           </div>
           <div class="flex flex-wrap gap-2">
@@ -380,7 +380,7 @@
 
         <div>
           <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Your Profile</h2>
-          <p class="text-subhead text-label-2">This is what other members see in the Project Feed and Matchmaker.</p>
+          <p class="text-subhead text-label-2">This is what other members see in the Feed and in Connect.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
@@ -600,7 +600,7 @@
             <div id="pf-section-looking" class="card p-5 sm:p-6 space-y-5">
               <div>
                 <h3 class="font-semibold text-title3">What I'm looking for</h3>
-                <p class="pf-hint mt-0.5">Used by the Matchmaker to suggest people and projects.</p>
+                <p class="pf-hint mt-0.5">Used to suggest people and projects for you in Connect.</p>
               </div>
               <div>
                 <span class="pf-label">Goals</span>
@@ -675,7 +675,7 @@
     <nav class="tab-bar md:hidden" aria-label="Main sections">
       <div class="glass flex max-w-md mx-auto rounded-full p-1.5 gap-1" role="tablist">
         <button onclick="switchTab('feed')" data-tab="feed" class="tab-item active" role="tab"><svg class="icon"><use href="#i-feed"/></svg>Feed</button>
-        <button onclick="switchTab('matching')" data-tab="matching" class="tab-item" role="tab"><svg class="icon"><use href="#i-match"/></svg>Matchmaker</button>
+        <button onclick="switchTab('matching')" data-tab="matching" class="tab-item" role="tab"><svg class="icon"><use href="#i-match"/></svg>Connect</button>
         <button onclick="switchTab('chat')" data-tab="chat" class="tab-item" role="tab"><span class="relative"><svg class="icon"><use href="#i-chat"/></svg><span data-badge hidden class="nav-badge absolute -top-1.5 left-4"></span></span>Messages</button>
         <button onclick="switchTab('profile')" data-tab="profile" class="tab-item" role="tab"><svg class="icon"><use href="#i-person"/></svg>Profile</button>
       </div>

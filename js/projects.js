@@ -304,6 +304,6 @@ function renderVerified() {
     ? (endorsed.length ? '<div><p class="pf-label">Endorsed skills</p><div class="flex flex-wrap gap-1.5">' + endorsed.map(([s, n]) => '<span class="chip !cursor-default !min-h-[28px] !text-footnote">' + esc(s) + ' <span class="text-greenText font-semibold ml-1">' + n + '</span></span>').join('') + '</div></div>' : '') +
       '<ul class="space-y-3">' + items.map(v => verifiedEntryHtml(v, id => memberName(id))).join('') + '</ul>'
     : '<div class="entry text-center space-y-2 !py-6"><p class="font-semibold text-subhead">No verified experience yet</p>' +
-      '<p class="text-footnote text-label-2">Join a project from the Feed or Matchmaker. When it\'s done, your teammates\' ratings and endorsements appear here.</p>' +
+      '<p class="text-footnote text-label-2">Join a project from the Feed or Connect. When it\'s done, your teammates\' ratings and endorsements appear here.</p>' +
       '<button type="button" class="btn btn-secondary btn-sm" onclick="showProjectMatches()">Find a project</button></div>';
 }
