@@ -85,6 +85,7 @@
       --glass-shadow: 0 10px 34px rgba(30, 41, 80, 0.12), 0 1px 3px rgba(30, 41, 80, 0.06);
       --glass-pill: rgba(255, 255, 255, 0.92);
       --toast-bg: rgba(28, 28, 32, 0.78);
+      --glass-sheet: rgba(255, 255, 255, 0.86);
       /* Ambient light behind the glass */
       --ambient-1: rgba(0, 122, 255, 0.24);
       --ambient-2: rgba(175, 82, 222, 0.2);
@@ -125,6 +126,7 @@
         --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
         --glass-pill: rgba(255, 255, 255, 0.16);
         --toast-bg: rgba(60, 60, 66, 0.78);
+        --glass-sheet: rgba(30, 30, 34, 0.88);
         --ambient-1: rgba(10, 132, 255, 0.3);
         --ambient-2: rgba(191, 90, 242, 0.24);
         --ambient-3: rgba(48, 209, 88, 0.1);
@@ -162,6 +164,7 @@
       --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
       --glass-pill: rgba(255, 255, 255, 0.16);
       --toast-bg: rgba(60, 60, 66, 0.78);
+      --glass-sheet: rgba(30, 30, 34, 0.88);
       --ambient-1: rgba(10, 132, 255, 0.3);
       --ambient-2: rgba(191, 90, 242, 0.24);
       --ambient-3: rgba(48, 209, 88, 0.1);
@@ -293,6 +296,28 @@
     .chip-active { background: var(--label); color: var(--bg-grouped); border-color: transparent; }
     .chip-active:hover { background: var(--label); }
 
+    /* ---------- Messages ---------- */
+    .bubble { max-width: min(78vw, 520px); padding: 8px 14px; border-radius: 20px; font-size: 17px; line-height: 22px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .bubble-me { background: linear-gradient(180deg, rgb(var(--blue) / 0.9), rgb(var(--blue))); color: #FFFFFF; border-bottom-right-radius: 6px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+    .bubble-them { background: var(--glass-control); color: var(--label); border: 1px solid var(--glass-rim-soft); border-bottom-left-radius: 6px; box-shadow: inset 0 1px 0 var(--glass-highlight); }
+    .typing { display: inline-flex; gap: 4px; align-items: center; padding: 12px 14px; }
+    .typing span { width: 7px; height: 7px; border-radius: 9999px; background: var(--label-3); animation: typing 1.2s infinite var(--ease); }
+    .typing span:nth-child(2) { animation-delay: 0.15s; } .typing span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-3px); opacity: 1; } }
+    .nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9999px; background: rgb(var(--red)); color: #FFFFFF; font-size: 11px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+    .nav-badge[hidden] { display: none; }
+    @media (max-width: 767px) {
+      #chat-shell.thread-open #chat-list-pane { display: none; }
+      #chat-shell.thread-open #chat-thread-pane { display: flex; }
+      /* An open conversation goes full screen on phones, like Messages on iOS */
+      #chat-shell.thread-open {
+        position: fixed; inset: 0; z-index: 50; height: auto; min-height: 0; border-radius: 0; border: 0;
+        padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+        background: var(--glass-sheet);
+      }
+    }
+    .sheet-panel { background: var(--glass-sheet) !important; }
+
     /* Monogram avatar, like iOS Contacts */
     .avatar { border-radius: 9999px; background: linear-gradient(180deg, #A5ABB8, #858994); color: #FFFFFF; font-weight: 600; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; flex-shrink: 0; box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.4); }
 
@@ -358,6 +383,11 @@
     <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19.5V5M5.75 11 12 4.75 18.25 11"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.8-3 3-4.6 5.5-4.6s4.7 1.6 5.5 4.6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.9 14.3c2.2.1 3.9 1.7 4.6 4.7"/></symbol>
   </svg>
 
   <!-- ==================== AUTH: FULL-PAGE SIGN UP / LOG IN (specs/01-auth.md) ==================== -->
@@ -538,7 +568,7 @@
           <div class="segmented" role="tablist">
             <button onclick="switchTab('feed')" id="btn-feed" data-tab="feed" class="segmented-btn active" role="tab">Project Feed</button>
             <button onclick="switchTab('matching')" id="btn-matching" data-tab="matching" class="segmented-btn" role="tab">Matchmaker</button>
-            <button onclick="switchTab('chat')" id="btn-chat" data-tab="chat" class="segmented-btn" role="tab">Messages</button>
+            <button onclick="switchTab('chat')" id="btn-chat" data-tab="chat" class="segmented-btn" role="tab">Messages<span data-badge hidden class="nav-badge ml-1.5"></span></button>
             <button onclick="switchTab('profile')" id="btn-profile" data-tab="profile" class="segmented-btn" role="tab">Profile</button>
           </div>
         </nav>
@@ -582,9 +612,9 @@
           <article class="card p-5 sm:p-6 space-y-3">
             <div class="flex justify-between items-start gap-3">
               <div class="flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 rounded-full bg-applePurple/15 text-purpleText font-semibold flex items-center justify-center text-subhead shrink-0">SJ</div>
+                <button type="button" class="tap rounded-full shrink-0" onclick="openPerson('sarah')" aria-label="View Sarah Jenkins's profile"><div class="avatar w-10 h-10 text-subhead" style="background:linear-gradient(135deg,#FF9F0A,#FF375F)">SJ</div></button>
                 <div class="min-w-0">
-                  <h4 class="font-semibold text-subhead">Sarah Jenkins</h4>
+                  <h4><button type="button" class="font-semibold text-subhead hover:underline" onclick="openPerson('sarah')">Sarah Jenkins</button></h4>
                   <p class="text-footnote text-label-2">Business Dev Track · 2h ago</p>
                 </div>
               </div>
@@ -607,25 +637,53 @@
               <button onclick="upvotePost(this)" class="btn btn-gray btn-sm !gap-1.5">
                 <svg class="icon w-4 h-4"><use href="#i-up"/></svg><span class="upvote-count tabular-nums">14</span> points
               </button>
-              <button class="btn btn-plain btn-sm">Reply / Partner<svg class="icon w-4 h-4 -mr-1"><use href="#i-chevron"/></svg></button>
+              <button class="btn btn-plain btn-sm" onclick="messagePerson('sarah')">Reply / Partner<svg class="icon w-4 h-4 -mr-1"><use href="#i-chevron"/></svg></button>
             </div>
           </article>
         </div>
       </section>
 
-      <!-- TAB 2: MATCHMAKER DIRECTORY -->
+      <!-- TAB 2: MATCHMAKER (specs/04-connections-messages.md) -->
       <section id="tab-matching" class="space-y-5 hidden">
-        <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Matchmaker</h2>
-        <div class="card p-6">
-          <p class="text-subhead text-label-2">Displays candidate scorecards grounded in <em>Who</em> competency models and <em>The Founder's Dilemmas</em> alignment.</p>
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Matchmaker</h2>
+            <p class="text-subhead text-label-2">People whose skills complement yours, ranked by fit. These are sample members for the demo.</p>
+          </div>
+          <div id="people-filter" class="segmented" role="tablist" aria-label="Filter people">
+            <button type="button" class="segmented-btn active" data-filter="all" onclick="setPeopleFilter('all')">All</button>
+            <button type="button" class="segmented-btn" data-filter="connected" onclick="setPeopleFilter('connected')">Connections</button>
+            <button type="button" class="segmented-btn" data-filter="suggested" onclick="setPeopleFilter('suggested')">Suggested</button>
+          </div>
         </div>
+        <div id="people-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
       </section>
 
-      <!-- TAB 3: MESSAGES -->
+      <!-- TAB 3: MESSAGES (specs/04-connections-messages.md) -->
       <section id="tab-chat" class="space-y-5 hidden">
-        <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Messages</h2>
-        <div class="card p-6">
-          <p class="text-subhead text-label-2">Private messaging thread unlocked via mutual connection requests.</p>
+        <div>
+          <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Messages</h2>
+          <p class="text-subhead text-label-2">Group chats and direct messages with your connections.</p>
+        </div>
+        <div id="chat-shell" class="card overflow-hidden grid grid-cols-1 md:grid-cols-[300px_minmax(0,1fr)] lg:grid-cols-[340px_minmax(0,1fr)] h-[calc(100dvh-250px)] md:h-[calc(100dvh-220px)] min-h-[460px]">
+          <!-- Conversation list -->
+          <div id="chat-list-pane" class="flex flex-col min-h-0 md:border-r border-hairline">
+            <div class="p-3">
+              <label for="chat-search" class="sr-only">Search messages</label>
+              <input id="chat-search" type="search" placeholder="Search" class="pf-input !min-h-[36px] !py-1.5 !text-subhead" oninput="renderChatList()">
+            </div>
+            <ul id="chat-list" class="flex-1 overflow-y-auto px-2 pb-2 space-y-0.5"></ul>
+          </div>
+          <!-- Thread -->
+          <div id="chat-thread-pane" class="hidden md:flex flex-col min-h-0">
+            <div id="thread-header" class="flex items-center gap-3 pl-2 pr-3 md:pl-4 min-h-[60px] border-b border-hairline"></div>
+            <div id="thread-body" class="flex-1 overflow-y-auto px-3 sm:px-5 py-4" aria-live="polite"></div>
+            <form id="thread-composer" class="flex items-end gap-2 p-3 border-t border-hairline" onsubmit="sendMessage(event)">
+              <label for="composer-input" class="sr-only">Message</label>
+              <textarea id="composer-input" rows="1" placeholder="Message" class="pf-input !rounded-[22px] !min-h-[40px] !py-2 resize-none max-h-32" onkeydown="onComposerKey(event)" oninput="autoGrow(this)"></textarea>
+              <button type="submit" class="btn btn-primary !min-h-[40px] !w-10 !p-0 shrink-0" aria-label="Send"><svg class="icon w-5 h-5"><use href="#i-up"/></svg></button>
+            </form>
+          </div>
         </div>
       </section>
 
@@ -906,10 +964,16 @@
       <div class="glass flex max-w-md mx-auto rounded-full p-1.5 gap-1" role="tablist">
         <button onclick="switchTab('feed')" data-tab="feed" class="tab-item active" role="tab"><svg class="icon"><use href="#i-feed"/></svg>Feed</button>
         <button onclick="switchTab('matching')" data-tab="matching" class="tab-item" role="tab"><svg class="icon"><use href="#i-match"/></svg>Matchmaker</button>
-        <button onclick="switchTab('chat')" data-tab="chat" class="tab-item" role="tab"><svg class="icon"><use href="#i-chat"/></svg>Messages</button>
+        <button onclick="switchTab('chat')" data-tab="chat" class="tab-item" role="tab"><span class="relative"><svg class="icon"><use href="#i-chat"/></svg><span data-badge hidden class="nav-badge absolute -top-1.5 left-4"></span></span>Messages</button>
         <button onclick="switchTab('profile')" data-tab="profile" class="tab-item" role="tab"><svg class="icon"><use href="#i-person"/></svg>Profile</button>
       </div>
     </nav>
+  </div>
+
+  <!-- Profile & group sheet -->
+  <div id="sheet" class="hidden fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-6" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="absolute inset-0 bg-black/35" onclick="closeSheet()"></div>
+    <div id="sheet-panel" class="card sheet-panel relative w-full sm:max-w-xl max-h-[92dvh] overflow-y-auto !rounded-b-none sm:!rounded-[28px]"></div>
   </div>
 
   <!-- Toast -->
@@ -1073,6 +1137,7 @@
       document.getElementById('toast').classList.add('hidden');
       renderUser(account);
       loadProfileForm(account);
+      initDemo();
       document.getElementById('profile-banner').classList.toggle('hidden', !isNew);
       switchTab(isNew ? 'profile' : 'feed');
 
@@ -1093,6 +1158,7 @@
     }
 
     function logout() {
+      closeSheet();
       const email = load(SESSION_KEY, '');
       remove(SESSION_KEY);
 
@@ -1121,6 +1187,8 @@
         btn.classList.toggle('active', on);
         btn.setAttribute('aria-selected', on);
       });
+      if (tabName === 'chat') ensureChatSelection();
+      if (tabName === 'matching') renderPeople();
     }
 
     function upvotePost(btn) {
@@ -1460,6 +1528,7 @@
         return;
       }
       renderUser(account);
+      renderPeople();
       $('profile-banner').classList.add('hidden');
       showToast('Profile saved');
     }
@@ -1930,6 +1999,615 @@
       updatePreview();
     });
     $('profile-form').addEventListener('change', updatePreview);
+
+    // ---------- Demo community: connections, profiles, group chats (specs/04-connections-messages.md) ----------
+    // Sample members for the prototype. Not real people.
+    const DEMO_PEOPLE = [
+      {
+        id: 'elena', first: 'Elena', last: 'Rostova', colors: ['#5E5CE6', '#BF5AF2'], connected: true,
+        track: 'Business Developer', headline: 'Ex-fintech analyst · market validation & growth strategy',
+        location: 'Berlin, Germany', setting: 'Remote', available: '2026-11-01',
+        about: 'Four years as an analyst at a payments startup, now switching to the founder side. I validate markets fast: customer interviews, pricing tests, and a financial model before a single line of code. Looking for a technical co-founder who likes shipping small and learning from real users.',
+        experience: [
+          { title: 'Business Developer Fellow', company: 'Bootcamp Connect Cohort 12', start: '2026-06', current: true, desc: 'Running customer discovery for two cohort projects; built the pricing model for Freelancer Finance.' },
+          { title: 'Financial Analyst', company: 'Paylane', start: '2022-03', end: '2026-05', desc: 'Owned the unit-economics model for SMB payments; cut customer acquisition cost 22% by reworking the referral program.' },
+        ],
+        skills: ['Financial modeling', 'Market research', 'Pitch decks', 'Outbound sales', 'Fundraising', 'Pricing'],
+        projects: [{ title: 'Freelancer Finance pricing model', role: 'Business lead', desc: 'Three-tier pricing tested with 40 freelancers; 18% said they would pay for the Pro tier.' }],
+        goals: ['Co-founder'], hours: '20–40', idea: 'Open to both', industries: ['Fintech', 'AI'],
+      },
+      {
+        id: 'sarah', first: 'Sarah', last: 'Jenkins', colors: ['#FF9F0A', '#FF375F'], connected: true,
+        track: 'Business Developer', headline: 'Building an AI tax and savings planner for freelancers',
+        location: 'Chicago, IL', setting: 'Hybrid', available: '2026-10-15',
+        about: 'Freelance marketer for six years, which is how I learned the hard way that quarterly taxes are terrifying. Now building the tool I wish I had. 62 people on the waitlist and counting.',
+        experience: [
+          { title: 'Founder', company: 'Freelancer Finance (pre-launch)', start: '2026-07', current: true, desc: 'Validated the idea with 25 interviews; grew the waitlist to 62 through Reddit and LinkedIn posts.' },
+          { title: 'Freelance Growth Marketer', company: 'Self-employed', start: '2020-01', end: '2026-06', desc: 'Ran paid acquisition for 14 DTC brands; average 3.1x return on ad spend.' },
+        ],
+        skills: ['Growth marketing', 'Customer discovery', 'Copywriting', 'Product management', 'Pitch decks'],
+        projects: [{ title: 'Freelancer Finance waitlist', role: 'Founder', desc: 'Landing page and referral loop that reached 62 signups in five weeks with no ad spend.' }],
+        goals: ['Co-founder', 'Hiring teammates'], hours: '40+', idea: 'I have an idea', industries: ['Fintech', 'AI'],
+      },
+      {
+        id: 'marcus', first: 'Marcus', last: 'Johnson', colors: ['#0A84FF', '#30D158'], connected: true,
+        track: 'Software Developer', headline: 'Full-stack developer · ex-Army logistics · loves clean APIs',
+        location: 'Atlanta, GA', setting: 'Hybrid', available: '2026-10-20',
+        about: 'Eight years running logistics in the Army taught me to keep systems boring and reliable. Now I build them in TypeScript. Happy to pair, review code, or take on paid side projects.',
+        experience: [
+          { title: 'Software Engineering Fellow', company: 'Bootcamp Connect Cohort 12', start: '2026-06', current: true, desc: 'Building auth and payments for Freelancer Finance in Next.js and Supabase.' },
+          { title: 'Logistics Officer', company: 'U.S. Army', start: '2017-05', end: '2025-12', desc: 'Planned supply for a 600-person unit; built an Access tool that replaced a 40-tab spreadsheet.' },
+        ],
+        skills: ['TypeScript', 'React', 'Node.js', 'PostgreSQL', 'AWS', 'Docker'],
+        projects: [
+          { title: 'Freelancer Finance auth + billing', role: 'Backend', desc: 'Supabase auth, row-level security, and Stripe webhooks.' },
+          { title: 'Convoy Planner', role: 'Solo', desc: 'Route and load planner for small fleets; used by two local delivery companies.' },
+        ],
+        goals: ['Paid work', 'Passion project'], hours: '10–20', idea: 'I want to join an idea', industries: ['Fintech', 'Marketplaces'],
+      },
+      {
+        id: 'priya', first: 'Priya', last: 'Raman', colors: ['#30D158', '#64D2FF'], connected: true,
+        track: 'Software Developer', headline: 'ML engineer in training · former pharmacy technician',
+        location: 'Austin, TX', setting: 'Remote', available: '2026-11-15',
+        about: 'Five years behind a pharmacy counter showed me how many people miss refills. I am learning ML to fix that. I like Python, small models that run cheaply, and talking to patients before building anything.',
+        experience: [
+          { title: 'Software Engineering Fellow', company: 'Bootcamp Connect Cohort 12', start: '2026-06', current: true, desc: 'Prototyping a refill-prediction model on public claims data.' },
+          { title: 'Pharmacy Technician', company: 'Independent pharmacy, Austin', start: '2020-02', end: '2026-05', desc: 'Handled 200+ prescriptions a day; set up the text-reminder system the pharmacy still uses.' },
+        ],
+        skills: ['Python', 'PyTorch', 'FastAPI', 'SQL', 'Data analysis', 'User interviews'],
+        projects: [{ title: 'RefillRadar', role: 'ML + backend', desc: 'Predicts which patients are likely to miss a refill; 0.81 AUC on a public dataset.' }],
+        goals: ['Co-founder'], hours: '20–40', idea: 'I have an idea', industries: ['Health', 'AI'],
+      },
+      {
+        id: 'diego', first: 'Diego', last: 'Hernández', colors: ['#FF9F0A', '#FFD60A'], connected: true,
+        track: 'Business Developer', headline: 'Ex-restaurant manager · operations and sales for marketplaces',
+        location: 'Miami, FL', setting: 'In person', available: '2026-10-10',
+        about: 'Ran two busy restaurants for seven years. I know how independent restaurants buy software, and how they don\'t. Building a booking marketplace with three restaurants already lined up for a pilot.',
+        experience: [
+          { title: 'Business Developer Fellow', company: 'Bootcamp Connect Cohort 12', start: '2026-06', current: true, desc: 'Signed three pilot restaurants for a table-booking marketplace.' },
+          { title: 'General Manager', company: 'Casa Brava', start: '2019-04', end: '2026-05', desc: 'Grew revenue 35% in two years; cut no-shows in half with a deposit system.' },
+        ],
+        skills: ['Operations', 'Sales', 'Customer discovery', 'Partnerships', 'Spanish'],
+        projects: [{ title: 'TableTurn pilot', role: 'Business lead', desc: 'Booking and deposit tool for independent restaurants; three pilots signed.' }],
+        goals: ['Co-founder', 'Paid work'], hours: '40+', idea: 'I have an idea', industries: ['Marketplaces', 'Consumer'],
+      },
+      {
+        id: 'aisha', first: 'Aisha', last: 'Bello', colors: ['#BF5AF2', '#FF375F'], connected: false,
+        track: 'Software Developer', headline: 'Mobile developer · React Native and Swift · design-minded',
+        location: 'London, UK', setting: 'Remote', available: '2026-12-01',
+        about: 'I build mobile apps that feel native. Previously a graphic designer, so I care a lot about the details. Organising Demo Day for Cohort 12.',
+        experience: [
+          { title: 'Software Engineering Fellow', company: 'Bootcamp Connect Cohort 12', start: '2026-06', current: true, desc: 'Demo Day organiser; building a study-planner app in React Native.' },
+          { title: 'Graphic Designer', company: 'Northlight Studio', start: '2019-09', end: '2026-04', desc: 'Brand and app design for 30+ clients.' },
+        ],
+        skills: ['React Native', 'Swift', 'Figma', 'TypeScript', 'UI design'],
+        projects: [{ title: 'StudySprint', role: 'Solo', desc: 'Pomodoro study planner with streaks; 1,200 TestFlight users.' }],
+        goals: ['Passion project', 'Paid work'], hours: '10–20', idea: 'Open to both', industries: ['Edtech', 'Health'],
+      },
+      {
+        id: 'tom', first: 'Tom', last: 'Nguyen', colors: ['#64D2FF', '#5E5CE6'], connected: false,
+        track: 'Business Developer', headline: 'Former teacher · product and UX research for edtech',
+        location: 'Seattle, WA', setting: 'Hybrid', available: '2026-11-01',
+        about: 'Taught high-school maths for nine years. Now moving into product: I run user research, write specs, and keep teams focused on what students actually need.',
+        experience: [
+          { title: 'Business Developer Fellow', company: 'Bootcamp Connect Cohort 12', start: '2026-06', current: true, desc: 'Cohort community lead; running interviews with 30 teachers about grading tools.' },
+          { title: 'Maths Teacher', company: 'Lakeside High School', start: '2017-08', end: '2026-06', desc: 'Built a peer-tutoring program that raised pass rates 14%.' },
+        ],
+        skills: ['UX research', 'Product management', 'Roadmapping', 'Public speaking'],
+        projects: [{ title: 'GradeLoop research', role: 'Researcher', desc: 'Interviewed 30 teachers; found feedback time, not grading, is the main pain point.' }],
+        goals: ['Co-founder'], hours: '20–40', idea: 'I want to join an idea', industries: ['Edtech'],
+      },
+      {
+        id: 'hannah', first: 'Hannah', last: 'Kim', colors: ['#30D158', '#0A84FF'], connected: false,
+        track: 'Software Developer', headline: 'Frontend engineer · design systems · climate tech',
+        location: 'Toronto, Canada', setting: 'Remote', available: '2026-10-25',
+        about: 'I build accessible, fast interfaces and the design systems behind them. Most excited about climate tools that help people make better everyday choices.',
+        experience: [
+          { title: 'Software Engineering Fellow', company: 'Bootcamp Connect Cohort 12', start: '2026-06', current: true, desc: 'Building a shared component library for cohort projects.' },
+          { title: 'Junior Frontend Developer', company: 'Greenline Energy', start: '2024-01', end: '2026-05', desc: 'Rebuilt the customer dashboard; Lighthouse accessibility score from 64 to 98.' },
+        ],
+        skills: ['TypeScript', 'React', 'Tailwind CSS', 'Accessibility', 'Figma'],
+        projects: [{ title: 'Footprint', role: 'Frontend', desc: 'Browser extension that shows the carbon cost of online orders.' }],
+        goals: ['Paid work', 'Passion project'], hours: '10–20', idea: 'Open to both', industries: ['Climate', 'Consumer'],
+      },
+    ];
+
+    // Fallback replies (used when Claude isn't available, e.g. a local copy): fit any conversation
+    const DEMO_REPLIES = {
+      elena: ['Love that. Let\'s talk it through on Thursday?', 'Good thinking. I\'ll add it to my notes for the model.', 'Agreed! Want me to sanity-check the numbers?'],
+      sarah: ['Yes! That\'s exactly what we heard in the interviews.', 'Love it 🙌 Let\'s bring it to standup.', 'Great, can you share more details?'],
+      marcus: ['Sounds good to me 👍', 'Happy to help. Want to pair on it this week?', 'Nice, I\'ll take a look tonight.'],
+      priya: ['Great idea! Let\'s keep the first version tiny.', 'I\'m in. Want to set up a quick call?', 'Love it. I can bring data to back that up.'],
+      diego: ['Count me in!', 'Let\'s do it. I\'ll bring the business side.', 'Love the energy 🙌'],
+      aisha: ['Nice! Let\'s chat at the mixer.', 'Love that. I can help with the design side.', 'Sounds great, send me the details.'],
+      tom: ['Great question! Let\'s dig into it together.', 'Love this. Want to grab 20 minutes this week?', 'Count me in.'],
+      hannah: ['Sounds great!', 'I can help with the UI for that.', 'Love it. Let\'s make it accessible from day one.'],
+    };
+
+    const DEMO_CHATS = [
+      {
+        id: 'g-finance', type: 'group', name: 'Freelancer Finance MVP', colors: ['#0A84FF', '#30D158'], members: ['sarah', 'elena', 'marcus'], unread: 2, rank: 5,
+        messages: [
+          { from: 'sarah', day: 'Monday', time: '9:02 AM', text: 'Morning team! The waitlist just passed 62 signups 🎉' },
+          { from: 'elena', day: 'Monday', time: '9:05 AM', text: '38% of those came from the r/freelance post. That channel is worth doubling down on.' },
+          { from: 'me', day: 'Monday', time: '9:20 AM', text: 'Nice! I pushed the Supabase schema last night: users, income_streams, tax_buckets. Can you sanity-check the tax bucket fields?' },
+          { from: 'marcus', day: 'Monday', time: '9:41 AM', text: 'Looks good. I\'d add a currency column to income_streams now, before we have real data.' },
+          { from: 'sarah', day: 'Yesterday', time: '4:15 PM', text: 'Customer call notes: 4 of 5 freelancers said quarterly tax estimates are their #1 stress.' },
+          { from: 'elena', day: 'Yesterday', time: '4:22 PM', text: 'That\'s our headline. I\'ll rework slide 3 of the deck around it.' },
+          { from: 'me', day: 'Yesterday', time: '4:30 PM', text: 'Agreed. I can have a rough quarterly-estimate screen by Friday.' },
+          { from: 'marcus', day: 'Today', time: '10:12 AM', text: 'PR is up for the auth flow, ready for review whenever 🙏' },
+          { from: 'sarah', day: 'Today', time: '10:40 AM', text: 'Standup at 6pm? I\'ll share the updated pitch deck.' },
+        ],
+      },
+      {
+        id: 'g-cohort', type: 'group', name: 'Cohort 12 · Dev × Biz Mixer', colors: ['#BF5AF2', '#FF9F0A'], members: ['tom', 'diego', 'hannah', 'aisha', 'priya', 'marcus', 'elena'], unread: 4, rank: 4,
+        messages: [
+          { from: 'tom', day: 'Yesterday', time: '11:00 AM', text: 'Welcome to everyone who joined this week 👋 This chat is for finding project partners across tracks.' },
+          { from: 'diego', day: 'Yesterday', time: '11:14 AM', text: 'Business Dev here. Looking for a developer to build a booking marketplace for independent restaurants. Three restaurants are already lined up for a pilot.' },
+          { from: 'hannah', day: 'Yesterday', time: '11:30 AM', text: 'Frontend and design systems person. Happy to help with UI for anything climate-related 🌱' },
+          { from: 'aisha', day: 'Today', time: '8:45 AM', text: 'Reminder: Demo Day sign-ups close Friday. Teams need at least one Dev and one Biz member.' },
+          { from: 'priya', day: 'Today', time: '9:10 AM', text: 'Anyone up for a 30-minute pairing session on FastAPI auth this afternoon?' },
+          { from: 'marcus', day: 'Today', time: '9:12 AM', text: 'I\'m in. 3pm works.' },
+          { from: 'diego', day: 'Today', time: '9:30 AM', text: 'Also: free pizza at the Thursday mixer 🍕' },
+        ],
+      },
+      {
+        id: 'g-health', type: 'group', name: 'Health Tech Builders', colors: ['#30D158', '#64D2FF'], members: ['priya', 'aisha'], unread: 0, rank: 1,
+        messages: [
+          { from: 'priya', day: 'Monday', time: '7:50 PM', text: 'Sharing my notes from 12 pharmacy interviews: missed refills are the biggest gap, not reminders.' },
+          { from: 'aisha', day: 'Monday', time: '8:05 PM', text: 'That changes the product. Refill prediction plus a one-tap reorder?' },
+          { from: 'me', day: 'Monday', time: '8:20 PM', text: 'I can prototype the reorder flow. Do we have a pharmacy to test with?' },
+          { from: 'priya', day: 'Monday', time: '8:31 PM', text: 'Not yet. I know the manager of an independent pharmacy in Austin. I\'ll ask this week.' },
+        ],
+      },
+      {
+        id: 'd-elena', type: 'dm', members: ['elena'], unread: 1, rank: 3,
+        messages: [
+          { from: 'elena', day: 'Monday', time: '10:30 AM', text: 'Hey! Saw your profile. Loved your project submission for the AI finance app.' },
+          { from: 'me', day: 'Monday', time: '10:36 AM', text: 'Thanks Elena! Your market validation experience is exactly what this needs.' },
+          { from: 'elena', day: 'Monday', time: '10:42 AM', text: 'Let\'s review the API spec together. Does Thursday work?' },
+          { from: 'elena', day: 'Today', time: '11:05 AM', text: 'Also sent you my draft financial model. Curious what you think 📊' },
+        ],
+      },
+      {
+        id: 'd-marcus', type: 'dm', members: ['marcus'], unread: 0, rank: 2,
+        messages: [
+          { from: 'marcus', day: 'Yesterday', time: '6:10 PM', text: 'Thanks for the review on my PR. The useEffect cleanup tip fixed the memory leak.' },
+          { from: 'me', day: 'Yesterday', time: '6:15 PM', text: 'Anytime! Want to pair on the Stripe webhook next week?' },
+          { from: 'marcus', day: 'Yesterday', time: '6:18 PM', text: 'Yes please. Tuesday 7pm?' },
+        ],
+      },
+    ];
+
+    let demo = null;              // per-user demo state, saved in this browser
+    let openChatId = null;
+    let peopleFilter = 'all';
+    const typing = {};
+    const replyTimers = {};
+    let sheetReturnFocus = null;
+
+    const person = id => DEMO_PEOPLE.find(p => p.id === id);
+    const fullName = p => p.first + ' ' + p.last;
+    const demoKey = () => 'bc_demo:' + load(SESSION_KEY, '');
+    const currentAccount = () => getAccounts()[load(SESSION_KEY, '')] || null;
+
+    function loadDemo() {
+      demo = load(demoKey(), null) || {
+        connected: Object.fromEntries(DEMO_PEOPLE.map(p => [p.id, p.connected])),
+        requested: {}, sent: {}, created: [], replyIdx: {},
+        unread: Object.fromEntries(DEMO_CHATS.map(c => [c.id, c.unread])),
+      };
+    }
+    function saveDemo() { save(demoKey(), demo); }
+
+    function personAvatar(p, cls) {
+      return '<div class="avatar ' + cls + '" style="background:linear-gradient(135deg,' + p.colors[0] + ',' + p.colors[1] + ')" aria-hidden="true">' + esc(initials(p.first, p.last)) + '</div>';
+    }
+    function chatAvatar(chat, cls) {
+      if (chat.type === 'dm') return personAvatar(person(chat.members[0]), cls);
+      return '<div class="avatar ' + cls + '" style="background:linear-gradient(135deg,' + chat.colors[0] + ',' + chat.colors[1] + ')" aria-hidden="true"><svg class="icon !w-1/2 !h-1/2"><use href="#i-users"/></svg></div>';
+    }
+    function trackBadge(track) {
+      const biz = track === 'Business Developer';
+      return '<span class="px-2.5 py-0.5 rounded-full text-footnote font-semibold ' + (biz ? 'bg-applePurple/15 text-purpleText' : 'bg-appleBlue/10 text-blueText') + '">' + (biz ? 'Business Dev' : 'Software Dev') + '</span>';
+    }
+
+    // Simple fit score: complementary track, shared industries and goals, similar weekly hours
+    function matchFor(p) {
+      const me = currentAccount() || {};
+      const mp = me.profile || {};
+      let score = 54;
+      const reasons = [];
+      if (me.track && p.track !== me.track) {
+        score += 20;
+        reasons.push(p.track === 'Business Developer' ? 'Business skills that complement your development skills' : 'Development skills that complement your business skills');
+      } else {
+        score += 6;
+        reasons.push('Same track: a good peer for side projects and pairing');
+      }
+      const industries = (mp.industries || []).filter(i => p.industries.includes(i));
+      if (industries.length) { score += Math.min(industries.length * 6, 12); reasons.push('Shared interest in ' + industries.join(' and ')); }
+      const goals = (mp.goals || []).map(g => g === 'Paid gig' ? 'Paid work' : g).filter(g => p.goals.includes(g));
+      if (goals.includes('Co-founder')) { score += 10; reasons.push('Both looking for a co-founder'); }
+      else if (goals.length) { score += 6; reasons.push('Both open to ' + goals[0].toLowerCase()); }
+      const hourDiff = mp.hours ? Math.abs(HOURS.indexOf(mp.hours) - HOURS.indexOf(p.hours)) : null;
+      if (hourDiff === 0) { score += 6; reasons.push('Same weekly commitment (' + p.hours + ' hrs)'); }
+      else if (hourDiff === 1) score += 3;
+      if (!mp.headline) reasons.push('Finish your profile for sharper matches');
+      return { score: Math.min(score, 98), reasons };
+    }
+
+    // ----- Matchmaker -----
+    function setPeopleFilter(f) {
+      peopleFilter = f;
+      document.querySelectorAll('#people-filter [data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+      renderPeople();
+    }
+
+    function connectButton(p, extra) {
+      if (demo.connected[p.id]) return '<button type="button" class="btn btn-secondary btn-sm ' + extra + '" onclick="messagePerson(\'' + p.id + '\')"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Message</button>';
+      if (demo.requested[p.id]) return '<button type="button" class="btn btn-gray btn-sm ' + extra + '" disabled aria-disabled="true">Requested</button>';
+      return '<button type="button" class="btn btn-primary btn-sm ' + extra + '" onclick="connectPerson(\'' + p.id + '\')"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Connect</button>';
+    }
+
+    function renderPeople() {
+      if (!demo) return;
+      const list = DEMO_PEOPLE
+        .map(p => ({ p, m: matchFor(p) }))
+        .filter(({ p }) => peopleFilter === 'all' || (peopleFilter === 'connected') === !!demo.connected[p.id])
+        .sort((a, b) => b.m.score - a.m.score);
+      $('people-grid').innerHTML = list.length ? list.map(({ p, m }) =>
+        '<article class="card p-5 flex flex-col gap-3">' +
+          '<div class="flex items-start gap-3">' +
+            '<button type="button" class="tap rounded-full" onclick="openPerson(\'' + p.id + '\')" aria-label="View ' + esc(fullName(p)) + '\'s profile">' + personAvatar(p, 'w-14 h-14 text-title3') + '</button>' +
+            '<div class="min-w-0 flex-1">' +
+              '<div class="flex items-start justify-between gap-2">' +
+                '<button type="button" class="font-semibold text-body text-left hover:underline" onclick="openPerson(\'' + p.id + '\')">' + esc(fullName(p)) + '</button>' +
+                '<span class="shrink-0 bg-appleGreen/15 text-greenText text-footnote font-semibold px-2.5 py-0.5 rounded-full tabular-nums">' + m.score + '%</span>' +
+              '</div>' +
+              '<p class="text-footnote text-label-2 line-clamp-2">' + esc(p.headline) + '</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex flex-wrap items-center gap-1.5">' + trackBadge(p.track) +
+            '<span class="text-footnote text-label-2 inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-pin"/></svg>' + esc(p.location) + '</span>' +
+            (demo.connected[p.id] ? '<span class="text-footnote text-greenText font-semibold inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-check"/></svg>Connected</span>' : '') +
+          '</div>' +
+          '<div class="flex flex-wrap gap-1">' + p.skills.slice(0, 4).map(s => '<span class="bg-fill text-label-2 text-caption px-2 py-0.5 rounded-md">' + esc(s) + '</span>').join('') + '</div>' +
+          '<p class="text-footnote text-label-2"><span class="text-label font-medium">Looking for:</span> ' + esc(p.goals.join(', ')) + ' · ' + esc(p.hours) + ' hrs/week</p>' +
+          '<div class="mt-auto pt-1 flex gap-2">' +
+            '<button type="button" class="btn btn-gray btn-sm flex-1" onclick="openPerson(\'' + p.id + '\')">View profile</button>' +
+            connectButton(p, 'flex-1') +
+          '</div>' +
+        '</article>'
+      ).join('') : '<p class="text-subhead text-label-2 md:col-span-2 xl:col-span-3">No one here yet. Connect with people from the Suggested list.</p>';
+    }
+
+    function connectPerson(id) {
+      const p = person(id);
+      demo.requested[id] = true;
+      saveDemo();
+      refreshPersonViews(id);
+      // Demo: requests are accepted after a moment
+      setTimeout(() => {
+        delete demo.requested[id];
+        demo.connected[id] = true;
+        saveDemo();
+        refreshPersonViews(id);
+        showToast(p.first + ' accepted your connection request');
+      }, 1500);
+    }
+
+    function refreshPersonViews(id) {
+      renderPeople();
+      if (!$('sheet').classList.contains('hidden') && $('sheet').dataset.person === id) openPerson(id, { keepFocus: true });
+    }
+
+    // ----- Profile viewer (sheet) -----
+    function openSheet(html, key) {
+      const sheet = $('sheet');
+      if (sheet.classList.contains('hidden')) sheetReturnFocus = document.activeElement;
+      $('sheet-panel').innerHTML = html;
+      sheet.dataset.person = key || '';
+      sheet.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+    }
+    function closeSheet() {
+      $('sheet').classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+      if (sheetReturnFocus && document.contains(sheetReturnFocus)) sheetReturnFocus.focus();
+      sheetReturnFocus = null;
+    }
+
+    function sheetClose() {
+      return '<button type="button" id="sheet-close" class="btn btn-gray !min-h-0 !w-9 !h-9 !p-0 absolute top-3 right-3 z-10" onclick="closeSheet()" aria-label="Close"><svg class="icon w-4 h-4"><use href="#i-close"/></svg></button>';
+    }
+
+    function openPerson(id, { keepFocus = false } = {}) {
+      const p = person(id);
+      const m = matchFor(p);
+      const groups = DEMO_CHATS.filter(c => c.type === 'group' && c.members.includes(id));
+      const dates = e => [fmtMonth(e.start), e.current ? 'Present' : fmtMonth(e.end)].filter(Boolean).join(' – ');
+      const section = (title, body) => '<section class="space-y-2"><h3 class="font-semibold text-body">' + title + '</h3>' + body + '</section>';
+      const html =
+        '<div class="relative">' +
+          '<div class="h-24 sm:h-28 rounded-t-[inherit]" style="background:linear-gradient(135deg,' + p.colors[0] + ',' + p.colors[1] + ')"></div>' +
+          '<div class="sm:hidden absolute top-2 left-1/2 -translate-x-1/2 w-9 h-[5px] rounded-full bg-white/70"></div>' +
+          sheetClose() +
+        '</div>' +
+        '<div class="relative px-5 sm:px-7 pb-7 -mt-12 space-y-5">' +
+          '<div class="space-y-3">' +
+            personAvatar(p, 'w-24 h-24 text-title1 ring-4 ring-[var(--surface)]') +
+            '<div>' +
+              '<h2 id="sheet-title" class="text-title2 font-bold tracking-[-0.01em]">' + esc(fullName(p)) + '</h2>' +
+              '<p class="text-subhead text-label-2">' + esc(p.headline) + '</p>' +
+            '</div>' +
+            '<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">' + trackBadge(p.track) +
+              '<span class="text-footnote text-label-2 inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-pin"/></svg>' + esc(p.location) + ' · ' + esc(p.setting) + '</span>' +
+              '<span class="text-footnote text-label-2">Available from ' + esc(new Date(p.available + 'T00:00').toLocaleDateString('en', { month: 'short', day: 'numeric' })) + '</span>' +
+            '</div>' +
+            '<div class="flex flex-wrap gap-2">' + connectButton(p, '') + '</div>' +
+          '</div>' +
+          '<div class="entry !bg-appleGreen/10 space-y-1.5">' +
+            '<p class="font-semibold text-subhead"><span class="text-greenText tabular-nums">' + m.score + '% match</span> with you</p>' +
+            '<ul class="space-y-1">' + m.reasons.map(r => '<li class="flex items-start gap-2 text-footnote text-label-2"><svg class="icon w-4 h-4 text-greenText mt-px"><use href="#i-check"/></svg>' + esc(r) + '</li>').join('') + '</ul>' +
+          '</div>' +
+          section('About', '<p class="text-subhead text-label-2">' + esc(p.about) + '</p>') +
+          section('Experience', '<ul class="space-y-3">' + p.experience.map(e =>
+            '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(e.title) + '</p><p class="text-footnote text-label-2">' + esc(e.company) + ' · ' + esc(dates(e)) + '</p>' +
+            (e.desc ? '<p class="text-footnote text-label-2 mt-1">' + esc(e.desc) + '</p>' : '') + '</li>').join('') + '</ul>') +
+          section('Skills', '<div class="flex flex-wrap gap-1.5">' + p.skills.map(s => '<span class="chip !cursor-default !min-h-[28px] !text-footnote">' + esc(s) + '</span>').join('') + '</div>') +
+          section('Projects', '<ul class="space-y-3">' + p.projects.map(pr =>
+            '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(pr.title) + '</p><p class="text-footnote text-label-2">' + esc(pr.role) + '</p><p class="text-footnote text-label-2 mt-1">' + esc(pr.desc) + '</p></li>').join('') + '</ul>') +
+          section('Looking for',
+            '<div class="flex flex-wrap gap-1.5">' + p.goals.map(g => '<span class="px-2.5 py-1 rounded-full bg-appleBlue/10 text-blueText text-footnote font-semibold">' + esc(g) + '</span>').join('') + '</div>' +
+            '<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-footnote">' +
+              '<dt class="text-label-2">Hours per week</dt><dd>' + esc(p.hours) + '</dd>' +
+              '<dt class="text-label-2">Idea status</dt><dd>' + esc(p.idea) + '</dd>' +
+              '<dt class="text-label-2">Industries</dt><dd>' + esc(p.industries.join(', ')) + '</dd>' +
+            '</dl>') +
+          (groups.length ? section('Group chats together', '<div class="flex flex-wrap gap-2">' + groups.map(g =>
+            '<button type="button" class="chip !text-footnote gap-1.5" onclick="closeSheet(); goToChat(\'' + g.id + '\')"><svg class="icon w-4 h-4"><use href="#i-users"/></svg>' + esc(g.name) + '</button>').join('') + '</div>') : '') +
+        '</div>';
+      openSheet(html, id);
+      if (!keepFocus) $('sheet-close').focus();
+    }
+
+    function openMembers(chatId) {
+      const chat = allChats().find(c => c.id === chatId);
+      const me = currentAccount() || { first: 'You', last: '' };
+      const rows = chat.members.map(id => {
+        const p = person(id);
+        return '<li><button type="button" class="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-fill text-left min-h-[56px]" onclick="openPerson(\'' + id + '\')">' +
+          personAvatar(p, 'w-10 h-10 text-subhead') +
+          '<span class="min-w-0 flex-1"><span class="block font-semibold text-subhead">' + esc(fullName(p)) + '</span><span class="block text-footnote text-label-2 truncate">' + esc(p.headline) + '</span></span>' +
+          '<svg class="icon w-4 h-4 text-label-3"><use href="#i-chevron"/></svg></button></li>';
+      }).join('');
+      openSheet(
+        '<div class="relative p-5 sm:p-7 space-y-4">' + sheetClose() +
+          '<div class="flex items-center gap-3 pr-10">' + chatAvatar(chat, 'w-14 h-14 text-title3') +
+            '<div><h2 id="sheet-title" class="text-title3 font-bold">' + esc(chat.name) + '</h2><p class="text-footnote text-label-2">' + (chat.members.length + 1) + ' members</p></div></div>' +
+          '<ul class="space-y-0.5">' + rows +
+            '<li class="flex items-center gap-3 px-2 py-2 min-h-[56px]">' + myAvatar('w-10 h-10 text-subhead') +
+            '<span class="font-semibold text-subhead">' + esc((me.first + ' ' + me.last).trim()) + ' <span class="text-label-2 font-normal">(you)</span></span></li>' +
+          '</ul></div>', '');
+      $('sheet-close').focus();
+    }
+
+    function myAvatar(cls) {
+      const me = currentAccount() || {};
+      const photo = me.profile && me.profile.photo;
+      return '<div class="avatar ' + cls + '"' + (photo ? ' style="background-image:url(&quot;' + photo + '&quot;)"' : '') + ' aria-hidden="true">' + (photo ? '' : esc(initials(me.first, me.last))) + '</div>';
+    }
+
+    // ----- Messages -----
+    function allChats() {
+      const extra = demo.created
+        .filter(pid => !DEMO_CHATS.some(c => c.id === 'd-' + pid))
+        .map(pid => ({ id: 'd-' + pid, type: 'dm', members: [pid], unread: 0, rank: 0, messages: [] }));
+      return DEMO_CHATS.concat(extra);
+    }
+    const chatMessages = chat => chat.messages.concat(demo.sent[chat.id] || []);
+    const chatTitle = chat => chat.type === 'group' ? chat.name : fullName(person(chat.members[0]));
+    function chatSortKey(chat) {
+      const msgs = chatMessages(chat);
+      const last = msgs[msgs.length - 1];
+      return last && last.ts ? last.ts : chat.rank;
+    }
+    function fmtTime(d) { return d.toLocaleTimeString('en', { hour: 'numeric', minute: '2-digit' }); }
+
+    function renderChatList() {
+      if (!demo) return;
+      const q = ($('chat-search').value || '').trim().toLowerCase();
+      const chats = allChats()
+        .filter(c => !q || chatTitle(c).toLowerCase().includes(q) || c.members.some(id => fullName(person(id)).toLowerCase().includes(q)))
+        .sort((a, b) => chatSortKey(b) - chatSortKey(a));
+      $('chat-list').innerHTML = chats.length ? chats.map(c => {
+        const msgs = chatMessages(c);
+        const last = msgs[msgs.length - 1];
+        const unread = demo.unread[c.id] || 0;
+        const who = !last ? '' : last.from === 'me' ? 'You: ' : c.type === 'group' ? person(last.from).first + ': ' : '';
+        const when = !last ? '' : last.day === 'Today' ? last.time : last.day;
+        return '<li><button type="button" onclick="openChat(\'' + c.id + '\')" class="w-full flex items-center gap-3 px-2.5 py-2.5 rounded-2xl text-left transition ease-apple ' +
+          (openChatId === c.id ? 'bg-[var(--glass-pill)] shadow-[inset_0_1px_0_var(--glass-highlight)]' : 'hover:bg-fill') + '"' + (openChatId === c.id ? ' aria-current="true"' : '') + '>' +
+          chatAvatar(c, 'w-12 h-12 text-subhead') +
+          '<span class="min-w-0 flex-1">' +
+            '<span class="flex items-baseline justify-between gap-2"><span class="font-semibold text-subhead truncate">' + esc(chatTitle(c)) + '</span><span class="text-caption text-label-2 shrink-0">' + esc(when) + '</span></span>' +
+            '<span class="flex items-center gap-2"><span class="text-footnote line-clamp-2 flex-1 ' + (unread ? 'text-label' : 'text-label-2') + '">' + (last ? esc(who + last.text) : 'No messages yet') + '</span>' +
+            (unread ? '<span class="shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-appleBlue text-white text-caption2 font-semibold flex items-center justify-center tabular-nums" aria-label="' + unread + ' unread">' + unread + '</span>' : '') +
+            '</span>' +
+          '</span></button></li>';
+      }).join('') : '<li class="px-3 py-6 text-center text-subhead text-label-2">No conversations match "' + esc(q) + '".</li>';
+    }
+
+    function updateBadge() {
+      const total = demo ? Object.values(demo.unread).reduce((a, b) => a + b, 0) : 0;
+      document.querySelectorAll('[data-badge]').forEach(b => { b.textContent = total; b.hidden = !total; });
+    }
+
+    function goToChat(id) { switchTab('chat'); openChat(id); }
+
+    function openChat(id) {
+      openChatId = id;
+      demo.unread[id] = 0;
+      saveDemo();
+      $('chat-shell').classList.add('thread-open');
+      $('chat-thread-pane').classList.remove('hidden');
+      renderChatList();
+      renderThread();
+      updateBadge();
+      if (window.matchMedia('(min-width: 768px)').matches) $('composer-input').focus();
+    }
+
+    function closeThread() {
+      $('chat-shell').classList.remove('thread-open');
+      openChatId = null;
+      renderChatList();
+    }
+
+    function ensureChatSelection() {
+      if (!demo) return;
+      if (!openChatId && window.matchMedia('(min-width: 768px)').matches) {
+        const first = allChats().sort((a, b) => chatSortKey(b) - chatSortKey(a))[0];
+        if (first) openChat(first.id);
+      }
+    }
+
+    function renderThread() {
+      const chat = allChats().find(c => c.id === openChatId);
+      if (!chat) return;
+      const isGroup = chat.type === 'group';
+      const p = isGroup ? null : person(chat.members[0]);
+      const subtitle = isGroup
+        ? (chat.members.length <= 3 ? chat.members.map(id => person(id).first).join(', ') + ' & you' : (chat.members.length + 1) + ' members')
+        : p.headline;
+      $('thread-header').innerHTML =
+        '<button type="button" class="md:hidden btn btn-plain !min-h-[44px] !px-2" onclick="closeThread()" aria-label="Back to conversations"><svg class="icon w-6 h-6"><use href="#i-back"/></svg></button>' +
+        '<button type="button" class="flex items-center gap-3 min-w-0 flex-1 text-left rounded-xl py-2" onclick="' + (isGroup ? 'openMembers(\'' + chat.id + '\')' : 'openPerson(\'' + p.id + '\')') + '">' +
+          chatAvatar(chat, 'w-10 h-10 text-subhead') +
+          '<span class="min-w-0"><span class="block font-semibold text-body truncate">' + esc(chatTitle(chat)) + '</span><span class="block text-footnote text-label-2 truncate">' + esc(subtitle) + '</span></span>' +
+        '</button>' +
+        '<button type="button" class="btn btn-gray !min-h-0 !w-9 !h-9 !p-0 shrink-0" onclick="' + (isGroup ? 'openMembers(\'' + chat.id + '\')' : 'openPerson(\'' + p.id + '\')') + '" aria-label="' + (isGroup ? 'Group members' : 'View profile') + '"><svg class="icon w-5 h-5"><use href="#' + (isGroup ? 'i-users' : 'i-person') + '"/></svg></button>';
+
+      const msgs = chatMessages(chat);
+      let html = '', lastDay = null;
+      msgs.forEach((m, i) => {
+        if (m.day !== lastDay) {
+          html += '<p class="text-center text-caption text-label-2 font-semibold my-3">' + esc(m.day) + '</p>';
+          lastDay = m.day;
+        }
+        const prev = msgs[i - 1], next = msgs[i + 1];
+        const firstOfRun = !prev || prev.from !== m.from || prev.day !== m.day;
+        const lastOfRun = !next || next.from !== m.from || next.day !== m.day;
+        const gap = firstOfRun && i ? ' mt-3' : ' mt-0.5';
+        const text = esc(m.text);
+        if (m.from === 'me') {
+          html += '<div class="flex flex-col items-end' + gap + '"><div class="bubble bubble-me">' + text + '</div>' +
+            (lastOfRun ? '<span class="text-caption2 text-label-3 mt-1 mr-1">' + esc(m.time) + '</span>' : '') + '</div>';
+        } else {
+          const sender = person(m.from);
+          html += '<div class="flex items-end gap-2' + gap + '">' +
+            '<div class="w-7 shrink-0">' + (lastOfRun ? '<button type="button" class="tap rounded-full" onclick="openPerson(\'' + sender.id + '\')" aria-label="View ' + esc(fullName(sender)) + '">' + personAvatar(sender, 'w-7 h-7 text-caption2') + '</button>' : '') + '</div>' +
+            '<div class="flex flex-col items-start max-w-[78%] min-w-0">' +
+              (isGroup && firstOfRun ? '<span class="text-caption text-label-2 ml-3 mb-0.5">' + esc(sender.first) + '</span>' : '') +
+              '<div class="bubble bubble-them">' + text + '</div>' +
+              (lastOfRun ? '<span class="text-caption2 text-label-3 mt-1 ml-3">' + esc(m.time) + '</span>' : '') +
+            '</div></div>';
+        }
+      });
+      if (typing[chat.id]) {
+        const t = person(typing[chat.id]);
+        html += '<div class="flex items-end gap-2 mt-3"><div class="w-7 shrink-0">' + personAvatar(t, 'w-7 h-7 text-caption2') + '</div>' +
+          '<div class="bubble bubble-them typing" aria-label="' + esc(t.first) + ' is typing"><span></span><span></span><span></span></div></div>';
+      }
+      const body = $('thread-body');
+      body.innerHTML = html || '<p class="text-center text-subhead text-label-2 mt-10">Say hello to ' + esc(p ? p.first : 'the group') + ' 👋</p>';
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function sendMessage(e) {
+      e.preventDefault();
+      const input = $('composer-input');
+      const text = input.value.trim();
+      const chat = allChats().find(c => c.id === openChatId);
+      if (!text || !chat) return;
+      (demo.sent[chat.id] = demo.sent[chat.id] || []).push({ from: 'me', day: 'Today', time: fmtTime(new Date()), ts: Date.now(), text });
+      saveDemo();
+      input.value = '';
+      autoGrow(input);
+      renderThread();
+      renderChatList();
+      scheduleReply(chat);
+    }
+
+    // Demo: someone in the conversation replies after a moment.
+    // On the published page Claude writes the reply in that member's voice; otherwise a fallback line is used.
+    async function generateReply(chat, from) {
+      const sample = await getSample();
+      if (!sample) return null;
+      const p = person(from);
+      const me = currentAccount() || {};
+      const history = chatMessages(chat).slice(-10).map(m =>
+        (m.from === 'me' ? (me.first || 'Member') : person(m.from).first) + ': ' + m.text).join('\n');
+      const prompt =
+        'You are role-playing ' + fullName(p) + ', a sample member of Bootcamp Connect, a networking app where coding-bootcamp ' +
+        'students on the Software Developer and Business Developer tracks find project partners. This is a product demo.\n\n' +
+        'Your profile: ' + p.headline + '. ' + p.about + ' Skills: ' + p.skills.join(', ') + '. Looking for: ' + p.goals.join(', ') + '.\n\n' +
+        (chat.type === 'group' ? 'Group chat "' + chat.name + '".' : 'Direct message with ' + (me.first || 'a member') + '.') +
+        ' Recent messages, oldest first:\n' + history + '\n\n' +
+        'Write ' + p.first + '\'s next message replying to the latest one. One or two short sentences, friendly chat tone, ' +
+        'at most one emoji. Reply with the message text only: no name prefix, no quotes, no links.';
+      try {
+        const { text } = await sample(prompt, { modelTier: 'quick', cache: false });
+        return text.trim().replace(new RegExp('^' + p.first + ':\\s*'), '').replace(/^["“]|["”]$/g, '').trim().slice(0, 400) || null;
+      } catch { return null; }
+    }
+
+    function scheduleReply(chat) {
+      clearTimeout(replyTimers[chat.id]);
+      const candidates = chat.members.filter(id => chat.type === 'dm' || demo.connected[id]);
+      const from = candidates[Math.floor(Math.random() * candidates.length)] || chat.members[0];
+      replyTimers[chat.id] = setTimeout(async () => {
+        typing[chat.id] = from;
+        if (openChatId === chat.id) renderThread();
+        const [generated] = await Promise.all([generateReply(chat, from), new Promise(r => setTimeout(r, 1500))]);
+        delete typing[chat.id];
+        let text = generated;
+        if (!text) {
+          const replies = DEMO_REPLIES[from];
+          const n = demo.replyIdx[from] || 0;
+          demo.replyIdx[from] = n + 1;
+          text = replies[n % replies.length];
+        }
+        (demo.sent[chat.id] = demo.sent[chat.id] || []).push({ from, day: 'Today', time: fmtTime(new Date()), ts: Date.now(), text });
+        if (openChatId !== chat.id || $('tab-chat').classList.contains('hidden')) demo.unread[chat.id] = (demo.unread[chat.id] || 0) + 1;
+        saveDemo();
+        if (openChatId === chat.id) renderThread();
+        renderChatList();
+        updateBadge();
+      }, 900);
+    }
+
+    function messagePerson(id) {
+      if (!allChats().some(c => c.id === 'd-' + id)) { demo.created.push(id); saveDemo(); }
+      closeSheet();
+      goToChat('d-' + id);
+    }
+
+    function onComposerKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('thread-composer').requestSubmit(); }
+    }
+    function autoGrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 128) + 'px'; }
+
+    function initDemo() {
+      loadDemo();
+      openChatId = null;
+      $('chat-shell').classList.remove('thread-open');
+      renderPeople();
+      renderChatList();
+      updateBadge();
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sheet').classList.contains('hidden')) closeSheet(); });
 
     // Restore an existing session in this browser
     (function init() {
