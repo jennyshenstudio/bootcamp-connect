@@ -369,6 +369,56 @@
 
           <form id="profile-form" novalidate onsubmit="saveProfile(event)" class="space-y-5 min-w-0">
 
+            <!-- 0. Import from CV or LinkedIn (specs/03-profile-import.md) -->
+            <div id="pf-section-import" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+              <div>
+                <h3 class="font-bold text-base">Import from your CV or LinkedIn</h3>
+                <p class="pf-hint">Upload a CV or your LinkedIn profile PDF to fill in your experience, skills, and more. You review everything before it's added.</p>
+              </div>
+
+              <div id="import-idle" class="space-y-3">
+                <label id="import-drop" for="pf-import-file" class="flex flex-col items-center justify-center gap-1 text-center border-2 border-dashed border-slate-300 hover:border-appleBlue hover:bg-blue-50/40 rounded-xl px-4 py-6 cursor-pointer transition">
+                  <span class="text-2xl" aria-hidden="true">📄</span>
+                  <span class="text-sm font-semibold text-slate-800">Drop your CV here or <span class="text-appleBlue">choose a file</span></span>
+                  <span class="pf-hint">PDF, Word (.docx), or text · up to 10 MB</span>
+                </label>
+                <input id="pf-import-file" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" class="sr-only" onchange="handleImportFile(this.files[0]); this.value = ''">
+
+                <details class="text-xs text-slate-600 group">
+                  <summary class="cursor-pointer font-semibold text-slate-700 hover:text-appleBlue list-none flex items-center gap-1.5">
+                    <span class="inline-block transition group-open:rotate-90" aria-hidden="true">›</span> How to get your LinkedIn profile as a PDF
+                  </summary>
+                  <ol class="list-decimal pl-5 mt-2 space-y-1">
+                    <li>Open your profile on <a href="https://www.linkedin.com/in/me/" target="_blank" rel="noopener" class="text-appleBlue underline">linkedin.com</a> on a computer.</li>
+                    <li>Click <strong>Resources</strong> (or <strong>More</strong>) under your name and photo.</li>
+                    <li>Choose <strong>Save to PDF</strong>, then upload that file here.</li>
+                  </ol>
+                  <p class="pf-hint mt-2">LinkedIn doesn't let other apps read your experience and skills directly, so the PDF is the quickest way to bring them over.</p>
+                </details>
+                <p id="import-error" class="pf-error hidden"></p>
+              </div>
+
+              <div id="import-busy" class="hidden flex items-center justify-between gap-3 rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="w-4 h-4 rounded-full border-2 border-appleBlue border-t-transparent animate-spin shrink-0"></span>
+                  <p id="import-status" class="text-sm text-slate-700 truncate">Reading your file…</p>
+                </div>
+                <button type="button" onclick="cancelImport()" class="text-xs font-semibold text-slate-600 hover:text-slate-900 shrink-0">Stop</button>
+              </div>
+
+              <div id="import-review" class="hidden space-y-4">
+                <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3">
+                  <p id="import-summary" class="text-sm font-semibold text-emerald-900"></p>
+                  <p id="import-method" class="text-xs text-emerald-800 mt-0.5"></p>
+                </div>
+                <div id="import-review-body" class="space-y-4 text-sm"></div>
+                <div class="flex flex-wrap justify-end gap-2">
+                  <button type="button" onclick="resetImport()" class="text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:border-slate-300 px-4 py-2 rounded-lg transition">Cancel</button>
+                  <button type="button" onclick="applyImport()" class="text-xs font-semibold text-white bg-appleBlue hover:bg-blue-600 px-4 py-2 rounded-lg transition">Add selected to my profile</button>
+                </div>
+              </div>
+            </div>
+
             <!-- 1. Basics -->
             <div id="pf-section-basics" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
               <div>
@@ -1022,6 +1072,7 @@
       document.querySelectorAll('#profile-form .pf-error').forEach(e => e.classList.add('hidden'));
       document.querySelectorAll('#profile-form .invalid').forEach(e => e.classList.remove('invalid'));
       $('pf-photo-error').classList.add('hidden');
+      cancelImport();
       onTrackChange();
       updateCounters();
       updatePhotoUI();
@@ -1119,6 +1170,388 @@
       $('profile-banner').classList.add('hidden');
       showToast('Profile saved');
     }
+
+    // ---------- Import from CV / LinkedIn PDF (specs/03-profile-import.md) ----------
+    const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/';
+    const MAX_IMPORT_BYTES = 10 * 1024 * 1024;
+    let importCtl = null;
+    let importResult = null;
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        if (document.querySelector('script[src="' + src + '"]')) return resolve();
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = () => reject(new Error('Could not load ' + src));
+        document.head.appendChild(s);
+      });
+    }
+
+    // Text extraction runs entirely in the browser
+    async function extractPdfText(file) {
+      await loadScript(CDN + 'pdf.js/3.11.174/pdf.min.js');
+      // Loading the worker as a script lets pdf.js run on the main thread (cross-origin Workers are blocked)
+      await loadScript(CDN + 'pdf.js/3.11.174/pdf.worker.min.js');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = CDN + 'pdf.js/3.11.174/pdf.worker.min.js';
+      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      const pages = [];
+      for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+        const content = await (await pdf.getPage(i)).getTextContent();
+        let text = '', lastY = null;
+        for (const item of content.items) {
+          const y = item.transform[5];
+          if (lastY !== null && Math.abs(y - lastY) > 2 && !text.endsWith('\n')) text += '\n';
+          text += item.str + (item.hasEOL ? '\n' : '');
+          lastY = y;
+        }
+        pages.push(text);
+      }
+      return pages.join('\n');
+    }
+
+    async function extractDocxText(file) {
+      await loadScript(CDN + 'mammoth/1.6.0/mammoth.browser.min.js');
+      const { value } = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+      return value;
+    }
+
+    async function extractText(file) {
+      const name = file.name.toLowerCase();
+      if (file.type === 'application/pdf' || name.endsWith('.pdf')) return extractPdfText(file);
+      if (name.endsWith('.docx')) return extractDocxText(file);
+      if (name.endsWith('.doc')) throw new Error('Older .doc files aren\'t supported. Save it as .docx or PDF and try again.');
+      if (file.type.startsWith('text/') || /\.(txt|md)$/.test(name)) return file.text();
+      throw new Error('Upload a PDF, Word (.docx), or text file.');
+    }
+
+    let samplePromise = null;
+    function getSample() {
+      if (!samplePromise) {
+        samplePromise = window.claude && window.claude.use ? window.claude.use('sample').catch(() => null) : Promise.resolve(null);
+      }
+      return samplePromise;
+    }
+
+    function importPrompt(text) {
+      return 'Extract profile details from this CV or LinkedIn profile export for a bootcamp networking app.\n' +
+        'Reply with only a JSON object in exactly this shape (use "" or [] when something is not in the text; never invent facts):\n' +
+        '{"headline": string (max 80 chars; if none is stated, write one from the most recent role, e.g. "Frontend Developer at Shopify"),\n' +
+        ' "location": string (city, region),\n' +
+        ' "about": string (max 500 chars, from the summary or profile section, first person),\n' +
+        ' "linkedin": string (URL), "github": string (URL), "website": string (URL, other personal or portfolio site),\n' +
+        ' "experience": [{"title": string, "company": string, "start": "YYYY-MM", "end": "YYYY-MM" or "", "current": boolean, "desc": string (max 400 chars)}] (most recent first, max 8),\n' +
+        ' "skills": [string] (short skill names, most relevant first, max 15),\n' +
+        ' "projects": [{"title": string, "link": string, "role": string, "desc": string (max 200 chars)}] (max 5)}\n' +
+        'Dates: use "YYYY-01" when only a year is given. Mark current roles with "current": true and end "".\n\n' +
+        'CV text:\n"""\n' + text.slice(0, 30000) + '\n"""';
+    }
+
+    // ----- Fallback: built-in reader for when Claude isn't available (e.g. opened as a local file) -----
+    const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12 };
+    const MONTH_RE = '(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?';
+    const DATE_RANGE_RE = new RegExp('((?:' + MONTH_RE + '\\s+)?\\d{4}|\\d{1,2}/\\d{4})\\s*(?:-|–|—|to)\\s*((?:' + MONTH_RE + '\\s+)?\\d{4}|\\d{1,2}/\\d{4}|present|current|now|today)', 'i');
+    const HEADINGS = {
+      about: /^(summary|about( me)?|profile|professional summary|personal statement)$/i,
+      experience: /^(experience|work experience|professional experience|employment( history)?|work history|career history)$/i,
+      skills: /^(skills|top skills|technical skills|core skills|key skills|skills & tools|tools)$/i,
+      projects: /^(projects|personal projects|selected projects|portfolio)$/i,
+      other: /^(education|certifications?|licenses( & certifications)?|languages|honors[- &]*awards|awards|interests|volunteer( experience)?|publications|references|contact|courses)$/i,
+    };
+
+    function toYearMonth(s) {
+      if (!s) return '';
+      const slash = s.match(/(\d{1,2})\/(\d{4})/);
+      if (slash) return slash[2] + '-' + String(slash[1]).padStart(2, '0');
+      const year = (s.match(/\d{4}/) || [])[0];
+      if (!year) return '';
+      const m = s.toLowerCase().match(/[a-z]+/);
+      const month = m && MONTHS[m[0].slice(0, 4)] || m && MONTHS[m[0].slice(0, 3)] || 1;
+      return year + '-' + String(month).padStart(2, '0');
+    }
+
+    function splitTitleCompany(line) {
+      const m = line.match(/^(.+?)\s+(?:at|@)\s+(.+)$/i) || line.match(/^(.+?)\s+[|–—-]\s+(.+)$/) || line.match(/^(.+?),\s+(.+)$/);
+      return m ? { title: m[1].trim(), company: m[2].trim() } : null;
+    }
+
+    function basicParse(text) {
+      const lines = text.split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+      // PDFs wrap long links onto the next line after a hyphen or slash; rejoin them
+      const flat = lines.join('\n').replace(/([-\/])\n(?=[A-Za-z0-9])/g, '$1').replace(/\n/g, ' ');
+      const url = re => ((flat.match(re) || [])[0] || '').replace(/[).,;]+$/, '');
+      const result = {
+        headline: '', location: '', about: '',
+        linkedin: url(/(?:https?:\/\/)?(?:[a-z]{2,3}\.)?linkedin\.com\/in\/[A-Za-z0-9_%-]+/i),
+        github: url(/(?:https?:\/\/)?github\.com\/[A-Za-z0-9_-]+/i),
+        website: '', experience: [], skills: [], projects: [],
+      };
+
+      // Group lines under recognised section headings
+      const sections = { top: [] };
+      let current = 'top';
+      for (const line of lines) {
+        const h = line.replace(/:$/, '');
+        const key = Object.keys(HEADINGS).find(k => HEADINGS[k].test(h));
+        if (key) { current = key; sections[key] = sections[key] || []; continue; }
+        (sections[current] = sections[current] || []).push(line);
+      }
+
+      result.about = (sections.about || []).join(' ').slice(0, 500);
+
+      const skillSet = [];
+      for (const line of sections.skills || []) {
+        if (line.split(' ').length > 6 && !/[,•|;·]/.test(line)) break;
+        line.replace(/^[A-Za-z ]{2,25}:\s*/, '').split(/[,•|;·]/).map(s => s.replace(/^[-*●▪◦]\s*/, '').trim())
+          .filter(s => s && s.length <= 30).forEach(s => { if (!skillSet.some(x => x.toLowerCase() === s.toLowerCase())) skillSet.push(s); });
+      }
+      result.skills = skillSet.slice(0, 15);
+
+      const exp = sections.experience || [];
+      const dateIdx = exp.map((l, i) => DATE_RANGE_RE.test(l) ? i : -1).filter(i => i >= 0);
+      dateIdx.forEach((di, n) => {
+        const m = exp[di].match(DATE_RANGE_RE);
+        const rest = exp[di].replace(m[0], '').replace(/\(.*?\)/g, '').replace(/[|·,–—-]\s*$/, '').trim();
+        let title = '', company = '';
+        const sameLine = rest && splitTitleCompany(rest);
+        const prev1 = exp[di - 1] || '', prev2 = exp[di - 2] || '';
+        const prevEnd = n > 0 ? dateIdx[n - 1] : -1;
+        if (sameLine) ({ title, company } = sameLine);
+        else if (rest) { title = rest; company = di - 1 > prevEnd ? prev1 : ''; }
+        else {
+          const split = di - 1 > prevEnd && splitTitleCompany(prev1);
+          if (split) ({ title, company } = split);
+          else { title = di - 1 > prevEnd ? prev1 : ''; company = di - 2 > prevEnd ? prev2 : ''; }
+        }
+        const isCurrent = /present|current|now|today/i.test(m[2]);
+        const descEnd = n + 1 < dateIdx.length ? dateIdx[n + 1] - 2 : exp.length;
+        const desc = exp.slice(di + 1, Math.max(di + 1, descEnd)).join(' ').replace(/^[-*●▪•◦]\s*/, '');
+        if (title || company) result.experience.push({
+          title: title.slice(0, 80), company: company.slice(0, 80),
+          start: toYearMonth(m[1]), end: isCurrent ? '' : toYearMonth(m[2]), current: isCurrent, desc: desc.slice(0, 400),
+        });
+      });
+      result.experience = result.experience.slice(0, 8);
+
+      let proj = null;
+      for (const line of sections.projects || []) {
+        const bullet = /^[-*●▪•◦]/.test(line);
+        if (!bullet && line.length <= 80 && (!proj || proj.desc)) {
+          proj = { title: line, link: (line.match(/https?:\/\/\S+/) || [''])[0], role: '', desc: '' };
+          result.projects.push(proj);
+        } else if (proj) {
+          proj.desc = (proj.desc + ' ' + line.replace(/^[-*●▪•◦]\s*/, '')).trim().slice(0, 200);
+        }
+      }
+      result.projects = result.projects.slice(0, 5);
+
+      const first = result.experience[0];
+      if (first && first.title) result.headline = (first.title + (first.company ? ' at ' + first.company : '')).slice(0, 80);
+      return result;
+    }
+
+    // Coerce whatever came back into the shape the form expects
+    function cleanImport(r) {
+      const str = (v, max) => String(v ?? '').trim().slice(0, max);
+      const ym = v => /^\d{4}-\d{2}$/.test(String(v || '')) ? String(v) : '';
+      const arr = v => Array.isArray(v) ? v : [];
+      return {
+        headline: str(r.headline, 80), location: str(r.location, 80), about: str(r.about, 500),
+        linkedin: str(r.linkedin, 200), code: str(r.github, 200), website: str(r.website, 200),
+        experience: arr(r.experience).slice(0, 8).map(e => ({
+          title: str(e.title, 80), company: str(e.company, 80), start: ym(e.start),
+          end: e.current ? '' : ym(e.end), current: !!e.current, desc: str(e.desc, 400),
+        })).filter(e => e.title || e.company),
+        skills: [...new Set(arr(r.skills).map(s => str(s, 30)).filter(Boolean))].slice(0, 15),
+        projects: arr(r.projects).slice(0, 5).map(p => ({
+          title: str(p.title, 80), link: str(p.link, 200), role: str(p.role, 80), desc: str(p.desc, 200),
+        })).filter(p => p.title),
+      };
+    }
+
+    function showImportState(state) {
+      $('import-idle').classList.toggle('hidden', state !== 'idle');
+      $('import-busy').classList.toggle('hidden', state !== 'busy');
+      $('import-review').classList.toggle('hidden', state !== 'review');
+    }
+
+    function importError(message) {
+      showImportState('idle');
+      $('import-error').textContent = message;
+      $('import-error').classList.remove('hidden');
+    }
+
+    function resetImport() {
+      importResult = null;
+      $('import-error').classList.add('hidden');
+      showImportState('idle');
+    }
+
+    function cancelImport() {
+      if (importCtl) importCtl.abort();
+      importCtl = null;
+      resetImport();
+    }
+
+    async function handleImportFile(file) {
+      if (!file) return;
+      $('import-error').classList.add('hidden');
+      if (file.size > MAX_IMPORT_BYTES) return importError('That file is over 10 MB. Upload a smaller PDF or Word file.');
+
+      const ctl = importCtl = new AbortController();
+      showImportState('busy');
+      $('import-status').textContent = 'Reading ' + file.name + '…';
+
+      let text;
+      try {
+        text = (await extractText(file)).trim();
+      } catch (e) {
+        if (ctl.signal.aborted) return;
+        return importError(e.message.startsWith('Could not load') ? 'Couldn\'t load the file reader. Check your internet connection and try again.' : e.message || 'That file couldn\'t be read. Try a PDF or .docx file.');
+      }
+      if (ctl.signal.aborted) return;
+      if (text.length < 40) return importError('No text was found in that file. If it\'s a scanned image, upload a PDF exported from Word, Google Docs, or LinkedIn instead.');
+
+      let raw = null, method = 'basic';
+      const sample = await getSample();
+      if (ctl.signal.aborted) return;
+      if (sample) {
+        $('import-status').textContent = 'Claude is picking out your experience and skills…';
+        try {
+          raw = await sample.json(importPrompt(text), { signal: ctl.signal });
+          method = 'claude';
+        } catch (e) {
+          if (e && e.code === 'cancelled') return;
+          raw = null;
+        }
+      }
+      if (ctl.signal.aborted) return;
+      if (!raw) raw = basicParse(text);
+
+      importResult = cleanImport(raw || {});
+      importCtl = null;
+      renderImportReview(method, file.name);
+    }
+
+    function reviewRow(id, checked, labelHtml) {
+      return '<label for="' + id + '" class="flex items-start gap-2.5 cursor-pointer rounded-lg px-2 py-1.5 hover:bg-slate-50">' +
+        '<input id="' + id + '" type="checkbox" class="mt-0.5 w-4 h-4 accent-appleBlue shrink-0"' + (checked ? ' checked' : '') + '>' +
+        '<span class="min-w-0">' + labelHtml + '</span></label>';
+    }
+
+    function fmtMonth(ym) {
+      if (!ym) return '';
+      const [y, m] = ym.split('-');
+      return new Date(+y, +m - 1).toLocaleString('en', { month: 'short' }) + ' ' + y;
+    }
+
+    function renderImportReview(method, fileName) {
+      const r = importResult;
+      const current = collectProfile();
+      const blocks = [];
+
+      const basics = [['headline', 'Headline'], ['location', 'Location'], ['about', 'About'], ['linkedin', 'LinkedIn'], ['code', 'GitHub / Portfolio'], ['website', 'Website']]
+        .filter(([k]) => r[k]);
+      if (basics.length) {
+        blocks.push('<div><p class="pf-label">Basics</p>' + basics.map(([k, label]) =>
+          reviewRow('imp-basic-' + k, !current[k],
+            '<span class="font-medium text-slate-800">' + label + ':</span> <span class="text-slate-600 break-words">' + esc(r[k].length > 140 ? r[k].slice(0, 140) + '…' : r[k]) + '</span>' +
+            (current[k] ? ' <span class="pf-hint">(replaces what you have)</span>' : ''))
+        ).join('') + '</div>');
+      }
+
+      if (r.experience.length) {
+        const have = current.experience.map(e => (e.title + '|' + e.company).toLowerCase());
+        blocks.push('<div><p class="pf-label">Work experience</p>' + r.experience.map((e, i) => {
+          const dup = have.includes((e.title + '|' + e.company).toLowerCase());
+          const dates = [fmtMonth(e.start), e.current ? 'Present' : fmtMonth(e.end)].filter(Boolean).join(' – ');
+          return reviewRow('imp-exp-' + i, !dup,
+            '<span class="font-medium text-slate-800">' + esc(e.title || 'Untitled role') + '</span>' + (e.company ? ' · ' + esc(e.company) : '') +
+            (dates ? '<span class="block pf-hint">' + esc(dates) + '</span>' : '') + (dup ? '<span class="block pf-hint">Already on your profile</span>' : ''));
+        }).join('') + '</div>');
+      }
+
+      if (r.skills.length) {
+        const have = current.skills.map(s => s.toLowerCase());
+        blocks.push('<div><p class="pf-label">Skills <span class="pf-hint font-normal">(your profile holds up to ' + MAX_SKILLS + ')</span></p><div class="flex flex-wrap gap-1.5">' +
+          r.skills.map((s, i) => {
+            const dup = have.includes(s.toLowerCase());
+            return '<label class="cursor-pointer"><input type="checkbox" id="imp-skill-' + i + '" class="peer sr-only"' + (dup ? ' disabled' : ' checked') + '><span class="chip' + (dup ? ' opacity-50' : '') + '">' + esc(s) + (dup ? ' ✓' : '') + '</span></label>';
+          }).join('') + '</div></div>');
+      }
+
+      if (r.projects.length) {
+        blocks.push('<div><p class="pf-label">Projects</p>' + r.projects.map((p, i) =>
+          reviewRow('imp-proj-' + i, true, '<span class="font-medium text-slate-800">' + esc(p.title) + '</span>' + (p.desc ? '<span class="block pf-hint">' + esc(p.desc) + '</span>' : ''))
+        ).join('') + '</div>');
+      }
+
+      const counts = [
+        r.experience.length && r.experience.length + ' experience' + (r.experience.length > 1 ? 's' : ''),
+        r.skills.length && r.skills.length + ' skill' + (r.skills.length > 1 ? 's' : ''),
+        r.projects.length && r.projects.length + ' project' + (r.projects.length > 1 ? 's' : ''),
+      ].filter(Boolean);
+
+      if (!blocks.length) {
+        return importError('We couldn\'t find experience, skills, or other details in ' + fileName + '. Try your LinkedIn PDF or a CV with clear section headings.');
+      }
+
+      $('import-summary').textContent = 'Found ' + (counts.length ? counts.join(', ') : 'some details') + ' in ' + fileName;
+      $('import-method').textContent = method === 'claude'
+        ? 'Read by Claude. Untick anything you don\'t want, then add it to your profile.'
+        : 'Read with the basic importer, which can miss or mix up details. Untick anything that looks wrong.';
+      $('import-review-body').innerHTML = blocks.join('');
+      showImportState('review');
+    }
+
+    function applyImport() {
+      const r = importResult;
+      if (!r) return;
+      const isChecked = id => { const el = $(id); return !!el && el.checked && !el.disabled; };
+
+      ['headline', 'location', 'about', 'linkedin', 'code', 'website'].forEach(k => {
+        if (r[k] && isChecked('imp-basic-' + k)) $('pf-' + k).value = r[k];
+      });
+
+      const exps = r.experience.filter((_, i) => isChecked('imp-exp-' + i));
+      if (exps.length) {
+        // Drop the blank starter entry before adding imported ones
+        document.querySelectorAll('#exp-list [data-exp]').forEach(entry => {
+          if (![...entry.querySelectorAll('[data-field]')].some(f => f.type === 'checkbox' ? f.checked : f.value.trim())) entry.remove();
+        });
+        $('exp-list').insertAdjacentHTML('beforeend', exps.map(expHtml).join(''));
+      }
+
+      const newSkills = r.skills.filter((_, i) => isChecked('imp-skill-' + i));
+      const room = MAX_SKILLS - skills.length;
+      newSkills.slice(0, room).forEach(s => { if (!skills.some(x => x.toLowerCase() === s.toLowerCase())) skills.push(s); });
+      const skipped = Math.max(0, newSkills.length - room);
+
+      const projs = r.projects.filter((_, i) => isChecked('imp-proj-' + i));
+      if (projs.length) {
+        document.querySelectorAll('#proj-list [data-proj]').forEach(entry => {
+          if (![...entry.querySelectorAll('[data-field]')].some(f => f.value.trim())) entry.remove();
+        });
+        $('proj-list').insertAdjacentHTML('beforeend', projs.map(projHtml).join(''));
+      }
+
+      renderSkills();
+      updateCounters();
+      updatePreview();
+      resetImport();
+      $('pf-section-basics').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showToast(skipped
+        ? 'Added to your form. ' + skipped + ' skill' + (skipped > 1 ? 's' : '') + ' didn\'t fit the 10-skill limit. Review, then save.'
+        : 'Added to your form. Review the details, then save your profile.');
+    }
+
+    // Drag and drop onto the import area
+    (function wireDrop() {
+      const drop = $('import-drop');
+      ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('border-appleBlue', 'bg-blue-50/40'); }));
+      ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('border-appleBlue', 'bg-blue-50/40'); }));
+      drop.addEventListener('drop', e => handleImportFile(e.dataTransfer.files[0]));
+    })();
 
     // Static chip groups, then live preview wiring
     renderChips('pf-setting', 'pf-setting', 'radio', SETTINGS);

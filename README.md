@@ -8,7 +8,7 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 | --- | --- |
 | `prototype.html` | Current interactive prototype (single file, Tailwind via CDN). Open it in a browser. |
 | `prototype-v1.html` | Earlier design with fuller Matchmaker, Messages, and Profile tabs. |
-| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. |
+| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. |
 
 ## Prototype features
 
@@ -16,6 +16,7 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 - Mandatory track selection (Software Developer or Business Developer) and Terms agreement
 - Log out, and staying logged in after a refresh
 - One-page profile setup: photo, headline, track, location, About, links, work experience, skills, projects, and what you're looking for, with a live preview card and profile strength meter
+- Import from a CV or LinkedIn profile PDF (PDF, .docx, or text): extracts experience, skills, projects, and more, with a review step before anything is added. Uses Claude on the published claude.ai page, or a built-in reader when opened as a local file
 - New sign-ups land on profile setup; returning members land on the Project Feed
 - Project feed with upvotes; Matchmaker and Messages tabs (placeholders)
 
