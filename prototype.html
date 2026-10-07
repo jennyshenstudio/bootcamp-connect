@@ -56,47 +56,79 @@
     }
   </script>
   <style>
-    /* Layout: grouped canvas, solid surfaces, translucent bars (HIG). Light values first, then dark. */
+    /* Layout: Apple Liquid Glass. Ambient color behind everything; floating glass navigation;
+       thicker frosted glass for content so text stays legible. Light values first, then dark. */
     :root {
       color-scheme: light;
-      --bg-grouped: #F2F2F7;
+      --bg-grouped: #EEF0F6;
       --surface: #FFFFFF;
       --surface-2: #F2F2F7;
       --fill: rgba(120, 120, 128, 0.12);
       --fill-2: rgba(120, 120, 128, 0.2);
-      --separator: rgba(60, 60, 67, 0.29);
+      --separator: rgba(60, 60, 67, 0.22);
       --hairline: rgba(60, 60, 67, 0.12);
       --label: #000000;
-      --label-2: rgba(60, 60, 67, 0.78);
+      --label-2: rgba(60, 60, 67, 0.8);
       --label-3: rgba(60, 60, 67, 0.45);
-      --bar-bg: rgba(255, 255, 255, 0.78);
-      --segment-active: #FFFFFF;
-      --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
-      --toast-bg: rgba(28, 28, 30, 0.94);
+      /* Glass material */
+      --glass-nav: rgba(255, 255, 255, 0.52);
+      --glass-card: rgba(255, 255, 255, 0.66);
+      --glass-control: rgba(255, 255, 255, 0.6);
+      --glass-control-hover: rgba(255, 255, 255, 0.8);
+      --glass-field: rgba(118, 118, 128, 0.1);
+      --field-rim: rgba(60, 60, 67, 0.1);
+      --glass-entry: rgba(255, 255, 255, 0.55);
+      --glass-rim: rgba(255, 255, 255, 0.85);
+      --glass-rim-soft: rgba(255, 255, 255, 0.55);
+      --glass-highlight: rgba(255, 255, 255, 0.95);
+      --glass-sheen: rgba(255, 255, 255, 0.55);
+      --glass-shadow: 0 10px 34px rgba(30, 41, 80, 0.12), 0 1px 3px rgba(30, 41, 80, 0.06);
+      --glass-pill: rgba(255, 255, 255, 0.92);
+      --toast-bg: rgba(28, 28, 32, 0.78);
+      /* Ambient light behind the glass */
+      --ambient-1: rgba(0, 122, 255, 0.24);
+      --ambient-2: rgba(175, 82, 222, 0.2);
+      --ambient-3: rgba(52, 199, 89, 0.14);
+      --ambient-4: rgba(255, 149, 0, 0.12);
       --blue: 0 113 227;        --blue-text: 0 102 204;
       --purple: 175 82 222;     --purple-text: 137 68 171;
       --green: 52 199 89;       --green-text: 36 138 61;
       --orange: 255 149 0;      --orange-text: 201 52 0;
       --red: 255 59 48;         --red-text: 215 0 21;
       --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --spring: cubic-bezier(0.34, 1.4, 0.64, 1);
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
         color-scheme: dark;
-        --bg-grouped: #000000;
+        --bg-grouped: #040406;
         --surface: #1C1C1E;
         --surface-2: #2C2C2E;
         --fill: rgba(120, 120, 128, 0.24);
         --fill-2: rgba(120, 120, 128, 0.36);
-        --separator: rgba(84, 84, 88, 0.65);
-        --hairline: rgba(84, 84, 88, 0.45);
+        --separator: rgba(255, 255, 255, 0.14);
+        --hairline: rgba(255, 255, 255, 0.08);
         --label: #FFFFFF;
-        --label-2: rgba(235, 235, 245, 0.72);
-        --label-3: rgba(235, 235, 245, 0.38);
-        --bar-bg: rgba(22, 22, 24, 0.78);
-        --segment-active: #636366;
-        --card-shadow: none;
-        --toast-bg: rgba(58, 58, 60, 0.96);
+        --label-2: rgba(235, 235, 245, 0.74);
+        --label-3: rgba(235, 235, 245, 0.4);
+        --glass-nav: rgba(38, 38, 44, 0.5);
+        --glass-card: rgba(30, 30, 36, 0.62);
+        --glass-control: rgba(255, 255, 255, 0.09);
+        --glass-control-hover: rgba(255, 255, 255, 0.15);
+        --glass-field: rgba(255, 255, 255, 0.07);
+        --field-rim: rgba(255, 255, 255, 0.1);
+        --glass-entry: rgba(255, 255, 255, 0.05);
+        --glass-rim: rgba(255, 255, 255, 0.16);
+        --glass-rim-soft: rgba(255, 255, 255, 0.1);
+        --glass-highlight: rgba(255, 255, 255, 0.22);
+        --glass-sheen: rgba(255, 255, 255, 0.1);
+        --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+        --glass-pill: rgba(255, 255, 255, 0.16);
+        --toast-bg: rgba(60, 60, 66, 0.78);
+        --ambient-1: rgba(10, 132, 255, 0.3);
+        --ambient-2: rgba(191, 90, 242, 0.24);
+        --ambient-3: rgba(48, 209, 88, 0.1);
+        --ambient-4: rgba(255, 159, 10, 0.08);
         --blue: 10 132 255;       --blue-text: 77 163 255;
         --purple: 191 90 242;     --purple-text: 218 143 255;
         --green: 48 209 88;       --green-text: 48 219 91;
@@ -106,20 +138,34 @@
     }
     :root[data-theme="dark"] {
       color-scheme: dark;
-      --bg-grouped: #000000;
+      --bg-grouped: #040406;
       --surface: #1C1C1E;
       --surface-2: #2C2C2E;
       --fill: rgba(120, 120, 128, 0.24);
       --fill-2: rgba(120, 120, 128, 0.36);
-      --separator: rgba(84, 84, 88, 0.65);
-      --hairline: rgba(84, 84, 88, 0.45);
+      --separator: rgba(255, 255, 255, 0.14);
+      --hairline: rgba(255, 255, 255, 0.08);
       --label: #FFFFFF;
-      --label-2: rgba(235, 235, 245, 0.72);
-      --label-3: rgba(235, 235, 245, 0.38);
-      --bar-bg: rgba(22, 22, 24, 0.78);
-      --segment-active: #636366;
-      --card-shadow: none;
-      --toast-bg: rgba(58, 58, 60, 0.96);
+      --label-2: rgba(235, 235, 245, 0.74);
+      --label-3: rgba(235, 235, 245, 0.4);
+      --glass-nav: rgba(38, 38, 44, 0.5);
+      --glass-card: rgba(30, 30, 36, 0.62);
+      --glass-control: rgba(255, 255, 255, 0.09);
+      --glass-control-hover: rgba(255, 255, 255, 0.15);
+      --glass-field: rgba(255, 255, 255, 0.07);
+      --field-rim: rgba(255, 255, 255, 0.1);
+      --glass-entry: rgba(255, 255, 255, 0.05);
+      --glass-rim: rgba(255, 255, 255, 0.16);
+      --glass-rim-soft: rgba(255, 255, 255, 0.1);
+      --glass-highlight: rgba(255, 255, 255, 0.22);
+      --glass-sheen: rgba(255, 255, 255, 0.1);
+      --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+      --glass-pill: rgba(255, 255, 255, 0.16);
+      --toast-bg: rgba(60, 60, 66, 0.78);
+      --ambient-1: rgba(10, 132, 255, 0.3);
+      --ambient-2: rgba(191, 90, 242, 0.24);
+      --ambient-3: rgba(48, 209, 88, 0.1);
+      --ambient-4: rgba(255, 159, 10, 0.08);
       --blue: 10 132 255;       --blue-text: 77 163 255;
       --purple: 191 90 242;     --purple-text: 218 143 255;
       --green: 48 209 88;       --green-text: 48 219 91;
@@ -129,58 +175,103 @@
 
     html, body { height: 100%; }
     body { background: var(--bg-grouped); color: var(--label); -webkit-tap-highlight-color: transparent; }
+    /* Ambient color field: what the glass refracts */
+    body::before {
+      content: ''; position: fixed; inset: -10%; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(40% 45% at 12% 10%, var(--ambient-1), transparent 70%),
+        radial-gradient(38% 42% at 90% 18%, var(--ambient-2), transparent 70%),
+        radial-gradient(42% 40% at 18% 92%, var(--ambient-3), transparent 70%),
+        radial-gradient(36% 38% at 88% 88%, var(--ambient-4), transparent 70%);
+    }
     ::selection { background: rgb(var(--blue) / 0.3); }
     ::placeholder { color: var(--label-3); }
 
-    /* Surfaces */
-    .card { background: var(--surface); border-radius: 16px; box-shadow: var(--card-shadow); border: 0.5px solid var(--hairline); }
-    .entry { background: var(--surface-2); border-radius: 12px; padding: 16px; }
-    .bar {
-      background: var(--surface);
-      border-color: var(--separator);
+    /* ---------- Glass material ---------- */
+    .glass, .card {
+      position: relative; isolation: isolate;
+      border: 1px solid var(--glass-rim-soft);
+      box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight), inset 0 -1px 0 var(--glass-rim-soft);
     }
-    @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-      .bar { background: var(--bar-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
+    /* Specular sheen across the top-left of every glass surface */
+    .glass::after, .card::after {
+      content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+      background: linear-gradient(150deg, var(--glass-sheen) 0%, transparent 38%, transparent 70%, var(--glass-rim-soft) 100%);
+      opacity: 0.7;
+    }
+    .glass { background: var(--glass-nav); border-color: var(--glass-rim);
+      -webkit-backdrop-filter: blur(24px) saturate(190%); backdrop-filter: blur(24px) saturate(190%); }
+    .card { background: var(--glass-card); border-radius: 24px;
+      -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); }
+    .entry { background: var(--glass-entry); border: 1px solid var(--glass-rim-soft); border-radius: 16px; padding: 16px;
+      box-shadow: inset 0 1px 0 var(--glass-highlight); }
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .glass, .card { background: var(--surface); }
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      body::before { display: none; }
+      .glass, .card, .btn-gray, .chip { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: var(--surface) !important; }
+      .glass::after, .card::after { display: none; }
+    }
+    @media (prefers-contrast: more) {
+      .glass, .card { border-color: var(--separator); }
     }
 
-    /* Buttons: capsule, 44pt targets, press feedback */
+    /* ---------- Buttons: capsule glass, 44pt targets, springy press ---------- */
     .btn {
+      position: relative;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       min-height: 44px; padding: 0 20px; border-radius: 9999px;
       font-size: 17px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap;
-      transition: transform 100ms var(--ease), background-color 200ms var(--ease), opacity 200ms var(--ease);
+      transition: transform 250ms var(--spring), background-color 200ms var(--ease), box-shadow 200ms var(--ease);
       cursor: pointer;
     }
-    .btn:active { transform: scale(0.97); }
+    .btn:active { transform: scale(0.96); }
     .btn:focus-visible, .tap:focus-visible { outline: none; box-shadow: 0 0 0 4px rgb(var(--blue) / 0.35); }
-    .btn-primary { background: rgb(var(--blue)); color: #FFFFFF; }
-    .btn-primary:hover { background: rgb(var(--blue) / 0.88); }
-    .btn-secondary { background: rgb(var(--blue) / 0.12); color: rgb(var(--blue-text)); }
-    .btn-secondary:hover { background: rgb(var(--blue) / 0.18); }
-    .btn-gray { background: var(--fill); color: var(--label); }
-    .btn-gray:hover { background: var(--fill-2); }
-    .btn-plain { color: rgb(var(--blue-text)); padding: 0 8px; }
-    .btn-plain:hover { background: rgb(var(--blue) / 0.08); }
+    /* Prominent glass: tinted, lit from the top edge */
+    .btn-primary {
+      color: #FFFFFF;
+      background: linear-gradient(180deg, rgb(var(--blue) / 0.86), rgb(var(--blue)));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.12), 0 6px 18px rgb(var(--blue) / 0.32);
+    }
+    .btn-primary:hover { background: linear-gradient(180deg, rgb(var(--blue) / 0.78), rgb(var(--blue) / 0.94)); }
+    .btn-secondary {
+      color: rgb(var(--blue-text)); background: rgb(var(--blue) / 0.14);
+      box-shadow: inset 0 1px 0 var(--glass-highlight), inset 0 0 0 1px rgb(var(--blue) / 0.18);
+    }
+    .btn-secondary:hover { background: rgb(var(--blue) / 0.2); }
+    /* Regular glass button */
+    .btn-gray {
+      color: var(--label); background: var(--glass-control);
+      border: 1px solid var(--glass-rim-soft);
+      box-shadow: inset 0 1px 0 var(--glass-highlight), 0 2px 8px rgba(0, 0, 0, 0.06);
+      -webkit-backdrop-filter: blur(16px) saturate(170%); backdrop-filter: blur(16px) saturate(170%);
+    }
+    .btn-gray:hover { background: var(--glass-control-hover); }
+    .btn-plain { color: rgb(var(--blue-text)); padding: 0 10px; }
+    .btn-plain:hover { background: rgb(var(--blue) / 0.1); }
     .btn-sm { min-height: 36px; padding: 0 14px; font-size: 15px; }
     @media (pointer: coarse) { .btn-sm { min-height: 44px; } }
 
-    /* Segmented control (iOS) */
-    .segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: 2px; border-radius: 10px; background: var(--fill); }
-    .segmented-btn { min-height: 32px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--label); transition: background-color 200ms var(--ease), box-shadow 200ms var(--ease); white-space: nowrap; }
-    .segmented-btn.active { background: var(--segment-active); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04); }
+    /* ---------- Segmented control: lit glass pill slides between segments ---------- */
+    .segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: 3px; border-radius: 9999px; background: var(--fill); }
+    .segmented-btn { min-height: 32px; padding: 0 16px; border-radius: 9999px; font-size: 13px; font-weight: 600; color: var(--label); transition: background-color 250ms var(--ease), box-shadow 250ms var(--ease); white-space: nowrap; }
+    .segmented-btn.active { background: var(--glass-pill); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 var(--glass-highlight), inset 0 0 0 0.5px var(--glass-rim); }
     .segmented-lg .segmented-btn { min-height: 36px; font-size: 15px; }
 
-    /* Form fields */
+    /* ---------- Form fields: clear glass wells ---------- */
     .pf-label { display: block; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--label); margin-bottom: 6px; }
     .pf-hint { font-size: 13px; line-height: 18px; color: var(--label-2); }
     .pf-error { font-size: 13px; line-height: 18px; font-weight: 500; color: rgb(var(--red-text)); margin-top: 6px; }
     .pf-input {
-      width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 12px;
-      background: var(--fill); border: 1px solid transparent; color: var(--label);
+      width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 14px;
+      background: var(--glass-field); border: 1px solid var(--field-rim); color: var(--label);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
       font-size: 17px; line-height: 22px;
       transition: box-shadow 150ms var(--ease), border-color 150ms var(--ease), background-color 150ms var(--ease);
     }
-    .pf-input:focus, .pf-input:focus-within { outline: none; background: var(--surface); border-color: rgb(var(--blue)); box-shadow: 0 0 0 4px rgb(var(--blue) / 0.3); }
+    .pf-input:focus, .pf-input:focus-within { outline: none; background: var(--glass-control-hover); border-color: rgb(var(--blue)); box-shadow: 0 0 0 4px rgb(var(--blue) / 0.28); }
     .pf-input:disabled { opacity: 0.45; }
     .pf-input.invalid { border-color: rgb(var(--red)); box-shadow: 0 0 0 4px rgb(var(--red) / 0.2); }
     select.pf-input { appearance: none; -webkit-appearance: none; padding-right: 36px;
@@ -188,32 +279,40 @@
       background-repeat: no-repeat; background-position: right 14px center; }
     input[type="checkbox"], input[type="radio"] { accent-color: rgb(var(--blue)); }
 
-    /* Chips (filters, multi-select) */
-    .chip { display: inline-flex; align-items: center; min-height: 32px; padding: 0 14px; border-radius: 9999px; background: var(--fill); color: var(--label); font-size: 15px; font-weight: 500; transition: background-color 150ms var(--ease), color 150ms var(--ease); cursor: pointer; }
-    .chip:hover { background: var(--fill-2); }
-    .peer:checked + .chip { background: rgb(var(--blue)); color: #FFFFFF; }
+    /* ---------- Chips: small glass capsules ---------- */
+    .chip {
+      display: inline-flex; align-items: center; min-height: 32px; padding: 0 14px; border-radius: 9999px;
+      background: var(--glass-control); color: var(--label); font-size: 15px; font-weight: 500;
+      border: 1px solid var(--glass-rim-soft); box-shadow: inset 0 1px 0 var(--glass-highlight);
+      transition: background-color 150ms var(--ease), color 150ms var(--ease), transform 250ms var(--spring); cursor: pointer;
+    }
+    .chip:hover { background: var(--glass-control-hover); }
+    .chip:active { transform: scale(0.96); }
+    .peer:checked + .chip { background: rgb(var(--blue)); color: #FFFFFF; border-color: transparent; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 3px 10px rgb(var(--blue) / 0.3); }
     .peer:focus-visible + .chip { box-shadow: 0 0 0 4px rgb(var(--blue) / 0.35); }
-    .chip-active { background: var(--label); color: var(--surface); }
+    .chip-active { background: var(--label); color: var(--bg-grouped); border-color: transparent; }
     .chip-active:hover { background: var(--label); }
 
     /* Monogram avatar, like iOS Contacts */
-    .avatar { border-radius: 9999px; background: linear-gradient(180deg, #A5ABB8, #858994); color: #FFFFFF; font-weight: 600; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; flex-shrink: 0; }
+    .avatar { border-radius: 9999px; background: linear-gradient(180deg, #A5ABB8, #858994); color: #FFFFFF; font-weight: 600; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; flex-shrink: 0; box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.4); }
 
-    /* Tab bar (phones) */
-    .tab-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; border-top: 0.5px solid var(--separator); padding-bottom: env(safe-area-inset-bottom, 0px); }
-    .tab-item { flex: 1; min-height: 49px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--label-2); font-size: 10px; line-height: 12px; font-weight: 500; }
+    /* ---------- Floating glass tab bar (phones), iOS 26 style ---------- */
+    .tab-bar { position: fixed; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 40; }
+    .tab-item { flex: 1; min-height: 54px; border-radius: 9999px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--label); font-size: 10px; line-height: 12px; font-weight: 600; transition: background-color 250ms var(--ease), color 250ms var(--ease); }
     .tab-item svg { width: 24px; height: 24px; }
-    .tab-item.active { color: rgb(var(--blue-text)); }
+    .tab-item.active { color: rgb(var(--blue-text)); background: var(--glass-pill); box-shadow: inset 0 1px 0 var(--glass-highlight), 0 2px 8px rgba(0, 0, 0, 0.1); }
     .tab-item.active svg { stroke-width: 2.2; }
     .icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
-    .toast { background: var(--toast-bg); color: #FFFFFF; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
-    @media (max-width: 767px) { .toast { bottom: calc(49px + 16px + env(safe-area-inset-bottom, 0px)); } }
+    .toast { background: var(--toast-bg); color: #FFFFFF; bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 30px rgba(0, 0, 0, 0.25); }
+    @media (max-width: 767px) { .toast { bottom: calc(10px + 62px + 14px + env(safe-area-inset-bottom, 0px)); } }
 
     .auth-brand {
       background:
-        radial-gradient(circle at 15% 20%, rgba(0, 113, 227, 0.38), transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(175, 82, 222, 0.30), transparent 45%),
+        radial-gradient(circle at 15% 20%, rgba(0, 113, 227, 0.4), transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(175, 82, 222, 0.32), transparent 45%),
         #0B0B0F;
     }
 
@@ -226,8 +325,15 @@
       #auth-screen .pf-input { min-height: 36px; padding: 6px 12px; font-size: 16px; }
       #auth-screen .btn { min-height: 36px; font-size: 16px; }
       #auth-screen .pf-label { margin-bottom: 3px; }
+      #auth-screen .auth-main { padding-top: 8px !important; padding-bottom: 8px !important; }
+      #auth-screen .auth-card { padding-top: 12px !important; padding-bottom: 12px !important; }
     }
 
+    /* Phones: the form sits straight on the ambient background instead of inside a card */
+    @media (max-width: 639px) {
+      .auth-card { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+      .auth-card::after { display: none; }
+    }
     .no-scrollbar { scrollbar-width: none; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     h1, h2, h3 { text-wrap: balance; }
@@ -303,8 +409,8 @@
     </aside>
 
     <!-- Form panel -->
-    <main class="flex-1 flex items-center justify-center bg-surface px-4 sm:px-8 py-6 [@media(max-height:820px)]:py-3">
-      <div class="w-full max-w-[400px] space-y-4 [@media(max-height:820px)]:space-y-3 [@media(max-height:700px)]:space-y-2">
+    <main class="auth-main flex-1 min-w-0 flex items-center justify-center px-4 sm:px-8 py-6 [@media(max-height:820px)]:py-3">
+      <div class="card auth-card w-full max-w-[440px] p-6 sm:p-7 [@media(max-height:820px)]:py-5 space-y-4 [@media(max-height:820px)]:space-y-3 [@media(max-height:700px)]:space-y-2">
 
         <!-- Compact brand (mobile / tablet) -->
         <div class="lg:hidden flex items-center gap-2.5">
@@ -378,16 +484,16 @@
             <div class="grid grid-cols-2 gap-2">
               <label class="cursor-pointer">
                 <input type="radio" id="track-dev" name="track" value="Software Developer" class="peer sr-only" onchange="clearError('track')">
-                <div class="h-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-fill border-2 border-transparent transition ease-apple hover:bg-fill2 peer-checked:border-appleBlue peer-checked:bg-appleBlue/10 peer-focus-visible:ring-4 peer-focus-visible:ring-appleBlue/30">
+                <div class="h-full flex items-center gap-2 px-2.5 py-2 rounded-2xl bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-appleBlue peer-checked:bg-appleBlue/10 peer-focus-visible:ring-4 peer-focus-visible:ring-appleBlue/30">
                   <svg class="icon w-5 h-5 text-blueText"><use href="#i-laptop"/></svg>
-                  <span class="leading-tight min-w-0"><span class="font-semibold block text-subhead whitespace-nowrap">Software Developer</span><span class="text-footnote text-label-2">Coder / Engineer</span></span>
+                  <span class="leading-tight min-w-0"><span class="font-semibold block text-subhead sm:whitespace-nowrap">Software Developer</span><span class="text-footnote text-label-2">Coder / Engineer</span></span>
                 </div>
               </label>
               <label class="cursor-pointer">
                 <input type="radio" id="track-biz" name="track" value="Business Developer" class="peer sr-only" onchange="clearError('track')">
-                <div class="h-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-fill border-2 border-transparent transition ease-apple hover:bg-fill2 peer-checked:border-applePurple peer-checked:bg-applePurple/10 peer-focus-visible:ring-4 peer-focus-visible:ring-applePurple/30">
+                <div class="h-full flex items-center gap-2 px-2.5 py-2 rounded-2xl bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-applePurple peer-checked:bg-applePurple/10 peer-focus-visible:ring-4 peer-focus-visible:ring-applePurple/30">
                   <svg class="icon w-5 h-5 text-purpleText"><use href="#i-briefcase"/></svg>
-                  <span class="leading-tight min-w-0"><span class="font-semibold block text-subhead whitespace-nowrap">Business Developer</span><span class="text-footnote text-label-2">Growth / Product</span></span>
+                  <span class="leading-tight min-w-0"><span class="font-semibold block text-subhead sm:whitespace-nowrap">Business Developer</span><span class="text-footnote text-label-2">Growth / Product</span></span>
                 </div>
               </label>
             </div>
@@ -416,10 +522,10 @@
   </div>
 
   <!-- ==================== MAIN APP DASHBOARD (HIDDEN UNTIL LOGIN) ==================== -->
-  <div id="app-dashboard" class="hidden opacity-0 transition-opacity duration-500 ease-apple min-h-full bg-canvas">
+  <div id="app-dashboard" class="hidden opacity-0 transition-opacity duration-500 ease-apple min-h-full">
     <!-- Navigation bar (translucent, HIG) -->
-    <header class="bar sticky z-40 border-b px-4 sm:px-6" style="top: env(safe-area-inset-top, 0px)">
-      <div class="max-w-6xl mx-auto h-14 flex items-center justify-between gap-4">
+    <header class="sticky z-40 px-3 sm:px-6 pt-3" style="top: env(safe-area-inset-top, 0px)">
+      <div class="glass max-w-6xl mx-auto h-14 rounded-full pl-3 pr-2 flex items-center justify-between gap-4">
         <div class="flex items-center gap-2.5 min-w-0">
           <div class="w-8 h-8 rounded-[9px] bg-gradient-to-br from-[#0A84FF] to-[#BF5AF2] flex items-center justify-center shrink-0">
             <svg class="w-5 h-5 text-white"><use href="#i-bolt"/></svg>
@@ -447,7 +553,7 @@
     </header>
 
     <!-- CONTENT CONTAINERS -->
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-28 md:pb-16">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-32 md:pb-16">
 
       <p id="welcome-line" class="text-footnote text-label-2 mb-2"></p>
 
@@ -527,7 +633,7 @@
       <section id="tab-profile" class="space-y-5 hidden">
 
         <!-- Onboarding banner (new sign-ups) -->
-        <div id="profile-banner" class="hidden rounded-2xl bg-appleBlue/10 px-5 py-4 flex items-start gap-3">
+        <div id="profile-banner" class="hidden card !bg-appleBlue/10 px-5 py-4 flex items-start gap-3">
           <svg class="icon w-6 h-6 text-blueText mt-0.5"><use href="#i-hand"/></svg>
           <div class="min-w-0">
             <p class="font-semibold text-subhead">Finish your profile so the right people can find you</p>
@@ -552,7 +658,7 @@
               </div>
 
               <div id="import-idle" class="space-y-3">
-                <label id="import-drop" for="pf-import-file" class="flex flex-col items-center justify-center gap-1.5 text-center border-2 border-dashed border-separator hover:border-appleBlue hover:bg-appleBlue/5 rounded-2xl px-4 py-7 cursor-pointer transition ease-apple">
+                <label id="import-drop" for="pf-import-file" class="flex flex-col items-center justify-center gap-1.5 text-center border-2 border-dashed border-separator hover:border-appleBlue hover:bg-appleBlue/5 rounded-[20px] px-4 py-7 cursor-pointer transition ease-apple bg-[var(--glass-entry)]">
                   <svg class="icon w-8 h-8 text-blueText"><use href="#i-doc"/></svg>
                   <span class="text-body font-semibold">Drop your CV here or <span class="text-blueText">choose a file</span></span>
                   <span class="pf-hint">PDF, Word (.docx), or text · up to 10 MB</span>
@@ -573,7 +679,7 @@
                 <p id="import-error" class="pf-error hidden"></p>
               </div>
 
-              <div id="import-busy" class="hidden flex items-center justify-between gap-3 rounded-xl bg-fill px-4 min-h-[52px]">
+              <div id="import-busy" class="hidden entry !py-0 flex items-center justify-between gap-3 min-h-[52px]">
                 <div class="flex items-center gap-3 min-w-0">
                   <span class="w-4 h-4 rounded-full border-2 border-appleBlue border-t-transparent animate-spin shrink-0"></span>
                   <p id="import-status" class="text-subhead truncate">Reading your file…</p>
@@ -582,7 +688,7 @@
               </div>
 
               <div id="import-review" class="hidden space-y-4">
-                <div class="rounded-xl bg-appleGreen/10 px-4 py-3">
+                <div class="entry !bg-appleGreen/10 !py-3">
                   <p id="import-summary" class="text-subhead font-semibold"></p>
                   <p id="import-method" class="text-footnote text-label-2 mt-0.5"></p>
                 </div>
@@ -796,8 +902,8 @@
     </main>
 
     <!-- Tab bar (phones) -->
-    <nav class="bar tab-bar md:hidden" aria-label="Main sections">
-      <div class="flex max-w-lg mx-auto" role="tablist">
+    <nav class="tab-bar md:hidden" aria-label="Main sections">
+      <div class="glass flex max-w-md mx-auto rounded-full p-1.5 gap-1" role="tablist">
         <button onclick="switchTab('feed')" data-tab="feed" class="tab-item active" role="tab"><svg class="icon"><use href="#i-feed"/></svg>Feed</button>
         <button onclick="switchTab('matching')" data-tab="matching" class="tab-item" role="tab"><svg class="icon"><use href="#i-match"/></svg>Matchmaker</button>
         <button onclick="switchTab('chat')" data-tab="chat" class="tab-item" role="tab"><svg class="icon"><use href="#i-chat"/></svg>Messages</button>

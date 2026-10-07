@@ -25,12 +25,12 @@ Accounts and profiles (including photos, resized to 256px) are stored only in th
 
 ## Design
 
-The interface follows Apple's Human Interface Guidelines using the [apple-hig-designer](https://github.com/axiaoge2/apple-hig-designer) skill (MIT, © axiaoge2), installed for Claude Code at `.claude/skills/apple-hig-designer/`:
+The interface follows Apple's Human Interface Guidelines with a **Liquid Glass** look (iOS 26 / macOS Tahoe):
 
-- Apple system colors with automatic dark mode (follows the device setting)
-- iOS type scale (17px body), 8pt spacing grid, 44px touch targets
-- Capsule buttons, solid cards with concentric corner radii, translucent navigation bars
-- Segmented control for sections on tablet and desktop; bottom tab bar on phones
+- [apple-hig-designer](https://github.com/axiaoge2/apple-hig-designer) skill (MIT, © axiaoge2), installed for Claude Code at `.claude/skills/apple-hig-designer/`: system colors, iOS type scale (17px body), 8pt grid, 44px touch targets
+- Liquid Glass rules from Apple's guidance: glass for the floating navigation layer (top bar, phone tab bar, buttons), thicker frosted glass for content cards so text stays legible, no glass stacked on glass
+- Pure-CSS glass (backdrop blur and saturation, top-edge specular highlight, soft sheen) over an ambient color field, so it works in Safari, Chrome, and Firefox; real-refraction libraries such as [liquid-glass-react](https://github.com/rdev/liquid-glass-react) only show refraction in Chrome
+- Automatic dark mode; falls back to solid surfaces when "Reduce transparency" is on
 
 ## Run it
 
