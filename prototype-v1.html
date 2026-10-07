@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bootcamp Connect — Apple Design Prototype</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            appleBlue: '#007AFF',
+            applePurple: '#AF52DE',
+            appleGreen: '#34C759',
+            appleOrange: '#FF9500',
+            appleGray: '#8E8E93',
+            glassBg: 'rgba(255, 255, 255, 0.75)',
+            glassBorder: 'rgba(255, 255, 255, 0.4)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Apple HIG Glassmorphism & Micro-Interactions */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 0 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .segmented-control {
+      background: rgba(120, 120, 128, 0.12);
+      border-radius: 9999px;
+      padding: 3px;
+    }
+    .segmented-btn {
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      border-radius: 9999px;
+    }
+    .segmented-btn.active {
+      background: #FFFFFF;
+      color: #000000;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
+    }
+    .btn-apple-primary {
+      background: #007AFF;
+      color: #FFFFFF;
+      transition: all 0.2s ease;
+    }
+    .btn-apple-primary:hover {
+      background: #0062CC;
+      transform: scale(1.01);
+    }
+    .btn-apple-primary:active {
+      transform: scale(0.98);
+    }
+    .badge-dev {
+      background: rgba(0, 122, 255, 0.12);
+      color: #007AFF;
+      border: 1px solid rgba(0, 122, 255, 0.25);
+    }
+    .badge-biz {
+      background: rgba(175, 82, 222, 0.12);
+      color: #AF52DE;
+      border: 1px solid rgba(175, 82, 222, 0.25);
+    }
+    .match-banner {
+      background: linear-gradient(135deg, rgba(52, 199, 89, 0.15) 0%, rgba(0, 122, 255, 0.15) 100%);
+      border: 1px solid rgba(52, 199, 89, 0.3);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans antialiased selection:bg-appleBlue selection:text-white min-h-screen pb-16">
+
+  <!-- APPLE GLASS NAVIGATION BAR -->
+  <header class="sticky top-0 z-50 glass-nav px-6 py-3.5">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <!-- App Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-appleBlue via-indigo-500 to-applePurple flex items-center justify-center text-white font-bold text-lg shadow-md shadow-appleBlue/20">
+          ⚡
+        </div>
+        <div>
+          <h1 class="font-bold text-lg tracking-tight leading-none">Bootcamp Connect</h1>
+          <p class="text-[11px] text-slate-500 font-medium">Dev & Biz Collaboration Hub</p>
+        </div>
+      </div>
+
+      <!-- Segmented Tab Navigation -->
+      <nav class="segmented-control flex gap-1 text-xs font-semibold text-slate-600">
+        <button onclick="switchTab('feed')" id="nav-feed" class="segmented-btn active px-4 py-1.5 flex items-center gap-1.5">
+          <span>🌐</span> Project Feed
+        </button>
+        <button onclick="switchTab('matching')" id="nav-matching" class="segmented-btn px-4 py-1.5 flex items-center gap-1.5">
+          <span>⚡</span> Matchmaker
+        </button>
+        <button onclick="switchTab('chat')" id="nav-chat" class="segmented-btn px-4 py-1.5 flex items-center gap-1.5">
+          <span>💬</span> Messages
+        </button>
+        <button onclick="switchTab('profile')" id="nav-profile" class="segmented-btn px-4 py-1.5 flex items-center gap-1.5">
+          <span>👤</span> Profile
+        </button>
+      </nav>
+
+      <!-- User Track Status Pill -->
+      <div class="flex items-center gap-2">
+        <span class="badge-dev text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-appleBlue animate-pulse"></span>
+          Software Dev Track
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto px-6 mt-8">
+
+    <!-- ==================== TAB 1: SKOOL-STYLE COMMUNITY PROJECT FEED ==================== -->
+    <section id="tab-feed" class="tab-content space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight">Community Project Feed</h2>
+          <p class="text-sm text-slate-500 mt-0.5">Explore startup ideas, paid contract gigs, and passion projects posted by peers.</p>
+        </div>
+        <button onclick="openPostModal()" class="btn-apple-primary px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm">
+          <span>+</span> Post Project / Idea
+        </button>
+      </div>
+
+      <!-- Filter Pills -->
+      <div class="flex gap-2 text-xs font-medium text-slate-600 overflow-x-auto pb-1">
+        <button class="bg-slate-900 text-white px-3.5 py-1.5 rounded-full">All Posts (12)</button>
+        <button class="bg-white/80 hover:bg-white border border-slate-200 px-3.5 py-1.5 rounded-full">🚀 Co-Founder Ideas</button>
+        <button class="bg-white/80 hover:bg-white border border-slate-200 px-3.5 py-1.5 rounded-full">💼 Paid Gigs</button>
+        <button class="bg-white/80 hover:bg-white border border-slate-200 px-3.5 py-1.5 rounded-full">🎨 Passion Projects</button>
+      </div>
+
+      <!-- Feed Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        <!-- Feed Card 1: Co-Founder Idea -->
+        <div class="glass-card rounded-2xl p-6 transition hover:shadow-lg">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-purple-100 border border-purple-200 text-purple-600 font-bold flex items-center justify-center text-sm">
+                SJ
+              </div>
+              <div>
+                <h4 class="font-semibold text-sm">Sarah Jenkins</h4>
+                <p class="text-xs text-slate-500">Business Developer Track • 2h ago</p>
+              </div>
+            </div>
+            <span class="bg-purple-100 text-purple-700 text-[11px] font-semibold px-2.5 py-1 rounded-full">🚀 Co-Founder Wanted</span>
+          </div>
+
+          <h3 class="font-bold text-base mt-4 text-slate-900">AI Financial Planning Agent for Freelancers</h3>
+          <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            Validated market interest with 45 waitlist signups. Need a Full-Stack Software Dev to build the Next.js + Supabase MVP. Open to equal equity split!
+          </p>
+
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-md">Next.js</span>
+            <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-md">Market Validation</span>
+            <span class="bg-emerald-50 text-emerald-700 text-[11px] px-2.5 py-1 rounded-md font-medium">Equity Share</span>
+          </div>
+
+          <div class="mt-5 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs">
+            <span class="text-slate-500 font-medium">💬 8 interested comments</span>
+            <button class="btn-apple-primary px-3.5 py-1.5 rounded-lg text-xs font-medium">Reach Out / Partner</button>
+          </div>
+        </div>
+
+        <!-- Feed Card 2: Paid Contract Gig -->
+        <div class="glass-card rounded-2xl p-6 transition hover:shadow-lg">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-blue-100 border border-blue-200 text-appleBlue font-bold flex items-center justify-center text-sm">
+                AC
+              </div>
+              <div>
+                <h4 class="font-semibold text-sm">Alex Chen</h4>
+                <p class="text-xs text-slate-500">Software Developer Track • 5h ago</p>
+              </div>
+            </div>
+            <span class="bg-emerald-100 text-emerald-800 text-[11px] font-semibold px-2.5 py-1 rounded-full">💼 Paid Gig ($1,500)</span>
+          </div>
+
+          <h3 class="font-bold text-base mt-4 text-slate-900">Landing Page & Pitch Deck Copywriter Needed</h3>
+          <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            Building a developer tool API. Need a Business Student to refine our messaging, craft the B2B pitch deck, and set up outbound sales emails.
+          </p>
+
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-md">B2B Messaging</span>
+            <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-md">Pitch Deck</span>
+            <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-md font-medium text-slate-900">10 hrs/week</span>
+          </div>
+
+          <div class="mt-5 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs">
+            <span class="text-slate-500 font-medium">💬 3 applications</span>
+            <button class="btn-apple-primary px-3.5 py-1.5 rounded-lg text-xs font-medium">Apply for Contract</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: SMART MATCHMAKER DIRECTORY ==================== -->
+    <section id="tab-matching" class="tab-content space-y-6 hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight">Smart Matchmaker</h2>
+          <p class="text-sm text-slate-500 mt-0.5">Calculated compatibility using complementary hard skills and aligned soft factors.</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="bg-white border border-slate-200 text-xs px-3 py-1.5 rounded-lg font-medium shadow-sm">Filter by Track</button>
+        </div>
+      </div>
+
+      <!-- Candidate Match Cards -->
+      <div class="space-y-4">
+
+        <!-- Candidate 1 -->
+        <div class="glass-card rounded-2xl p-6 transition hover:shadow-md">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+
+            <!-- Bio & Track -->
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-600 text-white font-bold text-xl flex items-center justify-center shadow-md">
+                ER
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-lg">Elena Rostova</h3>
+                  <span class="badge-biz text-xs px-2.5 py-0.5 rounded-full font-medium">Business Dev Track</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Ex-Fintech Analyst • Focus: Market Validation & Growth Strategy</p>
+                <div class="flex gap-3 text-xs text-slate-600 mt-2">
+                  <span>📍 Berlin / Remote</span>
+                  <span>⏱️ 20 hrs/week</span>
+                  <span>🔗 <a href="#" class="text-appleBlue underline">LinkedIn Profile</a></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Match Score Pill -->
+            <div class="flex flex-col items-end justify-center">
+              <div class="bg-emerald-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-sm shadow-emerald-500/20">
+                94% Match Fit
+              </div>
+              <span class="text-[11px] text-slate-400 mt-1">High Complementarity</span>
+            </div>
+          </div>
+
+          <!-- Match Reason Banner (Grounded in Founders Dilemmas) -->
+          <div class="match-banner rounded-xl p-3 mt-4 text-xs text-slate-800 flex items-start gap-2">
+            <span class="text-base">✨</span>
+            <div>
+              <span class="font-bold">Match Reasons:</span> Complementary Skills (Growth Marketing + Your React/Node Stack) • <strong>Aligned Commitment:</strong> Seeking Full-Time Co-Founder • <strong>Shared Risk Profile:</strong> High Uncertainty Comfort.
+            </div>
+          </div>
+
+          <!-- Hard Skills & Soft Factor Scorecard -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-200/60 text-xs">
+            <div>
+              <span class="text-slate-400 uppercase font-semibold text-[10px] tracking-wider">Hard Skill Competencies</span>
+              <div class="flex flex-wrap gap-1.5 mt-1.5">
+                <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md">Financial Modeling</span>
+                <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md">Outbound Sales</span>
+                <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md">Pitching</span>
+              </div>
+            </div>
+            <div>
+              <span class="text-slate-400 uppercase font-semibold text-[10px] tracking-wider">Soft Factors & Style</span>
+              <div class="flex flex-wrap gap-1.5 mt-1.5">
+                <span class="bg-purple-50 text-purple-700 px-2.5 py-1 rounded-md">Motivation: High Growth</span>
+                <span class="bg-purple-50 text-purple-700 px-2.5 py-1 rounded-md">Style: Fast Iteration</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-5 flex justify-end gap-2">
+            <button class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl">View Scorecard</button>
+            <button onclick="handleConnect(this)" class="btn-apple-primary text-xs font-semibold px-4 py-2 rounded-xl">Send Connection Request</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: CONNECTIONS & CHAT ==================== -->
+    <section id="tab-chat" class="tab-content space-y-6 hidden">
+      <div class="glass-card rounded-2xl overflow-hidden grid grid-cols-1 md:grid-cols-3 h-[550px]">
+
+        <!-- Sidebar -->
+        <div class="border-r border-slate-200/70 p-4 space-y-4">
+          <h3 class="font-bold text-sm text-slate-900">Active Connections</h3>
+          <div class="space-y-1">
+            <div class="p-3 bg-white rounded-xl shadow-sm border border-slate-200/60 flex items-center gap-3 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-purple-500 text-white font-bold flex items-center justify-center text-xs">ER</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-baseline">
+                  <h4 class="font-semibold text-xs truncate">Elena Rostova</h4>
+                  <span class="text-[10px] text-slate-400">10:42 AM</span>
+                </div>
+                <p class="text-[11px] text-slate-500 truncate">Sounds great! Let's review the API spec.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Main Window -->
+        <div class="md:col-span-2 flex flex-col justify-between bg-white/40">
+          <!-- Chat Header -->
+          <div class="p-4 border-b border-slate-200/70 flex items-center justify-between glass-nav">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-purple-500 text-white font-bold flex items-center justify-center text-xs">ER</div>
+              <div>
+                <h4 class="font-bold text-xs">Elena Rostova</h4>
+                <p class="text-[10px] text-emerald-600 font-medium">● Active Now • 94% Match Fit</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Messages Body -->
+          <div class="p-4 space-y-3 overflow-y-auto text-xs">
+            <div class="flex justify-start">
+              <div class="bg-slate-200 text-slate-800 p-3 rounded-2xl rounded-tl-none max-w-xs">
+                Hey! Saw your profile on Bootcamp Connect. Loved your project submission for the AI Finance app.
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <div class="bg-appleBlue text-white p-3 rounded-2xl rounded-tr-none max-w-xs">
+                Thanks Elena! I saw your experience in market validation—exactly what I need to turn this prototype into a real product.
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="p-3 border-t border-slate-200/70 flex gap-2 glass-nav">
+            <input type="text" placeholder="Type an iMessage style note..." class="flex-1 text-xs px-4 py-2.5 rounded-full bg-slate-100 border-none focus:outline-none focus:ring-2 focus:ring-appleBlue">
+            <button class="btn-apple-primary px-4 py-2.5 rounded-full text-xs font-semibold">Send</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: PROFILE SETUP & SCORECARD ==================== -->
+    <section id="tab-profile" class="tab-content space-y-6 hidden">
+      <div class="glass-card rounded-2xl p-6 max-w-2xl mx-auto space-y-6">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight">My Scorecard Profile</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Manage your hard credentials and soft cultural preferences.</p>
+        </div>
+
+        <div class="space-y-4 text-xs">
+          <div>
+            <label class="font-semibold block mb-1">Track Selection</label>
+            <select class="w-full p-2.5 rounded-xl border border-slate-200 bg-white font-medium">
+              <option selected>Software Developer Track</option>
+              <option>Business Developer Track</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-semibold block mb-1">GitHub / Portfolio Link</label>
+            <input type="url" value="https://github.com/alexchen-dev" class="w-full p-2.5 rounded-xl border border-slate-200 bg-white">
+          </div>
+
+          <div>
+            <label class="font-semibold block mb-1">Primary Motivation (Noam Wasserman Framework)</label>
+            <div class="grid grid-cols-2 gap-2 mt-1">
+              <button class="p-3 rounded-xl border-2 border-appleBlue bg-blue-50/50 text-left">
+                <div class="font-bold text-appleBlue">Wealth & High Growth</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Focus on building maximum venture value</div>
+              </button>
+              <button class="p-3 rounded-xl border border-slate-200 bg-white text-left opacity-60">
+                <div class="font-bold text-slate-800">Control & Independence</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Focus on indie ownership & lifestyle</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-200/60 flex justify-end">
+          <button class="btn-apple-primary px-5 py-2.5 rounded-xl text-xs font-semibold">Save Scorecard Changes</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT FOR INTERACTIVITY -->
+  <script>
+    function switchTab(tabId) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      // Remove active state from nav buttons
+      document.querySelectorAll('.segmented-btn').forEach(btn => btn.classList.remove('active'));
+
+      // Show target tab
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+      // Highlight nav button
+      document.getElementById('nav-' + tabId).classList.add('active');
+    }
+
+    function handleConnect(btn) {
+      btn.innerText = "✓ Request Sent";
+      btn.classList.remove('btn-apple-primary');
+      btn.classList.add('bg-slate-200', 'text-slate-700', 'cursor-default');
+    }
+
+    function openPostModal() {
+      alert("Modal Trigger: In the full app, this opens the project posting form!");
+    }
+  </script>
+</body>
+</html>

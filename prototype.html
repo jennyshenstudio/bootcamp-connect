@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Bootcamp Connect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            appleBlue: '#007AFF',
+            applePurple: '#AF52DE',
+            appleGreen: '#34C759',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Single light look (Apple-style), set explicitly so it reads the same on any host theme */
+    :root { color-scheme: light; }
+    html, body { height: 100%; }
+    body { background: #F1F5F9; color: #0F172A; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+    }
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(25px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .segmented-btn.active {
+      background: #FFFFFF;
+      color: #000000;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    }
+    .auth-brand {
+      background:
+        radial-gradient(circle at 15% 20%, rgba(0, 122, 255, 0.35), transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(175, 82, 222, 0.30), transparent 45%),
+        #0B1120;
+    }
+    /* Keep the full sign-up form on one screen on short laptop windows */
+    @media (max-height: 700px) {
+      #auth-screen input:not([type=radio]):not([type=checkbox]),
+      #auth-screen button { padding-top: 0.4rem; padding-bottom: 0.4rem; }
+    }
+    .no-scrollbar { scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body class="h-full text-slate-900 font-sans antialiased">
+
+  <!-- ==================== AUTH: FULL-PAGE SIGN UP / LOG IN (specs/01-auth.md) ==================== -->
+  <div id="auth-screen" class="min-h-full flex transition-opacity duration-300">
+
+    <!-- Brand panel (desktop) -->
+    <aside class="auth-brand hidden lg:flex lg:w-1/2 xl:w-[55%] flex-col justify-between p-12 xl:p-16 text-white">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-appleBlue to-applePurple font-bold text-xl flex items-center justify-center shadow-lg shadow-appleBlue/30">⚡</div>
+        <div>
+          <p class="font-bold text-lg leading-none">Bootcamp Connect</p>
+          <p class="text-[11px] text-slate-400 mt-1">Dev &amp; Biz Collaboration Hub</p>
+        </div>
+      </div>
+
+      <div class="max-w-lg space-y-8">
+        <h1 class="text-4xl xl:text-5xl font-bold tracking-tight leading-[1.1]" style="text-wrap: balance">
+          Where bootcamp coders and business builders team up.
+        </h1>
+        <p class="text-slate-300 text-base leading-relaxed">
+          Post an idea, pick up a paid gig, or find a co-founder whose skills complement yours.
+        </p>
+
+        <!-- Example match card -->
+        <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur p-5 space-y-3">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-600 font-bold text-sm flex items-center justify-center">ER</div>
+              <div>
+                <p class="font-semibold text-sm">Elena Rostova</p>
+                <p class="text-[11px] text-slate-400">Business Dev Track · Berlin / Remote</p>
+              </div>
+            </div>
+            <span class="bg-emerald-500 text-white text-[11px] font-bold px-3 py-1 rounded-full">94% Match Fit</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Growth marketing + your React/Node stack · Both seeking a full-time co-founder · High uncertainty comfort
+          </p>
+        </div>
+      </div>
+
+      <ul class="flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-400">
+        <li>🌐 Project Feed</li>
+        <li>⚡ Smart Matchmaker</li>
+        <li>💬 Direct Messages</li>
+      </ul>
+    </aside>
+
+    <!-- Form panel -->
+    <main class="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 py-4">
+      <div class="w-full max-w-md space-y-4 [@media(max-height:700px)]:space-y-3">
+
+        <!-- Compact brand (mobile / tablet) -->
+        <div class="lg:hidden flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-appleBlue to-applePurple text-white font-bold text-base flex items-center justify-center">⚡</div>
+          <p class="font-bold text-base">Bootcamp Connect</p>
+        </div>
+
+        <div class="space-y-0.5">
+          <h2 id="auth-title" class="text-2xl font-bold tracking-tight">Create your account</h2>
+          <p id="auth-subtitle" class="text-sm text-slate-500 [@media(max-height:760px)]:hidden">Join to collaborate on projects, find co-founders, and share ideas.</p>
+        </div>
+
+        <!-- Sign up / Log in switch -->
+        <div class="bg-slate-200/80 p-1 rounded-full grid grid-cols-2 text-sm font-semibold" role="tablist">
+          <button type="button" id="mode-signup" onclick="setAuthMode('signup')" class="segmented-btn active py-1.5 rounded-full transition" role="tab">Sign up</button>
+          <button type="button" id="mode-login" onclick="setAuthMode('login')" class="segmented-btn py-1.5 rounded-full transition text-slate-600" role="tab">Log in</button>
+        </div>
+
+        <!-- Google SSO -->
+        <button type="button" onclick="handleGoogle()" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 text-slate-800 font-semibold py-2.5 rounded-xl text-sm transition shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-appleBlue">
+          <svg class="w-5 h-5" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
+            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+            <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+            <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-3 text-xs text-slate-400 font-medium">
+          <div class="flex-1 h-px bg-slate-200"></div>
+          <span id="divider-text">or sign up with email</span>
+          <div class="flex-1 h-px bg-slate-200"></div>
+        </div>
+
+        <!-- Form-level message (e.g. account not found) -->
+        <p id="auth-error" class="hidden text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3"></p>
+
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)" novalidate class="space-y-3 text-sm">
+          <div data-signup-only class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="first-name" class="font-semibold text-slate-700 text-xs block mb-1">First Name</label>
+              <input id="first-name" type="text" autocomplete="given-name" placeholder="Alex" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-appleBlue">
+            </div>
+            <div>
+              <label for="last-name" class="font-semibold text-slate-700 text-xs block mb-1">Last Name</label>
+              <input id="last-name" type="text" autocomplete="family-name" placeholder="Chen" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-appleBlue">
+            </div>
+          </div>
+
+          <div>
+            <label for="email" class="font-semibold text-slate-700 text-xs block mb-1">Email Address</label>
+            <input id="email" type="email" required autocomplete="email" placeholder="you@bootcamp.edu" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-appleBlue">
+          </div>
+
+          <div>
+            <div class="flex items-baseline justify-between mb-1">
+              <label for="password" class="font-semibold text-slate-700 text-xs">Password</label>
+              <button type="button" data-login-only onclick="showForgot()" class="hidden text-xs text-appleBlue font-medium hover:underline">Forgot password?</button>
+            </div>
+            <input id="password" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-appleBlue">
+            <p id="forgot-note" class="hidden text-xs text-slate-500 mt-1.5">Password reset emails aren't part of this prototype yet.</p>
+          </div>
+
+          <!-- Track Selection (sign up only, mandatory, nothing pre-selected) -->
+          <fieldset data-signup-only>
+            <legend class="font-semibold text-slate-700 text-xs block mb-1">Select Your Bootcamp Track</legend>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" id="track-dev" name="track" value="Software Developer" class="peer sr-only" onchange="clearError('track')">
+                <div class="h-full flex items-center gap-2.5 px-3 py-2 rounded-xl border-2 border-slate-200 bg-white transition hover:border-appleBlue/50 peer-checked:border-appleBlue peer-checked:bg-blue-50 peer-focus-visible:ring-2 peer-focus-visible:ring-appleBlue">
+                  <span class="text-xl">💻</span>
+                  <span class="leading-tight"><span class="font-bold text-slate-800 block text-xs sm:text-sm">Software Developer</span><span class="text-[11px] text-slate-500">Coder / Engineer</span></span>
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" id="track-biz" name="track" value="Business Developer" class="peer sr-only" onchange="clearError('track')">
+                <div class="h-full flex items-center gap-2.5 px-3 py-2 rounded-xl border-2 border-slate-200 bg-white transition hover:border-applePurple/50 peer-checked:border-applePurple peer-checked:bg-purple-50 peer-focus-visible:ring-2 peer-focus-visible:ring-applePurple">
+                  <span class="text-xl">💼</span>
+                  <span class="leading-tight"><span class="font-bold text-slate-800 block text-xs sm:text-sm">Business Developer</span><span class="text-[11px] text-slate-500">Growth / Product</span></span>
+                </div>
+              </label>
+            </div>
+            <p id="track-error" class="hidden text-red-600 font-medium mt-1.5 text-xs">Please select your bootcamp track to continue.</p>
+          </fieldset>
+
+          <!-- Terms & Privacy (sign up only, mandatory) -->
+          <div data-signup-only>
+            <label class="flex items-start gap-2 cursor-pointer text-slate-600">
+              <input id="terms" type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-appleBlue" onchange="clearError('terms')">
+              <span>I agree to the <a href="#" class="text-appleBlue font-medium underline">Terms of Service</a> &amp; <a href="#" class="text-appleBlue font-medium underline">Privacy Policy</a></span>
+            </label>
+            <p id="terms-error" class="hidden text-red-600 font-medium mt-1.5 text-xs">You must agree to the Terms of Service &amp; Privacy Policy.</p>
+          </div>
+
+          <button id="auth-submit" type="submit" class="w-full bg-appleBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-md shadow-appleBlue/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-appleBlue">
+            Create account &amp; enter dashboard →
+          </button>
+        </form>
+
+        <p class="text-[11px] text-slate-400 leading-relaxed border-t border-slate-100 pt-3">
+          Prototype: accounts are saved only in this browser and nothing is sent to a server. Please don't use a real password.
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== MAIN APP DASHBOARD (HIDDEN UNTIL LOGIN) ==================== -->
+  <div id="app-dashboard" class="hidden opacity-0 transition-opacity duration-500 min-h-full bg-slate-100">
+    <!-- GLASS NAVIGATION BAR -->
+    <header class="sticky z-40 glass-nav px-4 sm:px-6 py-3" style="top: env(safe-area-inset-top, 0px)">
+      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-appleBlue to-applePurple text-white font-bold text-lg flex items-center justify-center">
+            ⚡
+          </div>
+          <div>
+            <h1 class="font-bold text-base leading-none">Bootcamp Connect</h1>
+            <p class="text-[10px] text-slate-500">Community & Matching Feed</p>
+          </div>
+        </div>
+
+        <!-- Segmented Tab Controls -->
+        <nav class="order-last md:order-none w-full md:w-auto overflow-x-auto no-scrollbar">
+          <div class="bg-slate-200/80 p-1 rounded-full inline-flex gap-1 text-xs font-semibold whitespace-nowrap">
+            <button onclick="switchTab('feed')" id="btn-feed" class="segmented-btn active px-4 py-1.5 rounded-full transition">🌐 Project Feed</button>
+            <button onclick="switchTab('matching')" id="btn-matching" class="segmented-btn px-4 py-1.5 rounded-full transition">⚡ Matchmaker</button>
+            <button onclick="switchTab('chat')" id="btn-chat" class="segmented-btn px-4 py-1.5 rounded-full transition">💬 Messages</button>
+            <button onclick="switchTab('profile')" id="btn-profile" class="segmented-btn px-4 py-1.5 rounded-full transition">👤 Scorecard Profile</button>
+          </div>
+        </nav>
+
+        <!-- Current user + Log out -->
+        <div class="flex items-center gap-2">
+          <div id="user-pill" class="hidden sm:block text-xs bg-blue-100 border border-blue-200 text-appleBlue px-3 py-1 rounded-full font-medium">
+            💻 Software Dev Track
+          </div>
+          <div id="user-avatar" title="" class="w-8 h-8 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">AC</div>
+          <button onclick="logout()" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-appleBlue">
+            Log out
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT CONTAINERS -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 mt-8 pb-16">
+
+      <p id="welcome-line" class="text-sm text-slate-500 mb-4"></p>
+
+      <!-- TAB 1: COMMUNITY PROJECT FEED -->
+      <section id="tab-feed" class="space-y-6">
+        <div class="flex flex-wrap justify-between items-center gap-3">
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight">Community Project Feed</h2>
+            <p class="text-xs text-slate-500">Post ideas, find contract gigs, and build reputation.</p>
+          </div>
+          <button onclick="showToast('Posting form coming soon: project title, details, and tags.')" class="bg-appleBlue text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm">+ Create Post</button>
+        </div>
+
+        <!-- Tag Taxonomy Filter Bar -->
+        <div class="flex gap-2 text-xs overflow-x-auto pb-1">
+          <button class="bg-slate-900 text-white px-3 py-1.5 rounded-full font-medium whitespace-nowrap">All Tags</button>
+          <button class="bg-white border border-slate-200 px-3 py-1.5 rounded-full font-medium whitespace-nowrap">🚀 Co-Founder Wanted</button>
+          <button class="bg-white border border-slate-200 px-3 py-1.5 rounded-full font-medium whitespace-nowrap">💼 Paid Gig</button>
+          <button class="bg-white border border-slate-200 px-3 py-1.5 rounded-full font-medium whitespace-nowrap">track:software-dev</button>
+          <button class="bg-white border border-slate-200 px-3 py-1.5 rounded-full font-medium whitespace-nowrap">domain:ai-llm</button>
+        </div>
+
+        <!-- Feed Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Post 1 -->
+          <div class="glass-card rounded-2xl p-6 space-y-4">
+            <div class="flex justify-between items-start gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-xs">SJ</div>
+                <div>
+                  <h4 class="font-bold text-xs">Sarah Jenkins</h4>
+                  <p class="text-[10px] text-slate-400">Business Dev Track • 2h ago</p>
+                </div>
+              </div>
+              <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">🚀 Co-Founder Wanted</span>
+            </div>
+
+            <h3 class="font-bold text-sm text-slate-900">AI Financial Planning Agent for Freelancers</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Validated market interest with 45 waitlist signups. Need a Full-Stack Software Dev to build the Next.js + Supabase MVP. Open to equal equity split!
+            </p>
+
+            <!-- Structured Taxonomy Tags -->
+            <div class="flex flex-wrap gap-1 text-[10px]">
+              <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-mono">domain:ai-llm</span>
+              <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-mono">track:software-dev</span>
+              <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-medium">comp:equity-share</span>
+            </div>
+
+            <div class="pt-3 border-t border-slate-200/60 flex justify-between items-center text-xs">
+              <button onclick="upvotePost(this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
+                <span>🔥</span> <span class="upvote-count">14</span> Points
+              </button>
+              <button class="text-appleBlue font-semibold">Reply / Partner →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: MATCHMAKER DIRECTORY -->
+      <section id="tab-matching" class="space-y-6 hidden">
+        <h2 class="text-2xl font-bold">Smart Matchmaker Directory</h2>
+        <div class="glass-card rounded-2xl p-6">
+          <p class="text-xs text-slate-600">Displays candidate scorecards grounded in <em>Who</em> competency models and <em>The Founder's Dilemmas</em> alignment.</p>
+        </div>
+      </section>
+
+      <!-- TAB 3: MESSAGES -->
+      <section id="tab-chat" class="space-y-6 hidden">
+        <h2 class="text-2xl font-bold">Direct Messaging</h2>
+        <div class="glass-card rounded-2xl p-6">
+          <p class="text-xs text-slate-600">Private messaging thread unlocked via mutual connection requests.</p>
+        </div>
+      </section>
+
+      <!-- TAB 4: PROFILE SCORECARD -->
+      <section id="tab-profile" class="space-y-6 hidden">
+        <h2 class="text-2xl font-bold">Scorecard Profile Setup</h2>
+        <div class="glass-card rounded-2xl p-6">
+          <p class="text-xs text-slate-600">Edit hard credentials, GitHub links, and soft factors (Motivation: Wealth vs. Control).</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg" style="bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px))"></div>
+
+  <script>
+    // ---------- Local prototype storage (this browser only) ----------
+    const ACCOUNTS_KEY = 'bc_accounts';
+    const SESSION_KEY = 'bc_session';
+
+    function load(key, fallback) {
+      try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; }
+    }
+    function save(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+    }
+    function remove(key) {
+      try { localStorage.removeItem(key); } catch {}
+    }
+
+    // Passwords are never stored; only profile details
+    function getAccounts() { return load(ACCOUNTS_KEY, {}); }
+    function saveAccount(account) {
+      const accounts = getAccounts();
+      accounts[account.email] = account;
+      save(ACCOUNTS_KEY, accounts);
+    }
+
+    // ---------- Auth (specs/01-auth.md) ----------
+    let authMode = 'signup';
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      const isSignup = mode === 'signup';
+      document.getElementById('mode-signup').classList.toggle('active', isSignup);
+      document.getElementById('mode-signup').classList.toggle('text-slate-600', !isSignup);
+      document.getElementById('mode-login').classList.toggle('active', !isSignup);
+      document.getElementById('mode-login').classList.toggle('text-slate-600', isSignup);
+      document.querySelectorAll('[data-signup-only]').forEach(el => el.classList.toggle('hidden', !isSignup));
+      document.querySelectorAll('[data-login-only]').forEach(el => el.classList.toggle('hidden', isSignup));
+      document.getElementById('auth-title').textContent = isSignup ? 'Create your account' : 'Welcome back';
+      document.getElementById('auth-subtitle').textContent = isSignup
+        ? 'Join to collaborate on projects, find co-founders, and share ideas.'
+        : 'Log in to pick up where you left off.';
+      document.getElementById('divider-text').textContent = isSignup ? 'or sign up with email' : 'or log in with email';
+      document.getElementById('auth-submit').textContent = isSignup ? 'Create account & enter dashboard →' : 'Log in →';
+      const pw = document.getElementById('password');
+      pw.autocomplete = isSignup ? 'new-password' : 'current-password';
+      pw.placeholder = isSignup ? 'At least 8 characters' : 'Your password';
+      document.getElementById('first-name').required = isSignup;
+      document.getElementById('last-name').required = isSignup;
+      document.getElementById('forgot-note').classList.add('hidden');
+      hideFormError();
+      clearError('track');
+      clearError('terms');
+    }
+
+    function getSelectedTrack() {
+      const checked = document.querySelector('input[name="track"]:checked');
+      return checked ? checked.value : null;
+    }
+
+    function showError(field) { document.getElementById(field + '-error').classList.remove('hidden'); }
+    function clearError(field) { document.getElementById(field + '-error').classList.add('hidden'); }
+
+    function showFormError(html) {
+      const el = document.getElementById('auth-error');
+      el.innerHTML = html;
+      el.classList.remove('hidden');
+    }
+    function hideFormError() { document.getElementById('auth-error').classList.add('hidden'); }
+
+    function showForgot() { document.getElementById('forgot-note').classList.remove('hidden'); }
+
+    // Track + Terms are required for any sign-up (Google or email)
+    function validateTrackAndTerms() {
+      let ok = true;
+      if (!getSelectedTrack()) { showError('track'); ok = false; }
+      if (!document.getElementById('terms').checked) { showError('terms'); ok = false; }
+      if (!ok) {
+        const firstError = document.querySelector('#auth-form p[id$="-error"]:not(.hidden)');
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return ok;
+    }
+
+    function handleGoogle() {
+      // Prototype: simulates a successful Google OAuth round-trip
+      hideFormError();
+      const googleAccount = Object.values(getAccounts()).find(a => a.provider === 'google');
+
+      if (authMode === 'login') {
+        if (googleAccount) return enterDashboard(googleAccount);
+        showFormError('No Google account is linked yet. <button type="button" class="underline font-semibold" onclick="setAuthMode(\'signup\')">Sign up</button>, pick your track, then choose Continue with Google.');
+        return;
+      }
+
+      if (!validateTrackAndTerms()) return;
+      const first = document.getElementById('first-name').value.trim() || 'Google';
+      const last = document.getElementById('last-name').value.trim() || 'User';
+      const account = { email: 'google-user@gmail.com', first, last, track: getSelectedTrack(), provider: 'google' };
+      saveAccount(account);
+      enterDashboard(account);
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      hideFormError();
+      const form = e.target;
+      const email = document.getElementById('email').value.trim().toLowerCase();
+
+      if (authMode === 'login') {
+        if (!form.reportValidity()) return;
+        const account = getAccounts()[email];
+        if (!account) {
+          showFormError('No account found for <strong>' + escapeHtml(email) + '</strong>. Check the spelling or <button type="button" class="underline font-semibold" onclick="setAuthMode(\'signup\')">create an account</button>.');
+          return;
+        }
+        return enterDashboard(account);
+      }
+
+      const trackAndTermsOk = validateTrackAndTerms();
+      if (!form.reportValidity() || !trackAndTermsOk) return;
+      if (getAccounts()[email]) {
+        showFormError('An account with this email already exists. <button type="button" class="underline font-semibold" onclick="setAuthMode(\'login\')">Log in instead</button>.');
+        return;
+      }
+      const account = {
+        email,
+        first: document.getElementById('first-name').value.trim(),
+        last: document.getElementById('last-name').value.trim(),
+        track: getSelectedTrack(),
+        provider: 'email',
+      };
+      saveAccount(account);
+      enterDashboard(account);
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function renderUser(account) {
+      const pill = document.getElementById('user-pill');
+      const base = 'hidden sm:block text-xs px-3 py-1 rounded-full font-medium border ';
+      if (account.track === 'Business Developer') {
+        pill.className = base + 'bg-purple-100 border-purple-200 text-applePurple';
+        pill.textContent = '💼 Business Dev Track';
+      } else {
+        pill.className = base + 'bg-blue-100 border-blue-200 text-appleBlue';
+        pill.textContent = '💻 Software Dev Track';
+      }
+      const avatar = document.getElementById('user-avatar');
+      avatar.textContent = ((account.first[0] || '') + (account.last[0] || '')).toUpperCase() || '?';
+      avatar.title = account.first + ' ' + account.last + ' · ' + account.email;
+      document.getElementById('welcome-line').textContent = 'Signed in as ' + account.first + ' ' + account.last + ' (' + account.email + ')';
+    }
+
+    function enterDashboard(account, { animate = true } = {}) {
+      save(SESSION_KEY, account.email);
+      document.getElementById('toast').classList.add('hidden');
+      renderUser(account);
+      switchTab('feed');
+
+      const auth = document.getElementById('auth-screen');
+      const dashboard = document.getElementById('app-dashboard');
+      if (!animate) {
+        auth.classList.add('hidden');
+        dashboard.classList.remove('hidden', 'opacity-0');
+        return;
+      }
+      auth.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        auth.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        window.scrollTo(0, 0);
+        requestAnimationFrame(() => requestAnimationFrame(() => dashboard.classList.remove('opacity-0')));
+      }, 300);
+    }
+
+    function logout() {
+      const email = load(SESSION_KEY, '');
+      remove(SESSION_KEY);
+
+      const auth = document.getElementById('auth-screen');
+      const dashboard = document.getElementById('app-dashboard');
+      dashboard.classList.add('opacity-0');
+      setTimeout(() => {
+        dashboard.classList.add('hidden');
+        document.getElementById('auth-form').reset();
+        setAuthMode('login');
+        if (email && !email.startsWith('google-user')) document.getElementById('email').value = email;
+        auth.classList.remove('hidden');
+        window.scrollTo(0, 0);
+        requestAnimationFrame(() => requestAnimationFrame(() => auth.classList.remove('opacity-0', 'pointer-events-none')));
+        showToast("You've been logged out.");
+      }, 300);
+    }
+
+    // ---------- App ----------
+    function switchTab(tabName) {
+      ['feed', 'matching', 'chat', 'profile'].forEach(tab => {
+        document.getElementById('tab-' + tab).classList.add('hidden');
+        document.getElementById('btn-' + tab).classList.remove('active');
+      });
+      document.getElementById('tab-' + tabName).classList.remove('hidden');
+      document.getElementById('btn-' + tabName).classList.add('active');
+    }
+
+    function upvotePost(btn) {
+      let countEl = btn.querySelector('.upvote-count');
+      countEl.innerText = parseInt(countEl.innerText) + 1;
+      btn.classList.add('bg-orange-100', 'text-orange-600');
+    }
+
+    let toastTimer;
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.add('hidden'), 2800);
+    }
+
+    // Restore an existing session in this browser
+    (function init() {
+      setAuthMode('signup');
+      const email = load(SESSION_KEY, '');
+      const account = email && getAccounts()[email];
+      if (account) enterDashboard(account, { animate: false });
+    })();
+  </script>
+</body>
+</html>
