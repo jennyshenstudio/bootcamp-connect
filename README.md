@@ -23,6 +23,15 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 
 Accounts and profiles (including photos, resized to 256px) are stored only in the viewer's browser (`localStorage`); there is no backend yet, and passwords are not stored or checked.
 
+## Design
+
+The interface follows Apple's Human Interface Guidelines using the [apple-hig-designer](https://github.com/axiaoge2/apple-hig-designer) skill (MIT, © axiaoge2), installed for Claude Code at `.claude/skills/apple-hig-designer/`:
+
+- Apple system colors with automatic dark mode (follows the device setting)
+- iOS type scale (17px body), 8pt spacing grid, 44px touch targets
+- Capsule buttons, solid cards with concentric corner radii, translucent navigation bars
+- Segmented control for sections on tablet and desktop; bottom tab bar on phones
+
 ## Run it
 
 Open `prototype.html` in any modern browser. An internet connection is needed for the Tailwind CDN.

@@ -6,145 +6,327 @@
   <title>Bootcamp Connect</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
+    // Design system: Apple Human Interface Guidelines (.claude/skills/apple-hig-designer).
+    // Colors resolve to CSS variables below, so every class follows light and dark mode.
+    const rgb = v => `rgb(var(${v}) / <alpha-value>)`;
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'Inter', 'sans-serif'],
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+            mono: ['"SF Mono"', 'SFMono-Regular', 'ui-monospace', 'Menlo', 'monospace'],
+          },
+          fontSize: {
+            caption2: ['11px', '13px'],
+            caption: ['12px', '16px'],
+            footnote: ['13px', '18px'],
+            subhead: ['15px', '20px'],
+            callout: ['16px', '21px'],
+            body: ['17px', '22px'],
+            title3: ['20px', '25px'],
+            title2: ['22px', '28px'],
+            title1: ['28px', '34px'],
+            largetitle: ['34px', '41px'],
           },
           colors: {
-            appleBlue: '#007AFF',
-            applePurple: '#AF52DE',
-            appleGreen: '#34C759',
-          }
+            canvas: 'var(--bg-grouped)',
+            surface: 'var(--surface)',
+            elevated: 'var(--surface-2)',
+            fill: 'var(--fill)',
+            fill2: 'var(--fill-2)',
+            separator: 'var(--separator)',
+            hairline: 'var(--hairline)',
+            label: 'var(--label)',
+            'label-2': 'var(--label-2)',
+            'label-3': 'var(--label-3)',
+            appleBlue: rgb('--blue'),
+            applePurple: rgb('--purple'),
+            appleGreen: rgb('--green'),
+            appleOrange: rgb('--orange'),
+            appleRed: rgb('--red'),
+            blueText: rgb('--blue-text'),
+            purpleText: rgb('--purple-text'),
+            greenText: rgb('--green-text'),
+            orangeText: rgb('--orange-text'),
+            redText: rgb('--red-text'),
+          },
+          transitionTimingFunction: { apple: 'cubic-bezier(0.25, 0.1, 0.25, 1)' },
         }
       }
     }
   </script>
   <style>
-    /* Single light look (Apple-style), set explicitly so it reads the same on any host theme */
-    :root { color-scheme: light; }
+    /* Layout: grouped canvas, solid surfaces, translucent bars (HIG). Light values first, then dark. */
+    :root {
+      color-scheme: light;
+      --bg-grouped: #F2F2F7;
+      --surface: #FFFFFF;
+      --surface-2: #F2F2F7;
+      --fill: rgba(120, 120, 128, 0.12);
+      --fill-2: rgba(120, 120, 128, 0.2);
+      --separator: rgba(60, 60, 67, 0.29);
+      --hairline: rgba(60, 60, 67, 0.12);
+      --label: #000000;
+      --label-2: rgba(60, 60, 67, 0.78);
+      --label-3: rgba(60, 60, 67, 0.45);
+      --bar-bg: rgba(255, 255, 255, 0.78);
+      --segment-active: #FFFFFF;
+      --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+      --toast-bg: rgba(28, 28, 30, 0.94);
+      --blue: 0 113 227;        --blue-text: 0 102 204;
+      --purple: 175 82 222;     --purple-text: 137 68 171;
+      --green: 52 199 89;       --green-text: 36 138 61;
+      --orange: 255 149 0;      --orange-text: 201 52 0;
+      --red: 255 59 48;         --red-text: 215 0 21;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg-grouped: #000000;
+        --surface: #1C1C1E;
+        --surface-2: #2C2C2E;
+        --fill: rgba(120, 120, 128, 0.24);
+        --fill-2: rgba(120, 120, 128, 0.36);
+        --separator: rgba(84, 84, 88, 0.65);
+        --hairline: rgba(84, 84, 88, 0.45);
+        --label: #FFFFFF;
+        --label-2: rgba(235, 235, 245, 0.72);
+        --label-3: rgba(235, 235, 245, 0.38);
+        --bar-bg: rgba(22, 22, 24, 0.78);
+        --segment-active: #636366;
+        --card-shadow: none;
+        --toast-bg: rgba(58, 58, 60, 0.96);
+        --blue: 10 132 255;       --blue-text: 77 163 255;
+        --purple: 191 90 242;     --purple-text: 218 143 255;
+        --green: 48 209 88;       --green-text: 48 219 91;
+        --orange: 255 159 10;     --orange-text: 255 179 64;
+        --red: 255 69 58;         --red-text: 255 105 97;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg-grouped: #000000;
+      --surface: #1C1C1E;
+      --surface-2: #2C2C2E;
+      --fill: rgba(120, 120, 128, 0.24);
+      --fill-2: rgba(120, 120, 128, 0.36);
+      --separator: rgba(84, 84, 88, 0.65);
+      --hairline: rgba(84, 84, 88, 0.45);
+      --label: #FFFFFF;
+      --label-2: rgba(235, 235, 245, 0.72);
+      --label-3: rgba(235, 235, 245, 0.38);
+      --bar-bg: rgba(22, 22, 24, 0.78);
+      --segment-active: #636366;
+      --card-shadow: none;
+      --toast-bg: rgba(58, 58, 60, 0.96);
+      --blue: 10 132 255;       --blue-text: 77 163 255;
+      --purple: 191 90 242;     --purple-text: 218 143 255;
+      --green: 48 209 88;       --green-text: 48 219 91;
+      --orange: 255 159 10;     --orange-text: 255 179 64;
+      --red: 255 69 58;         --red-text: 255 105 97;
+    }
+
     html, body { height: 100%; }
-    body { background: #F1F5F9; color: #0F172A; }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+    body { background: var(--bg-grouped); color: var(--label); -webkit-tap-highlight-color: transparent; }
+    ::selection { background: rgb(var(--blue) / 0.3); }
+    ::placeholder { color: var(--label-3); }
+
+    /* Surfaces */
+    .card { background: var(--surface); border-radius: 16px; box-shadow: var(--card-shadow); border: 0.5px solid var(--hairline); }
+    .entry { background: var(--surface-2); border-radius: 12px; padding: 16px; }
+    .bar {
+      background: var(--surface);
+      border-color: var(--separator);
     }
-    .glass-nav {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(25px);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .bar { background: var(--bar-bg); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
     }
-    .segmented-btn.active {
-      background: #FFFFFF;
-      color: #000000;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+
+    /* Buttons: capsule, 44pt targets, press feedback */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 44px; padding: 0 20px; border-radius: 9999px;
+      font-size: 17px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap;
+      transition: transform 100ms var(--ease), background-color 200ms var(--ease), opacity 200ms var(--ease);
+      cursor: pointer;
     }
+    .btn:active { transform: scale(0.97); }
+    .btn:focus-visible, .tap:focus-visible { outline: none; box-shadow: 0 0 0 4px rgb(var(--blue) / 0.35); }
+    .btn-primary { background: rgb(var(--blue)); color: #FFFFFF; }
+    .btn-primary:hover { background: rgb(var(--blue) / 0.88); }
+    .btn-secondary { background: rgb(var(--blue) / 0.12); color: rgb(var(--blue-text)); }
+    .btn-secondary:hover { background: rgb(var(--blue) / 0.18); }
+    .btn-gray { background: var(--fill); color: var(--label); }
+    .btn-gray:hover { background: var(--fill-2); }
+    .btn-plain { color: rgb(var(--blue-text)); padding: 0 8px; }
+    .btn-plain:hover { background: rgb(var(--blue) / 0.08); }
+    .btn-sm { min-height: 36px; padding: 0 14px; font-size: 15px; }
+    @media (pointer: coarse) { .btn-sm { min-height: 44px; } }
+
+    /* Segmented control (iOS) */
+    .segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: 2px; border-radius: 10px; background: var(--fill); }
+    .segmented-btn { min-height: 32px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--label); transition: background-color 200ms var(--ease), box-shadow 200ms var(--ease); white-space: nowrap; }
+    .segmented-btn.active { background: var(--segment-active); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04); }
+    .segmented-lg .segmented-btn { min-height: 36px; font-size: 15px; }
+
+    /* Form fields */
+    .pf-label { display: block; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--label); margin-bottom: 6px; }
+    .pf-hint { font-size: 13px; line-height: 18px; color: var(--label-2); }
+    .pf-error { font-size: 13px; line-height: 18px; font-weight: 500; color: rgb(var(--red-text)); margin-top: 6px; }
+    .pf-input {
+      width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 12px;
+      background: var(--fill); border: 1px solid transparent; color: var(--label);
+      font-size: 17px; line-height: 22px;
+      transition: box-shadow 150ms var(--ease), border-color 150ms var(--ease), background-color 150ms var(--ease);
+    }
+    .pf-input:focus, .pf-input:focus-within { outline: none; background: var(--surface); border-color: rgb(var(--blue)); box-shadow: 0 0 0 4px rgb(var(--blue) / 0.3); }
+    .pf-input:disabled { opacity: 0.45; }
+    .pf-input.invalid { border-color: rgb(var(--red)); box-shadow: 0 0 0 4px rgb(var(--red) / 0.2); }
+    select.pf-input { appearance: none; -webkit-appearance: none; padding-right: 36px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%238E8E93' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 7.5l3-3'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center; }
+    input[type="checkbox"], input[type="radio"] { accent-color: rgb(var(--blue)); }
+
+    /* Chips (filters, multi-select) */
+    .chip { display: inline-flex; align-items: center; min-height: 32px; padding: 0 14px; border-radius: 9999px; background: var(--fill); color: var(--label); font-size: 15px; font-weight: 500; transition: background-color 150ms var(--ease), color 150ms var(--ease); cursor: pointer; }
+    .chip:hover { background: var(--fill-2); }
+    .peer:checked + .chip { background: rgb(var(--blue)); color: #FFFFFF; }
+    .peer:focus-visible + .chip { box-shadow: 0 0 0 4px rgb(var(--blue) / 0.35); }
+    .chip-active { background: var(--label); color: var(--surface); }
+    .chip-active:hover { background: var(--label); }
+
+    /* Monogram avatar, like iOS Contacts */
+    .avatar { border-radius: 9999px; background: linear-gradient(180deg, #A5ABB8, #858994); color: #FFFFFF; font-weight: 600; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; flex-shrink: 0; }
+
+    /* Tab bar (phones) */
+    .tab-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; border-top: 0.5px solid var(--separator); padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .tab-item { flex: 1; min-height: 49px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--label-2); font-size: 10px; line-height: 12px; font-weight: 500; }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-item.active { color: rgb(var(--blue-text)); }
+    .tab-item.active svg { stroke-width: 2.2; }
+    .icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+    .toast { background: var(--toast-bg); color: #FFFFFF; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+    @media (max-width: 767px) { .toast { bottom: calc(49px + 16px + env(safe-area-inset-bottom, 0px)); } }
+
     .auth-brand {
       background:
-        radial-gradient(circle at 15% 20%, rgba(0, 122, 255, 0.35), transparent 45%),
+        radial-gradient(circle at 15% 20%, rgba(0, 113, 227, 0.38), transparent 45%),
         radial-gradient(circle at 85% 85%, rgba(175, 82, 222, 0.30), transparent 45%),
-        #0B1120;
+        #0B0B0F;
     }
+
     /* Keep the full sign-up form on one screen on short laptop windows */
-    @media (max-height: 700px) {
-      #auth-screen input:not([type=radio]):not([type=checkbox]),
-      #auth-screen button { padding-top: 0.4rem; padding-bottom: 0.4rem; }
+    @media (max-height: 820px) {
+      #auth-screen .pf-input { min-height: 40px; padding-top: 8px; padding-bottom: 8px; }
+      #auth-screen .btn { min-height: 40px; }
     }
-    /* Profile setup */
-    .pf-label { display: block; font-size: 0.75rem; font-weight: 600; color: #334155; margin-bottom: 0.25rem; }
-    .pf-hint { font-size: 0.6875rem; color: #94A3B8; }
-    .pf-error { font-size: 0.75rem; font-weight: 500; color: #DC2626; margin-top: 0.375rem; }
-    .pf-input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.75rem; border: 1px solid #E2E8F0; background: #F8FAFC; font-size: 0.875rem; color: #0F172A; }
-    .pf-input:focus, .pf-input:focus-within { outline: none; background: #FFFFFF; box-shadow: 0 0 0 2px #007AFF; }
-    .pf-input:disabled { opacity: 0.5; }
-    .pf-input.invalid { border-color: #DC2626; }
-    .chip { display: inline-block; padding: 0.375rem 0.75rem; border-radius: 9999px; border: 1px solid #E2E8F0; background: #FFFFFF; font-size: 0.75rem; font-weight: 500; color: #334155; transition: all 0.15s ease; }
-    .chip:hover { border-color: #94A3B8; }
-    .peer:checked + .chip { background: #007AFF; border-color: #007AFF; color: #FFFFFF; }
-    .peer:focus-visible + .chip { outline: 2px solid #007AFF; outline-offset: 2px; }
-    .avatar { border-radius: 9999px; background: #0F172A; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; }
-    .entry { border: 1px solid #E2E8F0; border-radius: 0.875rem; padding: 1rem; background: #FFFFFF; }
+    @media (max-height: 700px) {
+      #auth-screen .pf-input { min-height: 36px; padding: 6px 12px; font-size: 16px; }
+      #auth-screen .btn { min-height: 36px; font-size: 16px; }
+      #auth-screen .pf-label { margin-bottom: 3px; }
+    }
+
     .no-scrollbar { scrollbar-width: none; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
+    h1, h2, h3 { text-wrap: balance; }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
     }
   </style>
 </head>
-<body class="h-full text-slate-900 font-sans antialiased">
+<body class="h-full font-sans antialiased text-body">
+
+  <!-- SVG symbols (SF Symbols-style outlines) -->
+  <svg width="0" height="0" class="absolute" aria-hidden="true">
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.2 2.5 5 13.6h6.2L10.6 21.5l8.4-11.3h-6.3z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-feed" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="3.5"/><path d="M7.5 9h9M7.5 12.5h9M7.5 16h5"/></symbol>
+    <symbol id="i-match" viewBox="0 0 24 24"><path d="M10 3.5 11.8 8.2 16.5 10l-4.7 1.8L10 16.5l-1.8-4.7L3.5 10l4.7-1.8z"/><path d="M17.5 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-6.5L6 20.5V17h0a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.75"/><path d="M4.75 20c1.1-3.6 3.9-5.5 7.25-5.5s6.15 1.9 7.25 5.5"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4.5" y="5" width="15" height="10.5" rx="1.75"/><path d="M2.5 18.5h19"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.75"/><path d="M8.75 7V5.75C8.75 4.78 9.53 4 10.5 4h3c.97 0 1.75.78 1.75 1.75V7M3 12.5h18"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7.5A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V8z"/><path d="M14 3v5h5M9 13h6M9 16.5h4"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16.25v.25"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19.5V5M5.75 11 12 4.75 18.25 11"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+  </svg>
 
   <!-- ==================== AUTH: FULL-PAGE SIGN UP / LOG IN (specs/01-auth.md) ==================== -->
-  <div id="auth-screen" class="min-h-full flex transition-opacity duration-300">
+  <div id="auth-screen" class="min-h-full flex transition-opacity duration-300 ease-apple">
 
     <!-- Brand panel (desktop) -->
     <aside class="auth-brand hidden lg:flex lg:w-1/2 xl:w-[55%] flex-col justify-between p-12 xl:p-16 text-white">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-appleBlue to-applePurple font-bold text-xl flex items-center justify-center shadow-lg shadow-appleBlue/30">⚡</div>
+        <div class="w-10 h-10 rounded-[11px] bg-gradient-to-br from-[#0A84FF] to-[#BF5AF2] flex items-center justify-center shadow-lg shadow-black/30">
+          <svg class="w-6 h-6 text-white"><use href="#i-bolt"/></svg>
+        </div>
         <div>
-          <p class="font-bold text-lg leading-none">Bootcamp Connect</p>
-          <p class="text-[11px] text-slate-400 mt-1">Dev &amp; Biz Collaboration Hub</p>
+          <p class="font-semibold text-body leading-none">Bootcamp Connect</p>
+          <p class="text-footnote text-white/60 mt-1">Dev &amp; Biz Collaboration Hub</p>
         </div>
       </div>
 
       <div class="max-w-lg space-y-8">
-        <h1 class="text-4xl xl:text-5xl font-bold tracking-tight leading-[1.1]" style="text-wrap: balance">
+        <h1 class="text-[44px] xl:text-[56px] font-bold tracking-[-0.025em] leading-[1.05]">
           Where bootcamp coders and business builders team up.
         </h1>
-        <p class="text-slate-300 text-base leading-relaxed">
-          Post an idea, pick up a paid gig, or find a co-founder whose skills complement yours.
+        <p class="text-white/70 text-title3 font-normal leading-relaxed">
+          Post an idea, pick up paid work, or find a co-founder whose skills complement yours.
         </p>
 
         <!-- Example match card -->
-        <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur p-5 space-y-3">
+        <div class="rounded-[20px] bg-white/[0.08] border border-white/10 p-5 space-y-3">
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-600 font-bold text-sm flex items-center justify-center">ER</div>
+              <div class="avatar w-11 h-11 text-subhead">ER</div>
               <div>
-                <p class="font-semibold text-sm">Elena Rostova</p>
-                <p class="text-[11px] text-slate-400">Business Dev Track · Berlin / Remote</p>
+                <p class="font-semibold text-subhead">Elena Rostova</p>
+                <p class="text-footnote text-white/60">Business Dev Track · Berlin / Remote</p>
               </div>
             </div>
-            <span class="bg-emerald-500 text-white text-[11px] font-bold px-3 py-1 rounded-full">94% Match Fit</span>
+            <span class="bg-[#30D158] text-black text-footnote font-semibold px-3 py-1 rounded-full whitespace-nowrap">94% match</span>
           </div>
-          <p class="text-xs text-slate-300 leading-relaxed">
+          <p class="text-subhead text-white/70">
             Growth marketing + your React/Node stack · Both seeking a full-time co-founder · High uncertainty comfort
           </p>
         </div>
       </div>
 
-      <ul class="flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-400">
-        <li>🌐 Project Feed</li>
-        <li>⚡ Smart Matchmaker</li>
-        <li>💬 Direct Messages</li>
+      <ul class="flex flex-wrap gap-x-6 gap-y-2 text-footnote text-white/60">
+        <li class="flex items-center gap-1.5"><svg class="icon w-4 h-4"><use href="#i-feed"/></svg>Project Feed</li>
+        <li class="flex items-center gap-1.5"><svg class="icon w-4 h-4"><use href="#i-match"/></svg>Smart Matchmaker</li>
+        <li class="flex items-center gap-1.5"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Direct Messages</li>
       </ul>
     </aside>
 
     <!-- Form panel -->
-    <main class="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 py-4">
-      <div class="w-full max-w-md space-y-4 [@media(max-height:700px)]:space-y-3">
+    <main class="flex-1 flex items-center justify-center bg-surface px-4 sm:px-8 py-6 [@media(max-height:820px)]:py-3">
+      <div class="w-full max-w-[400px] space-y-4 [@media(max-height:820px)]:space-y-3 [@media(max-height:700px)]:space-y-2">
 
         <!-- Compact brand (mobile / tablet) -->
         <div class="lg:hidden flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-appleBlue to-applePurple text-white font-bold text-base flex items-center justify-center">⚡</div>
-          <p class="font-bold text-base">Bootcamp Connect</p>
+          <div class="w-8 h-8 rounded-[9px] bg-gradient-to-br from-[#0A84FF] to-[#BF5AF2] flex items-center justify-center">
+            <svg class="w-5 h-5 text-white"><use href="#i-bolt"/></svg>
+          </div>
+          <p class="font-semibold text-body">Bootcamp Connect</p>
         </div>
 
-        <div class="space-y-0.5">
-          <h2 id="auth-title" class="text-2xl font-bold tracking-tight">Create your account</h2>
-          <p id="auth-subtitle" class="text-sm text-slate-500 [@media(max-height:760px)]:hidden">Join to collaborate on projects, find co-founders, and share ideas.</p>
+        <div class="space-y-1">
+          <h2 id="auth-title" class="text-title1 font-bold tracking-[-0.02em]">Create your account</h2>
+          <p id="auth-subtitle" class="text-subhead text-label-2 [@media(max-height:820px)]:hidden">Join to collaborate on projects, find co-founders, and share ideas.</p>
         </div>
 
         <!-- Sign up / Log in switch -->
-        <div class="bg-slate-200/80 p-1 rounded-full grid grid-cols-2 text-sm font-semibold" role="tablist">
-          <button type="button" id="mode-signup" onclick="setAuthMode('signup')" class="segmented-btn active py-1.5 rounded-full transition" role="tab">Sign up</button>
-          <button type="button" id="mode-login" onclick="setAuthMode('login')" class="segmented-btn py-1.5 rounded-full transition text-slate-600" role="tab">Log in</button>
+        <div class="segmented segmented-lg" role="tablist">
+          <button type="button" id="mode-signup" onclick="setAuthMode('signup')" class="segmented-btn active" role="tab">Sign up</button>
+          <button type="button" id="mode-login" onclick="setAuthMode('login')" class="segmented-btn text-label-2" role="tab">Log in</button>
         </div>
 
         <!-- Google SSO -->
-        <button type="button" onclick="handleGoogle()" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 text-slate-800 font-semibold py-2.5 rounded-xl text-sm transition shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-appleBlue">
+        <button type="button" onclick="handleGoogle()" class="btn btn-gray w-full !gap-3 !font-semibold">
           <svg class="w-5 h-5" viewBox="0 0 48 48" aria-hidden="true">
             <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
             <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
@@ -155,78 +337,78 @@
         </button>
 
         <!-- Divider -->
-        <div class="flex items-center gap-3 text-xs text-slate-400 font-medium">
-          <div class="flex-1 h-px bg-slate-200"></div>
+        <div class="flex items-center gap-3 text-footnote text-label-2">
+          <div class="flex-1 h-px bg-separator"></div>
           <span id="divider-text">or sign up with email</span>
-          <div class="flex-1 h-px bg-slate-200"></div>
+          <div class="flex-1 h-px bg-separator"></div>
         </div>
 
         <!-- Form-level message (e.g. account not found) -->
-        <p id="auth-error" class="hidden text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3"></p>
+        <p id="auth-error" class="hidden text-subhead text-redText bg-appleRed/10 rounded-xl px-4 py-3"></p>
 
-        <form id="auth-form" onsubmit="handleAuthSubmit(event)" novalidate class="space-y-3 text-sm">
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)" novalidate class="space-y-3 [@media(max-height:700px)]:space-y-2">
           <div data-signup-only class="grid grid-cols-2 gap-3">
             <div>
-              <label for="first-name" class="font-semibold text-slate-700 text-xs block mb-1">First Name</label>
-              <input id="first-name" type="text" autocomplete="given-name" placeholder="Alex" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-appleBlue">
+              <label for="first-name" class="pf-label">First name</label>
+              <input id="first-name" type="text" autocomplete="given-name" placeholder="Alex" class="pf-input">
             </div>
             <div>
-              <label for="last-name" class="font-semibold text-slate-700 text-xs block mb-1">Last Name</label>
-              <input id="last-name" type="text" autocomplete="family-name" placeholder="Chen" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-appleBlue">
+              <label for="last-name" class="pf-label">Last name</label>
+              <input id="last-name" type="text" autocomplete="family-name" placeholder="Chen" class="pf-input">
             </div>
           </div>
 
           <div>
-            <label for="email" class="font-semibold text-slate-700 text-xs block mb-1">Email Address</label>
-            <input id="email" type="email" required autocomplete="email" placeholder="you@bootcamp.edu" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-appleBlue">
+            <label for="email" class="pf-label">Email</label>
+            <input id="email" type="email" required autocomplete="email" placeholder="you@bootcamp.edu" class="pf-input">
           </div>
 
           <div>
-            <div class="flex items-baseline justify-between mb-1">
-              <label for="password" class="font-semibold text-slate-700 text-xs">Password</label>
-              <button type="button" data-login-only onclick="showForgot()" class="hidden text-xs text-appleBlue font-medium hover:underline">Forgot password?</button>
+            <div class="flex items-baseline justify-between">
+              <label for="password" class="pf-label">Password</label>
+              <button type="button" data-login-only onclick="showForgot()" class="hidden text-footnote text-blueText font-medium hover:underline">Forgot password?</button>
             </div>
-            <input id="password" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-appleBlue">
-            <p id="forgot-note" class="hidden text-xs text-slate-500 mt-1.5">Password reset emails aren't part of this prototype yet.</p>
+            <input id="password" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" class="pf-input">
+            <p id="forgot-note" class="hidden pf-hint mt-1.5">Password reset emails aren't part of this prototype yet.</p>
           </div>
 
           <!-- Track Selection (sign up only, mandatory, nothing pre-selected) -->
           <fieldset data-signup-only>
-            <legend class="font-semibold text-slate-700 text-xs block mb-1">Select Your Bootcamp Track</legend>
+            <legend class="pf-label">Your bootcamp track</legend>
             <div class="grid grid-cols-2 gap-2">
               <label class="cursor-pointer">
                 <input type="radio" id="track-dev" name="track" value="Software Developer" class="peer sr-only" onchange="clearError('track')">
-                <div class="h-full flex items-center gap-2.5 px-3 py-2 rounded-xl border-2 border-slate-200 bg-white transition hover:border-appleBlue/50 peer-checked:border-appleBlue peer-checked:bg-blue-50 peer-focus-visible:ring-2 peer-focus-visible:ring-appleBlue">
-                  <span class="text-xl">💻</span>
-                  <span class="leading-tight"><span class="font-bold text-slate-800 block text-xs sm:text-sm">Software Developer</span><span class="text-[11px] text-slate-500">Coder / Engineer</span></span>
+                <div class="h-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-fill border-2 border-transparent transition ease-apple hover:bg-fill2 peer-checked:border-appleBlue peer-checked:bg-appleBlue/10 peer-focus-visible:ring-4 peer-focus-visible:ring-appleBlue/30">
+                  <svg class="icon w-5 h-5 text-blueText"><use href="#i-laptop"/></svg>
+                  <span class="leading-tight min-w-0"><span class="font-semibold block text-subhead whitespace-nowrap">Software Developer</span><span class="text-footnote text-label-2">Coder / Engineer</span></span>
                 </div>
               </label>
               <label class="cursor-pointer">
                 <input type="radio" id="track-biz" name="track" value="Business Developer" class="peer sr-only" onchange="clearError('track')">
-                <div class="h-full flex items-center gap-2.5 px-3 py-2 rounded-xl border-2 border-slate-200 bg-white transition hover:border-applePurple/50 peer-checked:border-applePurple peer-checked:bg-purple-50 peer-focus-visible:ring-2 peer-focus-visible:ring-applePurple">
-                  <span class="text-xl">💼</span>
-                  <span class="leading-tight"><span class="font-bold text-slate-800 block text-xs sm:text-sm">Business Developer</span><span class="text-[11px] text-slate-500">Growth / Product</span></span>
+                <div class="h-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-fill border-2 border-transparent transition ease-apple hover:bg-fill2 peer-checked:border-applePurple peer-checked:bg-applePurple/10 peer-focus-visible:ring-4 peer-focus-visible:ring-applePurple/30">
+                  <svg class="icon w-5 h-5 text-purpleText"><use href="#i-briefcase"/></svg>
+                  <span class="leading-tight min-w-0"><span class="font-semibold block text-subhead whitespace-nowrap">Business Developer</span><span class="text-footnote text-label-2">Growth / Product</span></span>
                 </div>
               </label>
             </div>
-            <p id="track-error" class="hidden text-red-600 font-medium mt-1.5 text-xs">Please select your bootcamp track to continue.</p>
+            <p id="track-error" class="hidden pf-error">Select your bootcamp track to continue.</p>
           </fieldset>
 
           <!-- Terms & Privacy (sign up only, mandatory) -->
           <div data-signup-only>
-            <label class="flex items-start gap-2 cursor-pointer text-slate-600">
-              <input id="terms" type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-appleBlue" onchange="clearError('terms')">
-              <span>I agree to the <a href="#" class="text-appleBlue font-medium underline">Terms of Service</a> &amp; <a href="#" class="text-appleBlue font-medium underline">Privacy Policy</a></span>
+            <label class="flex items-start gap-2.5 cursor-pointer text-subhead text-label-2">
+              <input id="terms" type="checkbox" class="mt-0.5 w-[18px] h-[18px] rounded" onchange="clearError('terms')">
+              <span>I agree to the <a href="#" class="text-blueText font-medium hover:underline">Terms of Service</a> &amp; <a href="#" class="text-blueText font-medium hover:underline">Privacy Policy</a></span>
             </label>
-            <p id="terms-error" class="hidden text-red-600 font-medium mt-1.5 text-xs">You must agree to the Terms of Service &amp; Privacy Policy.</p>
+            <p id="terms-error" class="hidden pf-error">You must agree to the Terms of Service &amp; Privacy Policy.</p>
           </div>
 
-          <button id="auth-submit" type="submit" class="w-full bg-appleBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-md shadow-appleBlue/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-appleBlue">
+          <button id="auth-submit" type="submit" class="btn btn-primary w-full">
             Create account &amp; enter dashboard →
           </button>
         </form>
 
-        <p class="text-[11px] text-slate-400 leading-relaxed border-t border-slate-100 pt-3">
+        <p class="text-caption text-label-2 border-t border-hairline pt-3">
           Prototype: accounts are saved only in this browser and nothing is sent to a server. Please don't use a real password.
         </p>
       </div>
@@ -234,205 +416,198 @@
   </div>
 
   <!-- ==================== MAIN APP DASHBOARD (HIDDEN UNTIL LOGIN) ==================== -->
-  <div id="app-dashboard" class="hidden opacity-0 transition-opacity duration-500 min-h-full bg-slate-100">
-    <!-- GLASS NAVIGATION BAR -->
-    <header class="sticky z-40 glass-nav px-4 sm:px-6 py-3" style="top: env(safe-area-inset-top, 0px)">
-      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-appleBlue to-applePurple text-white font-bold text-lg flex items-center justify-center">
-            ⚡
+  <div id="app-dashboard" class="hidden opacity-0 transition-opacity duration-500 ease-apple min-h-full bg-canvas">
+    <!-- Navigation bar (translucent, HIG) -->
+    <header class="bar sticky z-40 border-b px-4 sm:px-6" style="top: env(safe-area-inset-top, 0px)">
+      <div class="max-w-6xl mx-auto h-14 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-[9px] bg-gradient-to-br from-[#0A84FF] to-[#BF5AF2] flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-white"><use href="#i-bolt"/></svg>
           </div>
-          <div>
-            <h1 class="font-bold text-base leading-none">Bootcamp Connect</h1>
-            <p class="text-[10px] text-slate-500">Community & Matching Feed</p>
-          </div>
+          <p class="font-semibold text-body truncate">Bootcamp Connect</p>
         </div>
 
-        <!-- Segmented Tab Controls -->
-        <nav class="order-last md:order-none w-full md:w-auto overflow-x-auto no-scrollbar">
-          <div class="bg-slate-200/80 p-1 rounded-full inline-flex gap-1 text-xs font-semibold whitespace-nowrap">
-            <button onclick="switchTab('feed')" id="btn-feed" class="segmented-btn active px-4 py-1.5 rounded-full transition">🌐 Project Feed</button>
-            <button onclick="switchTab('matching')" id="btn-matching" class="segmented-btn px-4 py-1.5 rounded-full transition">⚡ Matchmaker</button>
-            <button onclick="switchTab('chat')" id="btn-chat" class="segmented-btn px-4 py-1.5 rounded-full transition">💬 Messages</button>
-            <button onclick="switchTab('profile')" id="btn-profile" class="segmented-btn px-4 py-1.5 rounded-full transition">👤 Scorecard Profile</button>
+        <!-- Segmented control (tablet / desktop) -->
+        <nav class="hidden md:block" aria-label="Main sections">
+          <div class="segmented" role="tablist">
+            <button onclick="switchTab('feed')" id="btn-feed" data-tab="feed" class="segmented-btn active" role="tab">Project Feed</button>
+            <button onclick="switchTab('matching')" id="btn-matching" data-tab="matching" class="segmented-btn" role="tab">Matchmaker</button>
+            <button onclick="switchTab('chat')" id="btn-chat" data-tab="chat" class="segmented-btn" role="tab">Messages</button>
+            <button onclick="switchTab('profile')" id="btn-profile" data-tab="profile" class="segmented-btn" role="tab">Profile</button>
           </div>
         </nav>
 
         <!-- Current user + Log out -->
-        <div class="flex items-center gap-2">
-          <div id="user-pill" class="hidden sm:block text-xs bg-blue-100 border border-blue-200 text-appleBlue px-3 py-1 rounded-full font-medium">
-            💻 Software Dev Track
-          </div>
-          <button type="button" id="user-avatar" onclick="switchTab('profile')" title="" aria-label="Open your profile" class="avatar w-8 h-8 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-appleBlue focus-visible:ring-offset-2">AC</button>
-          <button onclick="logout()" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-appleBlue">
-            Log out
-          </button>
+        <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+          <div id="user-pill" class="hidden lg:block text-footnote bg-appleBlue/10 text-blueText px-3 py-1 rounded-full font-semibold">Software Dev Track</div>
+          <button type="button" id="user-avatar" onclick="switchTab('profile')" title="" aria-label="Open your profile" class="tap avatar w-8 h-8 text-footnote m-1.5">AC</button>
+          <button onclick="logout()" class="btn btn-plain btn-sm">Log out</button>
         </div>
       </div>
     </header>
 
     <!-- CONTENT CONTAINERS -->
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 mt-8 pb-16">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-28 md:pb-16">
 
-      <p id="welcome-line" class="text-sm text-slate-500 mb-4"></p>
+      <p id="welcome-line" class="text-footnote text-label-2 mb-2"></p>
 
       <!-- TAB 1: COMMUNITY PROJECT FEED -->
-      <section id="tab-feed" class="space-y-6">
-        <div class="flex flex-wrap justify-between items-center gap-3">
+      <section id="tab-feed" class="space-y-5">
+        <div class="flex flex-wrap justify-between items-end gap-3">
           <div>
-            <h2 class="text-2xl font-bold tracking-tight">Community Project Feed</h2>
-            <p class="text-xs text-slate-500">Post ideas, find contract gigs, and build reputation.</p>
+            <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Project Feed</h2>
+            <p class="text-subhead text-label-2">Post ideas, find paid work, and build your reputation.</p>
           </div>
-          <button onclick="showToast('Posting form coming soon: project title, details, and tags.')" class="bg-appleBlue text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm">+ Create Post</button>
+          <button onclick="showToast('Posting form coming soon: project title, details, and tags.')" class="btn btn-primary btn-sm"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Create Post</button>
         </div>
 
         <!-- Tag Taxonomy Filter Bar -->
-        <div class="flex gap-2 text-xs overflow-x-auto pb-1">
-          <button class="bg-slate-900 text-white px-3 py-1.5 rounded-full font-medium whitespace-nowrap">All Tags</button>
-          <button class="bg-white border border-slate-200 px-3 py-1.5 rounded-full font-medium whitespace-nowrap">🚀 Co-Founder Wanted</button>
-          <button class="bg-white border border-slate-200 px-3 py-1.5 rounded-full font-medium whitespace-nowrap">💼 Paid Gig</button>
-          <button class="bg-white border border-slate-200 px-3 py-1.5 rounded-full font-medium whitespace-nowrap">track:software-dev</button>
-          <button class="bg-white border border-slate-200 px-3 py-1.5 rounded-full font-medium whitespace-nowrap">domain:ai-llm</button>
+        <div class="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
+          <button class="chip chip-active whitespace-nowrap">All Tags</button>
+          <button class="chip whitespace-nowrap">🚀 Co-Founder Wanted</button>
+          <button class="chip whitespace-nowrap">💼 Paid Gig</button>
+          <button class="chip whitespace-nowrap font-mono !text-footnote">track:software-dev</button>
+          <button class="chip whitespace-nowrap font-mono !text-footnote">domain:ai-llm</button>
         </div>
 
         <!-- Feed Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Post 1 -->
-          <div class="glass-card rounded-2xl p-6 space-y-4">
+          <article class="card p-5 sm:p-6 space-y-3">
             <div class="flex justify-between items-start gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-xs">SJ</div>
-                <div>
-                  <h4 class="font-bold text-xs">Sarah Jenkins</h4>
-                  <p class="text-[10px] text-slate-400">Business Dev Track • 2h ago</p>
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-full bg-applePurple/15 text-purpleText font-semibold flex items-center justify-center text-subhead shrink-0">SJ</div>
+                <div class="min-w-0">
+                  <h4 class="font-semibold text-subhead">Sarah Jenkins</h4>
+                  <p class="text-footnote text-label-2">Business Dev Track · 2h ago</p>
                 </div>
               </div>
-              <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">🚀 Co-Founder Wanted</span>
+              <span class="bg-applePurple/15 text-purpleText text-footnote font-semibold px-2.5 py-1 rounded-full whitespace-nowrap">Co-Founder Wanted</span>
             </div>
 
-            <h3 class="font-bold text-sm text-slate-900">AI Financial Planning Agent for Freelancers</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">
+            <h3 class="font-semibold text-body">AI Financial Planning Agent for Freelancers</h3>
+            <p class="text-subhead text-label-2">
               Validated market interest with 45 waitlist signups. Need a Full-Stack Software Dev to build the Next.js + Supabase MVP. Open to equal equity split!
             </p>
 
             <!-- Structured Taxonomy Tags -->
-            <div class="flex flex-wrap gap-1 text-[10px]">
-              <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-mono">domain:ai-llm</span>
-              <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-mono">track:software-dev</span>
-              <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-medium">comp:equity-share</span>
+            <div class="flex flex-wrap gap-1.5 text-caption">
+              <span class="bg-fill text-label-2 px-2 py-0.5 rounded-md font-mono">domain:ai-llm</span>
+              <span class="bg-fill text-label-2 px-2 py-0.5 rounded-md font-mono">track:software-dev</span>
+              <span class="bg-appleGreen/15 text-greenText px-2 py-0.5 rounded-md font-semibold">comp:equity-share</span>
             </div>
 
-            <div class="pt-3 border-t border-slate-200/60 flex justify-between items-center text-xs">
-              <button onclick="upvotePost(this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
-                <span>🔥</span> <span class="upvote-count">14</span> Points
+            <div class="pt-3 border-t border-hairline flex justify-between items-center">
+              <button onclick="upvotePost(this)" class="btn btn-gray btn-sm !gap-1.5">
+                <svg class="icon w-4 h-4"><use href="#i-up"/></svg><span class="upvote-count tabular-nums">14</span> points
               </button>
-              <button class="text-appleBlue font-semibold">Reply / Partner →</button>
+              <button class="btn btn-plain btn-sm">Reply / Partner<svg class="icon w-4 h-4 -mr-1"><use href="#i-chevron"/></svg></button>
             </div>
-          </div>
+          </article>
         </div>
       </section>
 
       <!-- TAB 2: MATCHMAKER DIRECTORY -->
-      <section id="tab-matching" class="space-y-6 hidden">
-        <h2 class="text-2xl font-bold">Smart Matchmaker Directory</h2>
-        <div class="glass-card rounded-2xl p-6">
-          <p class="text-xs text-slate-600">Displays candidate scorecards grounded in <em>Who</em> competency models and <em>The Founder's Dilemmas</em> alignment.</p>
+      <section id="tab-matching" class="space-y-5 hidden">
+        <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Matchmaker</h2>
+        <div class="card p-6">
+          <p class="text-subhead text-label-2">Displays candidate scorecards grounded in <em>Who</em> competency models and <em>The Founder's Dilemmas</em> alignment.</p>
         </div>
       </section>
 
       <!-- TAB 3: MESSAGES -->
-      <section id="tab-chat" class="space-y-6 hidden">
-        <h2 class="text-2xl font-bold">Direct Messaging</h2>
-        <div class="glass-card rounded-2xl p-6">
-          <p class="text-xs text-slate-600">Private messaging thread unlocked via mutual connection requests.</p>
+      <section id="tab-chat" class="space-y-5 hidden">
+        <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Messages</h2>
+        <div class="card p-6">
+          <p class="text-subhead text-label-2">Private messaging thread unlocked via mutual connection requests.</p>
         </div>
       </section>
 
       <!-- TAB 4: PROFILE SETUP (specs/02-profile.md) -->
-      <section id="tab-profile" class="space-y-6 hidden">
+      <section id="tab-profile" class="space-y-5 hidden">
 
         <!-- Onboarding banner (new sign-ups) -->
-        <div id="profile-banner" class="hidden rounded-2xl border border-appleBlue/30 bg-blue-50 px-5 py-4 flex items-start gap-3">
-          <span class="text-xl" aria-hidden="true">👋</span>
+        <div id="profile-banner" class="hidden rounded-2xl bg-appleBlue/10 px-5 py-4 flex items-start gap-3">
+          <svg class="icon w-6 h-6 text-blueText mt-0.5"><use href="#i-hand"/></svg>
           <div class="min-w-0">
-            <p class="font-semibold text-sm text-slate-900">Finish your profile so the right people can find you</p>
-            <p class="text-xs text-slate-600 mt-0.5">Members with a photo, skills, and clear goals get matched first. You can edit this any time.</p>
+            <p class="font-semibold text-subhead">Finish your profile so the right people can find you</p>
+            <p class="text-footnote text-label-2 mt-0.5">Members with a photo, skills, and clear goals get matched first. You can edit this any time.</p>
           </div>
         </div>
 
         <div>
-          <h2 class="text-2xl font-bold tracking-tight">Your Profile</h2>
-          <p class="text-xs text-slate-500">This is what other members see in the Project Feed and Matchmaker.</p>
+          <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Your Profile</h2>
+          <p class="text-subhead text-label-2">This is what other members see in the Project Feed and Matchmaker.</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
 
-          <form id="profile-form" novalidate onsubmit="saveProfile(event)" class="space-y-5 min-w-0">
+          <form id="profile-form" novalidate onsubmit="saveProfile(event)" class="space-y-4 min-w-0">
 
             <!-- 0. Import from CV or LinkedIn (specs/03-profile-import.md) -->
-            <div id="pf-section-import" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div id="pf-section-import" class="card p-5 sm:p-6 space-y-4">
               <div>
-                <h3 class="font-bold text-base">Import from your CV or LinkedIn</h3>
-                <p class="pf-hint">Upload a CV or your LinkedIn profile PDF to fill in your experience, skills, and more. You review everything before it's added.</p>
+                <h3 class="font-semibold text-title3">Import from your CV or LinkedIn</h3>
+                <p class="pf-hint mt-0.5">Upload a CV or your LinkedIn profile PDF to fill in your experience, skills, and more. You review everything before it's added.</p>
               </div>
 
               <div id="import-idle" class="space-y-3">
-                <label id="import-drop" for="pf-import-file" class="flex flex-col items-center justify-center gap-1 text-center border-2 border-dashed border-slate-300 hover:border-appleBlue hover:bg-blue-50/40 rounded-xl px-4 py-6 cursor-pointer transition">
-                  <span class="text-2xl" aria-hidden="true">📄</span>
-                  <span class="text-sm font-semibold text-slate-800">Drop your CV here or <span class="text-appleBlue">choose a file</span></span>
+                <label id="import-drop" for="pf-import-file" class="flex flex-col items-center justify-center gap-1.5 text-center border-2 border-dashed border-separator hover:border-appleBlue hover:bg-appleBlue/5 rounded-2xl px-4 py-7 cursor-pointer transition ease-apple">
+                  <svg class="icon w-8 h-8 text-blueText"><use href="#i-doc"/></svg>
+                  <span class="text-body font-semibold">Drop your CV here or <span class="text-blueText">choose a file</span></span>
                   <span class="pf-hint">PDF, Word (.docx), or text · up to 10 MB</span>
                 </label>
                 <input id="pf-import-file" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" class="sr-only" onchange="handleImportFile(this.files[0]); this.value = ''">
 
-                <details class="text-xs text-slate-600 group">
-                  <summary class="cursor-pointer font-semibold text-slate-700 hover:text-appleBlue list-none flex items-center gap-1.5">
-                    <span class="inline-block transition group-open:rotate-90" aria-hidden="true">›</span> How to get your LinkedIn profile as a PDF
+                <details class="text-subhead text-label-2 group">
+                  <summary class="cursor-pointer font-semibold text-blueText list-none flex items-center gap-1 min-h-[44px]">
+                    <svg class="icon w-4 h-4 transition ease-apple group-open:rotate-90"><use href="#i-chevron"/></svg> How to get your LinkedIn profile as a PDF
                   </summary>
-                  <ol class="list-decimal pl-5 mt-2 space-y-1">
-                    <li>Open your profile on <a href="https://www.linkedin.com/in/me/" target="_blank" rel="noopener" class="text-appleBlue underline">linkedin.com</a> on a computer.</li>
-                    <li>Click <strong>Resources</strong> (or <strong>More</strong>) under your name and photo.</li>
-                    <li>Choose <strong>Save to PDF</strong>, then upload that file here.</li>
+                  <ol class="list-decimal pl-6 space-y-1">
+                    <li>Open your profile on <a href="https://www.linkedin.com/in/me/" target="_blank" rel="noopener" class="text-blueText hover:underline">linkedin.com</a> on a computer.</li>
+                    <li>Click <strong class="text-label">Resources</strong> (or <strong class="text-label">More</strong>) under your name and photo.</li>
+                    <li>Choose <strong class="text-label">Save to PDF</strong>, then upload that file here.</li>
                   </ol>
                   <p class="pf-hint mt-2">LinkedIn doesn't let other apps read your experience and skills directly, so the PDF is the quickest way to bring them over.</p>
                 </details>
                 <p id="import-error" class="pf-error hidden"></p>
               </div>
 
-              <div id="import-busy" class="hidden flex items-center justify-between gap-3 rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+              <div id="import-busy" class="hidden flex items-center justify-between gap-3 rounded-xl bg-fill px-4 min-h-[52px]">
                 <div class="flex items-center gap-3 min-w-0">
                   <span class="w-4 h-4 rounded-full border-2 border-appleBlue border-t-transparent animate-spin shrink-0"></span>
-                  <p id="import-status" class="text-sm text-slate-700 truncate">Reading your file…</p>
+                  <p id="import-status" class="text-subhead truncate">Reading your file…</p>
                 </div>
-                <button type="button" onclick="cancelImport()" class="text-xs font-semibold text-slate-600 hover:text-slate-900 shrink-0">Stop</button>
+                <button type="button" onclick="cancelImport()" class="btn btn-plain btn-sm">Stop</button>
               </div>
 
               <div id="import-review" class="hidden space-y-4">
-                <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3">
-                  <p id="import-summary" class="text-sm font-semibold text-emerald-900"></p>
-                  <p id="import-method" class="text-xs text-emerald-800 mt-0.5"></p>
+                <div class="rounded-xl bg-appleGreen/10 px-4 py-3">
+                  <p id="import-summary" class="text-subhead font-semibold"></p>
+                  <p id="import-method" class="text-footnote text-label-2 mt-0.5"></p>
                 </div>
-                <div id="import-review-body" class="space-y-4 text-sm"></div>
+                <div id="import-review-body" class="space-y-4 text-subhead"></div>
                 <div class="flex flex-wrap justify-end gap-2">
-                  <button type="button" onclick="resetImport()" class="text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:border-slate-300 px-4 py-2 rounded-lg transition">Cancel</button>
-                  <button type="button" onclick="applyImport()" class="text-xs font-semibold text-white bg-appleBlue hover:bg-blue-600 px-4 py-2 rounded-lg transition">Add selected to my profile</button>
+                  <button type="button" onclick="resetImport()" class="btn btn-gray btn-sm">Cancel</button>
+                  <button type="button" onclick="applyImport()" class="btn btn-primary btn-sm">Add selected to my profile</button>
                 </div>
               </div>
             </div>
 
             <!-- 1. Basics -->
-            <div id="pf-section-basics" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div id="pf-section-basics" class="card p-5 sm:p-6 space-y-4">
               <div>
-                <h3 class="font-bold text-base">Basics</h3>
-                <p class="pf-hint">Your name, photo, and a one-line headline.</p>
+                <h3 class="font-semibold text-title3">Basics</h3>
+                <p class="pf-hint mt-0.5">Your name, photo, and a one-line headline.</p>
               </div>
 
               <div class="flex flex-wrap items-center gap-4">
-                <div id="pf-photo-preview" class="avatar w-20 h-20 text-2xl"></div>
+                <div id="pf-photo-preview" class="avatar w-20 h-20 text-title2"></div>
                 <div class="space-y-1.5">
                   <div class="flex flex-wrap gap-2">
-                    <label for="pf-photo" class="cursor-pointer bg-slate-900 hover:bg-slate-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition">Upload photo</label>
+                    <label for="pf-photo" class="btn btn-secondary btn-sm">Upload photo</label>
                     <input id="pf-photo" type="file" accept="image/*" class="sr-only" onchange="handlePhoto(this)">
-                    <button type="button" id="pf-photo-remove" onclick="removePhoto()" class="hidden text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:border-slate-300 px-3.5 py-2 rounded-lg transition">Remove</button>
+                    <button type="button" id="pf-photo-remove" onclick="removePhoto()" class="hidden btn btn-gray btn-sm">Remove</button>
                   </div>
                   <p class="pf-hint">JPG or PNG. A square, well-lit headshot works best.</p>
                   <p id="pf-photo-error" class="pf-error hidden"></p>
@@ -465,8 +640,8 @@
                 <div>
                   <label for="pf-track" class="pf-label">Bootcamp track *</label>
                   <select id="pf-track" class="pf-input" onchange="onTrackChange()">
-                    <option value="Software Developer">💻 Software Developer</option>
-                    <option value="Business Developer">💼 Business Developer</option>
+                    <option value="Software Developer">Software Developer</option>
+                    <option value="Business Developer">Business Developer</option>
                   </select>
                 </div>
                 <div>
@@ -490,10 +665,10 @@
             </div>
 
             <!-- 2. Links -->
-            <div id="pf-section-links" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div id="pf-section-links" class="card p-5 sm:p-6 space-y-4">
               <div>
-                <h3 class="font-bold text-base">Links</h3>
-                <p class="pf-hint">Let people check your work and background.</p>
+                <h3 class="font-semibold text-title3">Links</h3>
+                <p class="pf-hint mt-0.5">Let people check your work and background.</p>
               </div>
               <div>
                 <label for="pf-linkedin" class="pf-label">LinkedIn</label>
@@ -513,49 +688,49 @@
             </div>
 
             <!-- 3. Work experience -->
-            <div id="pf-section-experience" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div id="pf-section-experience" class="card p-5 sm:p-6 space-y-4">
               <div>
-                <h3 class="font-bold text-base">Work experience</h3>
-                <p class="pf-hint">Jobs, internships, freelance, and volunteer work all count. Lead with results.</p>
+                <h3 class="font-semibold text-title3">Work experience</h3>
+                <p class="pf-hint mt-0.5">Jobs, internships, freelance, and volunteer work all count. Lead with results.</p>
               </div>
-              <div id="exp-list" class="space-y-4"></div>
-              <button type="button" onclick="addExperience()" class="text-xs font-semibold text-appleBlue hover:underline">＋ Add experience</button>
+              <div id="exp-list" class="space-y-3"></div>
+              <button type="button" onclick="addExperience()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add experience</button>
             </div>
 
             <!-- 4. Skills -->
-            <div id="pf-section-skills" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div id="pf-section-skills" class="card p-5 sm:p-6 space-y-4">
               <div class="flex items-baseline justify-between gap-3">
                 <div>
-                  <h3 class="font-bold text-base">Skills</h3>
-                  <p class="pf-hint">Add up to 10. Put your strongest first.</p>
+                  <h3 class="font-semibold text-title3">Skills</h3>
+                  <p class="pf-hint mt-0.5">Add up to 10. Put your strongest first.</p>
                 </div>
                 <span id="skill-count" class="pf-hint tabular-nums">0/10</span>
               </div>
-              <div class="pf-input flex flex-wrap items-center gap-1.5 min-h-[2.75rem] cursor-text" onclick="document.getElementById('pf-skill-input').focus()">
+              <div class="pf-input flex flex-wrap items-center gap-1.5 cursor-text" onclick="document.getElementById('pf-skill-input').focus()">
                 <div id="skill-tags" class="contents"></div>
-                <input id="pf-skill-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-sm focus:outline-none py-0.5" onkeydown="onSkillKey(event)">
+                <input id="pf-skill-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-body focus:outline-none" onkeydown="onSkillKey(event)">
               </div>
               <div>
-                <p class="pf-hint mb-1.5">Suggested for your track</p>
-                <div id="skill-suggestions" class="flex flex-wrap gap-1.5"></div>
+                <p class="pf-hint mb-2">Suggested for your track</p>
+                <div id="skill-suggestions" class="flex flex-wrap gap-2"></div>
               </div>
             </div>
 
             <!-- 5. Projects / featured work -->
-            <div id="pf-section-projects" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div id="pf-section-projects" class="card p-5 sm:p-6 space-y-4">
               <div>
-                <h3 class="font-bold text-base">Projects &amp; featured work</h3>
-                <p class="pf-hint">Bootcamp capstones, side projects, pitch decks, case studies.</p>
+                <h3 class="font-semibold text-title3">Projects &amp; featured work</h3>
+                <p class="pf-hint mt-0.5">Bootcamp capstones, side projects, pitch decks, case studies.</p>
               </div>
-              <div id="proj-list" class="space-y-4"></div>
-              <button type="button" onclick="addProject()" class="text-xs font-semibold text-appleBlue hover:underline">＋ Add project</button>
+              <div id="proj-list" class="space-y-3"></div>
+              <button type="button" onclick="addProject()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add project</button>
             </div>
 
             <!-- 6. What I'm looking for -->
-            <div id="pf-section-looking" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div id="pf-section-looking" class="card p-5 sm:p-6 space-y-5">
               <div>
-                <h3 class="font-bold text-base">What I'm looking for</h3>
-                <p class="pf-hint">Used by the Matchmaker to suggest people and projects.</p>
+                <h3 class="font-semibold text-title3">What I'm looking for</h3>
+                <p class="pf-hint mt-0.5">Used by the Matchmaker to suggest people and projects.</p>
               </div>
               <div>
                 <span class="pf-label">Goals</span>
@@ -580,49 +755,59 @@
             </div>
 
             <div class="flex justify-end">
-              <button type="submit" class="bg-appleBlue hover:bg-blue-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-appleBlue">Save profile</button>
+              <button type="submit" class="btn btn-primary">Save profile</button>
             </div>
           </form>
 
           <!-- Side panel: preview + strength -->
-          <aside class="order-first lg:order-none lg:sticky lg:top-24 space-y-4 min-w-0">
-            <div class="glass-card rounded-2xl p-5 space-y-3">
-              <p class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">How others see you</p>
+          <aside class="order-first lg:order-none lg:sticky lg:top-20 space-y-4 min-w-0">
+            <div class="card p-5 space-y-3">
+              <p class="text-caption uppercase tracking-[0.06em] font-semibold text-label-2">How others see you</p>
               <div class="flex items-center gap-3">
-                <div id="pv-photo" class="avatar w-14 h-14 text-lg shrink-0"></div>
+                <div id="pv-photo" class="avatar w-14 h-14 text-title3"></div>
                 <div class="min-w-0">
-                  <p id="pv-name" class="font-bold text-sm truncate"></p>
-                  <p id="pv-headline" class="text-xs text-slate-600 line-clamp-2"></p>
+                  <p id="pv-name" class="font-semibold text-body truncate"></p>
+                  <p id="pv-headline" class="text-footnote text-label-2 line-clamp-2"></p>
                 </div>
               </div>
-              <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
-                <span id="pv-track" class="px-2 py-0.5 rounded-full font-medium border"></span>
-                <span id="pv-location" class="text-slate-500"></span>
+              <div class="flex flex-wrap items-center gap-1.5 text-footnote">
+                <span id="pv-track" class="px-2.5 py-0.5 rounded-full font-semibold"></span>
+                <span id="pv-location" class="text-label-2"></span>
               </div>
               <div id="pv-skills" class="flex flex-wrap gap-1"></div>
-              <p id="pv-looking" class="text-[11px] text-slate-600"></p>
+              <p id="pv-looking" class="text-footnote text-label-2"></p>
             </div>
 
-            <div class="glass-card rounded-2xl p-5 space-y-3">
+            <div class="card p-5 space-y-3">
               <div class="flex items-baseline justify-between">
-                <p class="font-bold text-sm">Profile strength</p>
-                <p id="strength-pct" class="text-sm font-bold tabular-nums">0%</p>
+                <p class="font-semibold text-body">Profile strength</p>
+                <p id="strength-pct" class="text-body font-semibold tabular-nums">0%</p>
               </div>
-              <div class="h-2 rounded-full bg-slate-200 overflow-hidden">
-                <div id="strength-bar" class="h-full rounded-full bg-appleBlue transition-all duration-500" style="width:0%"></div>
+              <div class="h-1.5 rounded-full bg-fill overflow-hidden">
+                <div id="strength-bar" class="h-full rounded-full bg-appleBlue transition-all duration-500 ease-apple" style="width:0%"></div>
               </div>
-              <ul id="strength-list" class="space-y-1.5 text-xs"></ul>
-              <button type="submit" form="profile-form" class="w-full bg-appleBlue hover:bg-blue-600 text-white text-xs font-semibold py-2.5 rounded-xl transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-appleBlue">Save profile</button>
+              <ul id="strength-list" class="space-y-0.5 text-subhead"></ul>
+              <button type="submit" form="profile-form" class="btn btn-primary w-full">Save profile</button>
             </div>
           </aside>
         </div>
       </section>
 
     </main>
+
+    <!-- Tab bar (phones) -->
+    <nav class="bar tab-bar md:hidden" aria-label="Main sections">
+      <div class="flex max-w-lg mx-auto" role="tablist">
+        <button onclick="switchTab('feed')" data-tab="feed" class="tab-item active" role="tab"><svg class="icon"><use href="#i-feed"/></svg>Feed</button>
+        <button onclick="switchTab('matching')" data-tab="matching" class="tab-item" role="tab"><svg class="icon"><use href="#i-match"/></svg>Matchmaker</button>
+        <button onclick="switchTab('chat')" data-tab="chat" class="tab-item" role="tab"><svg class="icon"><use href="#i-chat"/></svg>Messages</button>
+        <button onclick="switchTab('profile')" data-tab="profile" class="tab-item" role="tab"><svg class="icon"><use href="#i-person"/></svg>Profile</button>
+      </div>
+    </nav>
   </div>
 
   <!-- Toast -->
-  <div id="toast" class="hidden fixed left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg" style="bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px))"></div>
+  <div id="toast" class="toast hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-32px)] text-subhead font-medium px-5 py-3 rounded-full shadow-lg text-center" role="status"></div>
 
   <script>
     // ---------- Local prototype storage (this browser only) ----------
@@ -654,9 +839,9 @@
       authMode = mode;
       const isSignup = mode === 'signup';
       document.getElementById('mode-signup').classList.toggle('active', isSignup);
-      document.getElementById('mode-signup').classList.toggle('text-slate-600', !isSignup);
+      document.getElementById('mode-signup').classList.toggle('text-label-2', !isSignup);
       document.getElementById('mode-login').classList.toggle('active', !isSignup);
-      document.getElementById('mode-login').classList.toggle('text-slate-600', isSignup);
+      document.getElementById('mode-login').classList.toggle('text-label-2', isSignup);
       document.querySelectorAll('[data-signup-only]').forEach(el => el.classList.toggle('hidden', !isSignup));
       document.querySelectorAll('[data-login-only]').forEach(el => el.classList.toggle('hidden', isSignup));
       document.getElementById('auth-title').textContent = isSignup ? 'Create your account' : 'Welcome back';
@@ -763,13 +948,13 @@
 
     function renderUser(account) {
       const pill = document.getElementById('user-pill');
-      const base = 'hidden sm:block text-xs px-3 py-1 rounded-full font-medium border ';
+      const base = 'hidden lg:block text-footnote px-3 py-1 rounded-full font-semibold ';
       if (account.track === 'Business Developer') {
-        pill.className = base + 'bg-purple-100 border-purple-200 text-applePurple';
-        pill.textContent = '💼 Business Dev Track';
+        pill.className = base + 'bg-applePurple/15 text-purpleText';
+        pill.textContent = 'Business Dev Track';
       } else {
-        pill.className = base + 'bg-blue-100 border-blue-200 text-appleBlue';
-        pill.textContent = '💻 Software Dev Track';
+        pill.className = base + 'bg-appleBlue/10 text-blueText';
+        pill.textContent = 'Software Dev Track';
       }
       const avatar = document.getElementById('user-avatar');
       setAvatar(avatar, account.profile && account.profile.photo, initials(account.first, account.last));
@@ -823,17 +1008,19 @@
     // ---------- App ----------
     function switchTab(tabName) {
       ['feed', 'matching', 'chat', 'profile'].forEach(tab => {
-        document.getElementById('tab-' + tab).classList.add('hidden');
-        document.getElementById('btn-' + tab).classList.remove('active');
+        document.getElementById('tab-' + tab).classList.toggle('hidden', tab !== tabName);
       });
-      document.getElementById('tab-' + tabName).classList.remove('hidden');
-      document.getElementById('btn-' + tabName).classList.add('active');
+      document.querySelectorAll('[data-tab]').forEach(btn => {
+        const on = btn.dataset.tab === tabName;
+        btn.classList.toggle('active', on);
+        btn.setAttribute('aria-selected', on);
+      });
     }
 
     function upvotePost(btn) {
       let countEl = btn.querySelector('.upvote-count');
       countEl.innerText = parseInt(countEl.innerText) + 1;
-      btn.classList.add('bg-orange-100', 'text-orange-600');
+      btn.classList.add('bg-appleOrange/15', 'text-orangeText');
     }
 
     let toastTimer;
@@ -851,7 +1038,7 @@
       'Business Developer': ['Market research', 'Financial modeling', 'Sales', 'Pitch decks', 'Growth marketing', 'Product management', 'Customer discovery', 'Fundraising', 'Partnerships', 'Copywriting'],
     };
     const SETTINGS = ['Remote', 'Hybrid', 'In person'];
-    const GOALS = ['Co-founder', 'Paid gig', 'Passion project', 'Hiring teammates'];
+    const GOALS = ['Co-founder', 'Paid work', 'Passion project', 'Hiring teammates'];
     const HOURS = ['Under 10', '10–20', '20–40', '40+'];
     const IDEA_STATUS = ['I have an idea', 'I want to join an idea', 'Open to both'];
     const INDUSTRIES = ['AI', 'Fintech', 'Health', 'Edtech', 'Climate', 'Consumer', 'B2B SaaS', 'Marketplaces', 'Other'];
@@ -889,15 +1076,15 @@
     function expHtml(e = {}) {
       const id = 'exp' + (++entrySeq);
       return '<div class="entry space-y-3" data-exp>' +
-        '<div class="flex items-center justify-between"><p class="text-xs font-semibold text-slate-500">Experience</p>' +
-        '<button type="button" onclick="removeEntry(this)" class="text-xs font-medium text-slate-500 hover:text-red-600">Remove</button></div>' +
+        '<div class="flex items-center justify-between"><p class="text-footnote font-semibold text-label-2">Experience</p>' +
+        '<button type="button" onclick="removeEntry(this)" class="text-footnote font-medium text-label-2 hover:text-redText">Remove</button></div>' +
         '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
           '<div><label for="' + id + '-title" class="pf-label">Title</label><input id="' + id + '-title" data-field="title" type="text" class="pf-input" placeholder="e.g. Frontend Developer Intern" value="' + esc(e.title) + '"></div>' +
           '<div><label for="' + id + '-company" class="pf-label">Company</label><input id="' + id + '-company" data-field="company" type="text" class="pf-input" placeholder="e.g. Shopify" value="' + esc(e.company) + '"></div>' +
           '<div><label for="' + id + '-start" class="pf-label">Start</label><input id="' + id + '-start" data-field="start" type="month" class="pf-input" value="' + esc(e.start) + '"></div>' +
           '<div><label for="' + id + '-end" class="pf-label">End</label><input id="' + id + '-end" data-field="end" type="month" class="pf-input" value="' + esc(e.end) + '"' + (e.current ? ' disabled' : '') + '></div>' +
         '</div>' +
-        '<label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer"><input id="' + id + '-current" data-field="current" type="checkbox" class="w-4 h-4 accent-appleBlue" onchange="toggleCurrent(this)"' + (e.current ? ' checked' : '') + '> I currently work here</label>' +
+        '<label class="flex items-center gap-2 text-footnote text-label-2 cursor-pointer"><input id="' + id + '-current" data-field="current" type="checkbox" class="w-4 h-4 accent-appleBlue" onchange="toggleCurrent(this)"' + (e.current ? ' checked' : '') + '> I currently work here</label>' +
         '<div><label for="' + id + '-desc" class="pf-label">What you did</label><textarea id="' + id + '-desc" data-field="desc" rows="3" class="pf-input resize-y" placeholder="What did you build or own, and what changed because of it?">' + esc(e.desc) + '</textarea></div>' +
         '</div>';
     }
@@ -905,8 +1092,8 @@
     function projHtml(p = {}) {
       const id = 'proj' + (++entrySeq);
       return '<div class="entry space-y-3" data-proj>' +
-        '<div class="flex items-center justify-between"><p class="text-xs font-semibold text-slate-500">Project</p>' +
-        '<button type="button" onclick="removeEntry(this)" class="text-xs font-medium text-slate-500 hover:text-red-600">Remove</button></div>' +
+        '<div class="flex items-center justify-between"><p class="text-footnote font-semibold text-label-2">Project</p>' +
+        '<button type="button" onclick="removeEntry(this)" class="text-footnote font-medium text-label-2 hover:text-redText">Remove</button></div>' +
         '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
           '<div><label for="' + id + '-title" class="pf-label">Title</label><input id="' + id + '-title" data-field="title" type="text" class="pf-input" placeholder="e.g. AI budgeting app" value="' + esc(p.title) + '"></div>' +
           '<div><label for="' + id + '-role" class="pf-label">Your role</label><input id="' + id + '-role" data-field="role" type="text" class="pf-input" placeholder="e.g. Built the backend" value="' + esc(p.role) + '"></div>' +
@@ -958,8 +1145,8 @@
 
     function renderSkills() {
       $('skill-tags').innerHTML = skills.map((s, i) =>
-        '<span class="inline-flex items-center gap-1 bg-blue-50 text-appleBlue border border-blue-200 text-xs font-medium pl-2.5 pr-1 py-0.5 rounded-full">' + esc(s) +
-        '<button type="button" onclick="event.stopPropagation(); removeSkill(' + i + ')" aria-label="Remove ' + esc(s) + '" class="w-5 h-5 rounded-full hover:bg-blue-100 leading-none">×</button></span>'
+        '<span class="inline-flex items-center gap-1 bg-appleBlue/10 text-blueText border border-appleBlue/25 text-footnote font-medium pl-2.5 pr-1 py-0.5 rounded-full">' + esc(s) +
+        '<button type="button" onclick="event.stopPropagation(); removeSkill(' + i + ')" aria-label="Remove ' + esc(s) + '" class="w-5 h-5 rounded-full hover:bg-appleBlue/20 leading-none">×</button></span>'
       ).join('');
       $('skill-count').textContent = skills.length + '/' + MAX_SKILLS;
       const lower = skills.map(s => s.toLowerCase());
@@ -1061,7 +1248,7 @@
       $('pf-website').value = p.website || '';
       $('pf-available').value = p.available || '';
       setChecked('pf-setting', p.setting ? [p.setting] : []);
-      setChecked('pf-goals', p.goals || []);
+      setChecked('pf-goals', (p.goals || []).map(g => g === 'Paid gig' ? 'Paid work' : g));
       setChecked('pf-hours', p.hours ? [p.hours] : []);
       setChecked('pf-idea', p.idea ? [p.idea] : []);
       setChecked('pf-industries', p.industries || []);
@@ -1084,13 +1271,13 @@
       $('pv-name').textContent = (d.first + ' ' + d.last).trim() || 'Your name';
       const headline = $('pv-headline');
       headline.textContent = d.headline || 'Your headline appears here';
-      headline.classList.toggle('text-slate-400', !d.headline);
+      headline.classList.toggle('text-label-3', !d.headline);
       const track = $('pv-track');
       const isBiz = d.track === 'Business Developer';
-      track.textContent = isBiz ? '💼 Business Dev' : '💻 Software Dev';
-      track.className = 'px-2 py-0.5 rounded-full font-medium border ' + (isBiz ? 'bg-purple-50 border-purple-200 text-applePurple' : 'bg-blue-50 border-blue-200 text-appleBlue');
+      track.textContent = isBiz ? 'Business Dev' : 'Software Dev';
+      track.className = 'px-2.5 py-0.5 rounded-full font-semibold ' + (isBiz ? 'bg-applePurple/15 text-purpleText' : 'bg-appleBlue/10 text-blueText');
       $('pv-location').textContent = [d.location, d.setting].filter(Boolean).join(' · ');
-      $('pv-skills').innerHTML = d.skills.slice(0, 5).map(s => '<span class="bg-slate-100 text-slate-700 text-[11px] px-2 py-0.5 rounded-md">' + esc(s) + '</span>').join('');
+      $('pv-skills').innerHTML = d.skills.slice(0, 5).map(s => '<span class="bg-fill text-label text-caption px-2 py-0.5 rounded-md">' + esc(s) + '</span>').join('');
       $('pv-looking').textContent = d.goals.length
         ? 'Looking for: ' + d.goals.join(', ') + (d.hours ? ' · ' + d.hours + ' hrs/week' : '')
         : '';
@@ -1111,10 +1298,10 @@
       $('strength-pct').textContent = pct + '%';
       const bar = $('strength-bar');
       bar.style.width = pct + '%';
-      bar.className = 'h-full rounded-full transition-all duration-500 ' + (pct === 100 ? 'bg-emerald-500' : pct >= 50 ? 'bg-appleBlue' : 'bg-orange-400');
+      bar.className = 'h-full rounded-full transition-all duration-500 ' + (pct === 100 ? 'bg-appleGreen' : pct >= 50 ? 'bg-appleBlue' : 'bg-appleOrange');
       $('strength-list').innerHTML = checks.map(([label, done, , section]) => done
-        ? '<li class="flex items-center gap-2 text-slate-400"><span class="text-emerald-500 font-bold">✓</span>' + label + '</li>'
-        : '<li><button type="button" onclick="goToSection(\'' + section + '\')" class="flex items-center gap-2 text-slate-700 hover:text-appleBlue text-left"><span class="w-3 h-3 rounded-full border-2 border-slate-300 shrink-0"></span>' + label + '</button></li>'
+        ? '<li class="flex items-center gap-2 text-label-3"><span class="text-greenText font-bold">✓</span>' + label + '</li>'
+        : '<li><button type="button" onclick="goToSection(\'' + section + '\')" class="flex items-center gap-2 text-label hover:text-blueText text-left"><span class="w-3 h-3 rounded-full border-2 border-label-3 shrink-0"></span>' + label + '</button></li>'
       ).join('');
     }
 
@@ -1236,7 +1423,8 @@
     function importPrompt(text) {
       return 'Extract profile details from this CV or LinkedIn profile export for a bootcamp networking app.\n' +
         'Reply with only a JSON object in exactly this shape (use "" or [] when something is not in the text; never invent facts):\n' +
-        '{"headline": string (max 80 chars; if none is stated, write one from the most recent role, e.g. "Frontend Developer at Shopify"),\n' +
+        '{"first_name": string, "last_name": string,\n' +
+        ' "headline": string (max 80 chars; if none is stated, write one from the most recent role, e.g. "Frontend Developer at Shopify"),\n' +
         ' "location": string (city, region),\n' +
         ' "about": string (max 500 chars, from the summary or profile section, first person),\n' +
         ' "linkedin": string (URL), "github": string (URL), "website": string (URL, other personal or portfolio site),\n' +
@@ -1314,6 +1502,16 @@
       const headlineLine = locIdx > 0 && headlineOk(preamble[locIdx - 1]) ? preamble[locIdx - 1]
         : (sections.top[0] && headlineOk(sections.top[1]) ? sections.top[1] : '');
       result.headline = headlineLine.slice(0, 80);
+
+      // Name: two lines above the location (name / headline / location), else the first name-like line at the top
+      const nameLike = l => l && l.length <= 40 && /^[A-Z][A-Za-z'’-]+(?: [A-Z][A-Za-z'’.-]*){1,3}$/.test(l) && !LOCATION_RE.test(l);
+      const nameLine = locIdx >= 2 && nameLike(preamble[locIdx - 2]) ? preamble[locIdx - 2]
+        : (sections.top.find(nameLike) || '');
+      if (nameLine) {
+        const parts = nameLine.split(' ');
+        result.first_name = parts[0];
+        result.last_name = parts.slice(1).join(' ');
+      }
 
       // Personal website: a domain in the contact area that isn't LinkedIn, GitHub, or an email address
       const site = (preamble.join(' ').match(/(?<![@\w.])(?:https?:\/\/)?(?:www\.)?[a-z0-9][a-z0-9-]*\.(?:com|dev|io|me|co|app|net|org|design|ai|xyz|site|tech|page)(?:\/[^\s·|,]*)?/gi) || [])
@@ -1399,6 +1597,7 @@
       const ym = v => /^\d{4}-\d{2}$/.test(String(v || '')) ? String(v) : '';
       const arr = v => Array.isArray(v) ? v : [];
       return {
+        first: str(r.first_name, 40), last: str(r.last_name, 60),
         headline: str(r.headline, 80), location: str(r.location, 80), about: str(r.about, 500),
         linkedin: str(r.linkedin, 200), code: str(r.github, 200), website: str(r.website, 200),
         experience: arr(r.experience).slice(0, 8).map(e => ({
@@ -1477,7 +1676,7 @@
     }
 
     function reviewRow(id, checked, labelHtml) {
-      return '<label for="' + id + '" class="flex items-start gap-2.5 cursor-pointer rounded-lg px-2 py-1.5 hover:bg-slate-50">' +
+      return '<label for="' + id + '" class="flex items-start gap-2.5 cursor-pointer rounded-lg px-2 py-1.5 hover:bg-fill">' +
         '<input id="' + id + '" type="checkbox" class="mt-0.5 w-4 h-4 accent-appleBlue shrink-0"' + (checked ? ' checked' : '') + '>' +
         '<span class="min-w-0">' + labelHtml + '</span></label>';
     }
@@ -1493,12 +1692,19 @@
       const current = collectProfile();
       const blocks = [];
 
+      const importedName = (r.first + ' ' + r.last).trim();
+      const currentName = (current.first + ' ' + current.last).trim();
+      const nameRow = importedName
+        ? reviewRow('imp-basic-name', importedName.toLowerCase() !== currentName.toLowerCase(),
+            '<span class="font-medium text-label">Name:</span> <span class="text-label-2">' + esc(importedName) + '</span>' +
+            (currentName && importedName.toLowerCase() !== currentName.toLowerCase() ? ' <span class="pf-hint">(replaces ' + esc(currentName) + ')</span>' : ''))
+        : '';
       const basics = [['headline', 'Headline'], ['location', 'Location'], ['about', 'About'], ['linkedin', 'LinkedIn'], ['code', 'GitHub / Portfolio'], ['website', 'Website']]
         .filter(([k]) => r[k]);
-      if (basics.length) {
-        blocks.push('<div><p class="pf-label">Basics</p>' + basics.map(([k, label]) =>
+      if (basics.length || nameRow) {
+        blocks.push('<div><p class="pf-label">Basics</p>' + nameRow + basics.map(([k, label]) =>
           reviewRow('imp-basic-' + k, !current[k],
-            '<span class="font-medium text-slate-800">' + label + ':</span> <span class="text-slate-600 break-words">' + esc(r[k].length > 140 ? r[k].slice(0, 140) + '…' : r[k]) + '</span>' +
+            '<span class="font-medium text-label">' + label + ':</span> <span class="text-label-2 break-words">' + esc(r[k].length > 140 ? r[k].slice(0, 140) + '…' : r[k]) + '</span>' +
             (current[k] ? ' <span class="pf-hint">(replaces what you have)</span>' : ''))
         ).join('') + '</div>');
       }
@@ -1509,7 +1715,7 @@
           const dup = have.includes((e.title + '|' + e.company).toLowerCase());
           const dates = [fmtMonth(e.start), e.current ? 'Present' : fmtMonth(e.end)].filter(Boolean).join(' – ');
           return reviewRow('imp-exp-' + i, !dup,
-            '<span class="font-medium text-slate-800">' + esc(e.title || 'Untitled role') + '</span>' + (e.company ? ' · ' + esc(e.company) : '') +
+            '<span class="font-medium text-label">' + esc(e.title || 'Untitled role') + '</span>' + (e.company ? ' · ' + esc(e.company) : '') +
             (dates ? '<span class="block pf-hint">' + esc(dates) + '</span>' : '') + (dup ? '<span class="block pf-hint">Already on your profile</span>' : ''));
         }).join('') + '</div>');
       }
@@ -1525,7 +1731,7 @@
 
       if (r.projects.length) {
         blocks.push('<div><p class="pf-label">Projects</p>' + r.projects.map((p, i) =>
-          reviewRow('imp-proj-' + i, true, '<span class="font-medium text-slate-800">' + esc(p.title) + '</span>' + (p.desc ? '<span class="block pf-hint">' + esc(p.desc) + '</span>' : ''))
+          reviewRow('imp-proj-' + i, true, '<span class="font-medium text-label">' + esc(p.title) + '</span>' + (p.desc ? '<span class="block pf-hint">' + esc(p.desc) + '</span>' : ''))
         ).join('') + '</div>');
       }
 
@@ -1552,6 +1758,12 @@
       if (!r) return;
       const isChecked = id => { const el = $(id); return !!el && el.checked && !el.disabled; };
 
+      if ((r.first || r.last) && isChecked('imp-basic-name')) {
+        if (r.first) $('pf-first').value = r.first;
+        $('pf-last').value = r.last;
+        ['pf-first', 'pf-last'].forEach(id => { $(id).classList.remove('invalid'); clearError(id); });
+        updatePhotoUI();
+      }
       ['headline', 'location', 'about', 'linkedin', 'code', 'website'].forEach(k => {
         if (r[k] && isChecked('imp-basic-' + k)) $('pf-' + k).value = r[k];
       });
@@ -1591,8 +1803,8 @@
     // Drag and drop onto the import area
     (function wireDrop() {
       const drop = $('import-drop');
-      ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('border-appleBlue', 'bg-blue-50/40'); }));
-      ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('border-appleBlue', 'bg-blue-50/40'); }));
+      ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('border-appleBlue', 'bg-appleBlue/5'); }));
+      ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('border-appleBlue', 'bg-appleBlue/5'); }));
       drop.addEventListener('drop', e => handleImportFile(e.dataTransfer.files[0]));
     })();
 
