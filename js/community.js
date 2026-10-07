@@ -19,8 +19,11 @@ function loadDemo() {
     requested: {}, sent: {}, created: [], replyIdx: {},
     unread: Object.fromEntries(DEMO_CHATS.map(c => [c.id, c.unread])),
   };
+  // Fields added in later versions of the prototype
+  const defaults = { posts: [], postState: {}, applications: {}, projects: {}, projectChats: [], verified: [], endorsements: {} };
+  for (const k in defaults) if (!(k in demo)) demo[k] = defaults[k];
 }
-function saveDemo() { save(demoKey(), demo); }
+function saveDemo() { return save(demoKey(), demo); }
 
 function personAvatar(p, cls) {
   return '<div class="avatar ' + cls + '" style="background:linear-gradient(135deg,' + p.colors[0] + ',' + p.colors[1] + ')" aria-hidden="true">' + esc(initials(p.first, p.last)) + '</div>';

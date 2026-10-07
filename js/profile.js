@@ -29,9 +29,9 @@ function setAvatar(el, photo, fallback) {
   el.textContent = photo ? '' : fallback;
 }
 
-function renderChips(containerId, name, type, options) {
+function renderChips(containerId, name, type, options, labels) {
   $(containerId).innerHTML = options.map((o, i) =>
-    '<label class="cursor-pointer"><input type="' + type + '" id="' + name + '-' + i + '" name="' + name + '" value="' + esc(o) + '" class="peer sr-only"><span class="chip">' + esc(o) + '</span></label>'
+    '<label class="cursor-pointer"><input type="' + type + '" id="' + name + '-' + i + '" name="' + name + '" value="' + esc(o) + '" class="peer sr-only"><span class="chip">' + esc(labels ? labels[i] : o) + '</span></label>'
   ).join('');
 }
 function getChecked(name) {
@@ -112,9 +112,41 @@ function onSkillKey(e) {
   }
 }
 
+// Skills I want to learn (drives growth fit in matching)
+const MAX_LEARN = 5;
+let learn = [];
+const LEARN_EXTRAS = ['Stripe', 'AWS', 'SQL', 'Figma', 'Python', 'React', 'Product management', 'Customer discovery', 'Pitch decks', 'Financial modeling', 'Growth marketing', 'UX research'];
+
+function addLearn(raw) {
+  const name = (raw || '').trim().replace(/,$/, '').slice(0, 30);
+  if (!name || learn.some(s => s.toLowerCase() === name.toLowerCase())) return;
+  if (learn.length >= MAX_LEARN) { showToast('You can list up to ' + MAX_LEARN + ' skills to learn. Remove one to add another.'); return; }
+  learn.push(name);
+  renderLearn();
+}
+function removeLearn(i) { learn.splice(i, 1); renderLearn(); }
+function onLearnKey(e) {
+  const input = e.target;
+  if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addLearn(input.value); input.value = ''; }
+  else if (e.key === 'Backspace' && !input.value && learn.length) removeLearn(learn.length - 1);
+}
+function renderLearn() {
+  if (!$('learn-tags')) return;
+  $('learn-tags').innerHTML = learn.map((s, i) =>
+    '<span class="inline-flex items-center gap-1 bg-applePurple/10 text-purpleText border border-applePurple/25 text-footnote font-medium pl-2.5 pr-1 py-0.5 rounded-full">' + esc(s) +
+    '<button type="button" onclick="event.stopPropagation(); removeLearn(' + i + ')" aria-label="Remove ' + esc(s) + '" class="w-5 h-5 rounded-full hover:bg-applePurple/20 leading-none">×</button></span>').join('');
+  $('learn-count').textContent = learn.length + '/' + MAX_LEARN;
+  const taken = skills.concat(learn).map(s => s.toLowerCase());
+  const other = SKILL_SUGGESTIONS[$('pf-track').value === 'Software Developer' ? 'Business Developer' : 'Software Developer'];
+  const pool = [...new Set(LEARN_EXTRAS.concat(other))].filter(s => !taken.includes(s.toLowerCase())).slice(0, 8);
+  $('learn-suggestions').innerHTML = pool.map(s => '<button type="button" class="chip" data-skill="' + esc(s) + '" onclick="addLearn(this.dataset.skill)">＋ ' + esc(s) + '</button>').join('');
+  updatePreview();
+}
+
 function renderSkills() {
   $('skill-tags').innerHTML = skills.map((s, i) =>
     '<span class="inline-flex items-center gap-1 bg-appleBlue/10 text-blueText border border-appleBlue/25 text-footnote font-medium pl-2.5 pr-1 py-0.5 rounded-full">' + esc(s) +
+    (demo && demo.endorsements[s] ? '<span class="text-greenText font-semibold" title="Endorsements from teammates">' + demo.endorsements[s] + '</span>' : '') +
     '<button type="button" onclick="event.stopPropagation(); removeSkill(' + i + ')" aria-label="Remove ' + esc(s) + '" class="w-5 h-5 rounded-full hover:bg-appleBlue/20 leading-none">×</button></span>'
   ).join('');
   $('skill-count').textContent = skills.length + '/' + MAX_SKILLS;
@@ -169,6 +201,7 @@ function onTrackChange() {
   $('pf-code-label').textContent = isDev ? 'GitHub' : 'Portfolio';
   $('pf-code').placeholder = isDev ? 'github.com/your-name' : 'Link to your portfolio, Notion, or case studies';
   renderSkills();
+  renderLearn();
 }
 
 function updateCounters() {
@@ -194,6 +227,8 @@ function collectProfile() {
     website: $('pf-website').value.trim(),
     experience: readEntries('[data-exp]'),
     skills: [...skills],
+    learn: [...learn],
+    openTo: getChecked('pf-open'),
     projects: readEntries('[data-proj]'),
     goals: getChecked('pf-goals'),
     hours: getChecked('pf-hours')[0] || '',
@@ -221,9 +256,11 @@ function loadProfileForm(account) {
   setChecked('pf-hours', p.hours ? [p.hours] : []);
   setChecked('pf-idea', p.idea ? [p.idea] : []);
   setChecked('pf-industries', p.industries || []);
+  setChecked('pf-open', p.openTo || []);
   $('exp-list').innerHTML = (p.experience && p.experience.length ? p.experience : [{}]).map(expHtml).join('');
   $('proj-list').innerHTML = (p.projects && p.projects.length ? p.projects : [{}]).map(projHtml).join('');
   skills = [...(p.skills || [])];
+  learn = [...(p.learn || [])];
   photoData = p.photo || null;
   document.querySelectorAll('#profile-form .pf-error').forEach(e => e.classList.add('hidden'));
   document.querySelectorAll('#profile-form .invalid').forEach(e => e.classList.remove('invalid'));
@@ -246,7 +283,10 @@ function updatePreview() {
   track.textContent = isBiz ? 'Business Dev' : 'Software Dev';
   track.className = 'px-2.5 py-0.5 rounded-full font-semibold ' + (isBiz ? 'bg-applePurple/15 text-purpleText' : 'bg-appleBlue/10 text-blueText');
   $('pv-location').textContent = [d.location, d.setting].filter(Boolean).join(' · ');
-  $('pv-skills').innerHTML = d.skills.slice(0, 5).map(s => '<span class="bg-fill text-label text-caption px-2 py-0.5 rounded-md">' + esc(s) + '</span>').join('');
+  $('pv-skills').innerHTML = d.skills.slice(0, 5).map(s => '<span class="bg-fill text-label text-caption px-2 py-0.5 rounded-md">' + esc(s) +
+    (demo && demo.endorsements[s] ? ' <span class="text-greenText font-semibold">' + demo.endorsements[s] + '</span>' : '') + '</span>').join('');
+  const nVerified = demo ? demo.verified.length : 0;
+  $('pv-verified').innerHTML = nVerified ? '<svg class="icon w-4 h-4"><use href="#i-check"/></svg>' + nVerified + ' verified project' + (nVerified > 1 ? 's' : '') : '';
   $('pv-looking').textContent = d.goals.length
     ? 'Looking for: ' + d.goals.join(', ') + (d.hours ? ' · ' + d.hours + ' hrs/week' : '')
     : '';
@@ -257,10 +297,11 @@ function updateStrength(d) {
   const checks = [
     ['Add a profile photo', !!d.photo, 15, 'basics'],
     ['Write a headline', !!d.headline, 10, 'basics'],
-    ['Write your About section', !!d.about, 15, 'basics'],
+    ['Write your About section', !!d.about, 10, 'basics'],
     ['Add a work experience', d.experience.some(e => e.title && e.company), 15, 'experience'],
     ['Add at least 3 skills', d.skills.length >= 3, 15, 'skills'],
-    ['Add a project', d.projects.some(p => p.title), 15, 'projects'],
+    ['Add skills you want to learn', d.learn.length > 0, 10, 'skills'],
+    ['Add a project', d.projects.some(p => p.title), 10, 'projects'],
     ['Choose your goals and hours', d.goals.length > 0 && !!d.hours, 15, 'looking'],
   ];
   const pct = checks.reduce((sum, [, done, weight]) => sum + (done ? weight : 0), 0);

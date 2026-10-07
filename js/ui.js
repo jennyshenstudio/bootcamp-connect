@@ -12,7 +12,8 @@ function switchTab(tabName) {
     btn.setAttribute('aria-selected', on);
   });
   if (tabName === 'chat') ensureChatSelection();
-  if (tabName === 'matching') renderPeople();
+  if (tabName === 'matching') renderMatchmaker();
+  if (tabName === 'feed') { renderFeed(); renderFeedSidebar(); }
 }
 
 function upvotePost(btn) {

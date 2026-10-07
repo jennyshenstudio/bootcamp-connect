@@ -73,6 +73,14 @@
     <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19.5V5M5.75 11 12 4.75 18.25 11"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h5.25v15H6a1.5 1.5 0 0 0-1.5 1.5zM19.5 5.5A1.5 1.5 0 0 0 18 4h-5.25v15H18a1.5 1.5 0 0 1 1.5 1.5z"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.1-2.4 3.7M12 17.2v.3"/></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M4 10v4a1 1 0 0 0 1 1h2l6 4V5L7 9H5a1 1 0 0 0-1 1zM16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6.5 4h11v16.5L12 16.6l-5.5 3.9z"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/></symbol>
+    <symbol id="i-photo" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.75"/><path d="M20.5 15.5l-4.5-4.5-8 8"/></symbol>
     <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
@@ -256,7 +264,7 @@
         <!-- Segmented control (tablet / desktop) -->
         <nav class="hidden md:block" aria-label="Main sections">
           <div class="segmented" role="tablist">
-            <button onclick="switchTab('feed')" id="btn-feed" data-tab="feed" class="segmented-btn active" role="tab">Project Feed</button>
+            <button onclick="switchTab('feed')" id="btn-feed" data-tab="feed" class="segmented-btn active" role="tab">Feed</button>
             <button onclick="switchTab('matching')" id="btn-matching" data-tab="matching" class="segmented-btn" role="tab">Matchmaker</button>
             <button onclick="switchTab('chat')" id="btn-chat" data-tab="chat" class="segmented-btn" role="tab">Messages<span data-badge hidden class="nav-badge ml-1.5"></span></button>
             <button onclick="switchTab('profile')" id="btn-profile" data-tab="profile" class="segmented-btn" role="tab">Profile</button>
@@ -277,59 +285,33 @@
 
       <p id="welcome-line" class="text-footnote text-label-2 mb-2"></p>
 
-      <!-- TAB 1: COMMUNITY PROJECT FEED -->
+      <!-- TAB 1: FEED (specs/05-feed.md) -->
       <section id="tab-feed" class="space-y-5">
-        <div class="flex flex-wrap justify-between items-end gap-3">
-          <div>
-            <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Project Feed</h2>
-            <p class="text-subhead text-label-2">Post ideas, find paid work, and build your reputation.</p>
-          </div>
-          <button onclick="showToast('Posting form coming soon: project title, details, and tags.')" class="btn btn-primary btn-sm"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Create Post</button>
+        <div>
+          <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Feed</h2>
+          <p class="text-subhead text-label-2">Projects that build your portfolio, plus resources, questions, and news from your cohort.</p>
         </div>
-
-        <!-- Tag Taxonomy Filter Bar -->
-        <div class="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
-          <button class="chip chip-active whitespace-nowrap">All Tags</button>
-          <button class="chip whitespace-nowrap">🚀 Co-Founder Wanted</button>
-          <button class="chip whitespace-nowrap">💼 Paid Gig</button>
-          <button class="chip whitespace-nowrap font-mono !text-footnote">track:software-dev</button>
-          <button class="chip whitespace-nowrap font-mono !text-footnote">domain:ai-llm</button>
-        </div>
-
-        <!-- Feed Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Post 1 -->
-          <article class="card p-5 sm:p-6 space-y-3">
-            <div class="flex justify-between items-start gap-3">
-              <div class="flex items-center gap-3 min-w-0">
-                <button type="button" class="tap rounded-full shrink-0" onclick="openPerson('sarah')" aria-label="View Sarah Jenkins's profile"><div class="avatar w-10 h-10 text-subhead" style="background:linear-gradient(135deg,#FF9F0A,#FF375F)">SJ</div></button>
-                <div class="min-w-0">
-                  <h4><button type="button" class="font-semibold text-subhead hover:underline" onclick="openPerson('sarah')">Sarah Jenkins</button></h4>
-                  <p class="text-footnote text-label-2">Business Dev Track · 2h ago</p>
-                </div>
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
+          <div class="space-y-4 min-w-0">
+            <!-- Composer -->
+            <div class="card p-4 space-y-3">
+              <div class="flex items-center gap-3">
+                <div id="composer-avatar" class="avatar w-10 h-10 text-subhead"></div>
+                <button type="button" onclick="openComposer('community')" class="flex-1 text-left pf-input !rounded-full text-label-3 hover:bg-[var(--glass-control-hover)]">Share an update, resource, or project…</button>
               </div>
-              <span class="bg-applePurple/15 text-purpleText text-footnote font-semibold px-2.5 py-1 rounded-full whitespace-nowrap">Co-Founder Wanted</span>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" class="btn btn-plain btn-sm !text-label-2" onclick="openComposer('work')"><svg class="icon w-4 h-4 text-blueText"><use href="#i-briefcase"/></svg>Project</button>
+                <button type="button" class="btn btn-plain btn-sm !text-label-2" onclick="openComposer('resource')"><svg class="icon w-4 h-4 text-greenText"><use href="#i-book"/></svg>Resource</button>
+                <button type="button" class="btn btn-plain btn-sm !text-label-2" onclick="openComposer('personal')"><svg class="icon w-4 h-4 text-purpleText"><use href="#i-spark"/></svg>Personal project</button>
+                <button type="button" class="btn btn-plain btn-sm !text-label-2" onclick="openComposer('support')"><svg class="icon w-4 h-4 text-orangeText"><use href="#i-help"/></svg>Ask for help</button>
+              </div>
             </div>
-
-            <h3 class="font-semibold text-body">AI Financial Planning Agent for Freelancers</h3>
-            <p class="text-subhead text-label-2">
-              Validated market interest with 45 waitlist signups. Need a Full-Stack Software Dev to build the Next.js + Supabase MVP. Open to equal equity split!
-            </p>
-
-            <!-- Structured Taxonomy Tags -->
-            <div class="flex flex-wrap gap-1.5 text-caption">
-              <span class="bg-fill text-label-2 px-2 py-0.5 rounded-md font-mono">domain:ai-llm</span>
-              <span class="bg-fill text-label-2 px-2 py-0.5 rounded-md font-mono">track:software-dev</span>
-              <span class="bg-appleGreen/15 text-greenText px-2 py-0.5 rounded-md font-semibold">comp:equity-share</span>
-            </div>
-
-            <div class="pt-3 border-t border-hairline flex justify-between items-center">
-              <button onclick="upvotePost(this)" class="btn btn-gray btn-sm !gap-1.5">
-                <svg class="icon w-4 h-4"><use href="#i-up"/></svg><span class="upvote-count tabular-nums">14</span> points
-              </button>
-              <button class="btn btn-plain btn-sm" onclick="messagePerson('sarah')">Reply / Partner<svg class="icon w-4 h-4 -mr-1"><use href="#i-chevron"/></svg></button>
-            </div>
-          </article>
+            <!-- Filters -->
+            <div id="feed-filters" class="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1" role="toolbar" aria-label="Filter posts"></div>
+            <p id="feed-hint" class="text-footnote text-label-2 -mt-2"></p>
+            <div id="feed-list" class="space-y-4"></div>
+          </div>
+          <aside id="feed-sidebar" class="space-y-4 min-w-0 lg:sticky lg:top-20 order-first lg:order-none hidden lg:block"></aside>
         </div>
       </section>
 
@@ -338,15 +320,22 @@
         <div class="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Matchmaker</h2>
-            <p class="text-subhead text-label-2">People whose skills complement yours, ranked by fit. These are sample members for the demo.</p>
+            <p class="text-subhead text-label-2">Projects and people ranked by how well they fit you, with the reasons. Members and projects are samples for the demo.</p>
           </div>
-          <div id="people-filter" class="segmented" role="tablist" aria-label="Filter people">
+          <div class="flex flex-wrap gap-2">
+          <div id="mm-view" class="segmented" role="tablist" aria-label="Show">
+            <button type="button" class="segmented-btn active" data-view="projects" onclick="setMatchmakerView('projects')">Projects</button>
+            <button type="button" class="segmented-btn" data-view="people" onclick="setMatchmakerView('people')">People</button>
+          </div>
+          <div id="people-filter" class="segmented hidden" role="tablist" aria-label="Filter people">
             <button type="button" class="segmented-btn active" data-filter="all" onclick="setPeopleFilter('all')">All</button>
             <button type="button" class="segmented-btn" data-filter="connected" onclick="setPeopleFilter('connected')">Connections</button>
             <button type="button" class="segmented-btn" data-filter="suggested" onclick="setPeopleFilter('suggested')">Suggested</button>
           </div>
+          </div>
         </div>
-        <div id="people-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+        <div id="projects-view" class="space-y-4"></div>
+        <div id="people-view" class="hidden"><div id="people-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div></div>
       </section>
 
       <!-- TAB 3: MESSAGES (specs/04-connections-messages.md) -->
@@ -568,6 +557,21 @@
                 <p class="pf-hint mb-2">Suggested for your track</p>
                 <div id="skill-suggestions" class="flex flex-wrap gap-2"></div>
               </div>
+              <div class="pt-4 border-t border-hairline space-y-3">
+                <div class="flex items-baseline justify-between gap-3">
+                  <div>
+                    <p class="font-semibold text-body">Skills I want to learn</p>
+                    <p class="pf-hint mt-0.5">Up to 5. Projects that need these rank higher for you, so you get stretch work.</p>
+                  </div>
+                  <span id="learn-count" class="pf-hint tabular-nums">0/5</span>
+                </div>
+                <div class="pf-input flex flex-wrap items-center gap-1.5 cursor-text" onclick="document.getElementById('pf-learn-input').focus()">
+                  <div id="learn-tags" class="contents"></div>
+                  <label for="pf-learn-input" class="sr-only">Add a skill you want to learn</label>
+                  <input id="pf-learn-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-body focus:outline-none" onkeydown="onLearnKey(event)">
+                </div>
+                <div id="learn-suggestions" class="flex flex-wrap gap-2"></div>
+              </div>
             </div>
 
             <!-- 5. Projects / featured work -->
@@ -578,6 +582,18 @@
               </div>
               <div id="proj-list" class="space-y-3"></div>
               <button type="button" onclick="addProject()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add project</button>
+            </div>
+
+            <!-- Verified experience (specs/07-project-loop.md) -->
+            <div id="pf-section-verified" class="card p-5 sm:p-6 space-y-4">
+              <div class="flex items-baseline justify-between gap-3">
+                <div>
+                  <h3 class="font-semibold text-title3">Verified experience</h3>
+                  <p class="pf-hint mt-0.5">Projects completed on Bootcamp Connect, with teammate ratings and skill endorsements.</p>
+                </div>
+                <span id="verified-count" class="text-footnote font-semibold text-greenText"></span>
+              </div>
+              <div id="verified-list" class="space-y-4"></div>
             </div>
 
             <!-- 6. What I'm looking for -->
@@ -601,6 +617,11 @@
               <div>
                 <span class="pf-label">Industries I'm interested in</span>
                 <div id="pf-industries" class="flex flex-wrap gap-2"></div>
+              </div>
+              <div>
+                <span class="pf-label">Open to</span>
+                <div id="pf-open" class="flex flex-wrap gap-2"></div>
+                <p class="pf-hint mt-1.5">Projects with other pay types are hidden from your "For you" list.</p>
               </div>
               <div class="sm:w-1/2">
                 <label for="pf-available" class="pf-label">Available from</label>
@@ -630,6 +651,7 @@
               </div>
               <div id="pv-skills" class="flex flex-wrap gap-1"></div>
               <p id="pv-looking" class="text-footnote text-label-2"></p>
+              <p id="pv-verified" class="text-footnote text-greenText font-semibold inline-flex items-center gap-1"></p>
             </div>
 
             <div class="card p-5 space-y-3">
@@ -673,11 +695,16 @@
   <script src="js/ui.js"></script>
   <script src="js/profile.js"></script>
   <script src="js/import.js"></script>
+  <script src="js/demo-assets.js"></script>
   <script src="js/demo-data.js"></script>
+  <script src="js/demo-posts.js"></script>
   <script src="js/community.js"></script>
   <script src="js/matching.js"></script>
+  <script src="js/attachments.js"></script>
   <script src="js/people.js"></script>
   <script src="js/chat.js"></script>
+  <script src="js/projects.js"></script>
+  <script src="js/feed.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -67,15 +67,21 @@ function refreshPersonViews(id) {
 }
 
 // ----- Profile viewer (sheet) -----
-function openSheet(html, key) {
+let sheetOnClose = null;   // optional cleanup when a sheet closes (e.g. discard an unposted draft)
+
+function openSheet(html, key, { wide = false } = {}) {
   const sheet = $('sheet');
   if (sheet.classList.contains('hidden')) sheetReturnFocus = document.activeElement;
+  else if (sheetOnClose && key !== sheet.dataset.person) { const f = sheetOnClose; sheetOnClose = null; f(); }
+  $('sheet-panel').classList.toggle('sm:max-w-3xl', wide);
+  $('sheet-panel').classList.toggle('sm:max-w-xl', !wide);
   $('sheet-panel').innerHTML = html;
   sheet.dataset.person = key || '';
   sheet.classList.remove('hidden');
   document.body.classList.add('overflow-hidden');
 }
 function closeSheet() {
+  if (sheetOnClose) { const f = sheetOnClose; sheetOnClose = null; f(); }
   $('sheet').classList.add('hidden');
   document.body.classList.remove('overflow-hidden');
   if (sheetReturnFocus && document.contains(sheetReturnFocus)) sheetReturnFocus.focus();
@@ -119,7 +125,9 @@ function openPerson(id, { keepFocus = false } = {}) {
       section('Experience', '<ul class="space-y-3">' + p.experience.map(e =>
         '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(e.title) + '</p><p class="text-footnote text-label-2">' + esc(e.company) + ' · ' + esc(dates(e)) + '</p>' +
         (e.desc ? '<p class="text-footnote text-label-2 mt-1">' + esc(e.desc) + '</p>' : '') + '</li>').join('') + '</ul>') +
-      section('Skills', '<div class="flex flex-wrap gap-1.5">' + p.skills.map(s => '<span class="chip !cursor-default !min-h-[28px] !text-footnote">' + esc(s) + '</span>').join('') + '</div>') +
+      (p.verified.length ? section('Verified experience', '<ul class="space-y-3">' + p.verified.map(v => verifiedEntryHtml({ ...v, start: '', with: v.with }, wid => wid === 'me' ? memberName('me') : person(wid).first)).join('') + '</ul>') : '') +
+      section('Skills', '<div class="flex flex-wrap gap-1.5">' + p.skills.map(s => '<span class="chip !cursor-default !min-h-[28px] !text-footnote">' + esc(s) + (p.endorsements[s] ? ' <span class="text-greenText font-semibold ml-1">' + p.endorsements[s] + '</span>' : '') + '</span>').join('') + '</div>' +
+        '<p class="pf-label !mt-3">Wants to learn</p><div class="flex flex-wrap gap-1.5">' + p.learn.map(s => '<span class="px-2.5 py-1 rounded-full bg-applePurple/10 text-purpleText text-footnote font-semibold">' + esc(s) + '</span>').join('') + '</div>') +
       section('Projects', '<ul class="space-y-3">' + p.projects.map(pr =>
         '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(pr.title) + '</p><p class="text-footnote text-label-2">' + esc(pr.role) + '</p><p class="text-footnote text-label-2 mt-1">' + esc(pr.desc) + '</p></li>').join('') + '</ul>') +
       section('Looking for',
@@ -127,6 +135,7 @@ function openPerson(id, { keepFocus = false } = {}) {
         '<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-footnote">' +
           '<dt class="text-label-2">Hours per week</dt><dd>' + esc(p.hours) + '</dd>' +
           '<dt class="text-label-2">Idea status</dt><dd>' + esc(p.idea) + '</dd>' +
+          '<dt class="text-label-2">Open to</dt><dd>' + esc(p.openTo.map(k => PAY_TYPES[k].label).join(', ')) + '</dd>' +
           '<dt class="text-label-2">Industries</dt><dd>' + esc(p.industries.join(', ')) + '</dd>' +
         '</dl>') +
       (groups.length ? section('Group chats together', '<div class="flex flex-wrap gap-2">' + groups.map(g =>

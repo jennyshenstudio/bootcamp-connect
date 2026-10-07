@@ -15,6 +15,7 @@ renderChips('pf-goals', 'pf-goals', 'checkbox', GOALS);
 renderChips('pf-hours', 'pf-hours', 'radio', HOURS);
 renderChips('pf-idea', 'pf-idea', 'radio', IDEA_STATUS);
 renderChips('pf-industries', 'pf-industries', 'checkbox', INDUSTRIES);
+renderChips('pf-open', 'pf-open', 'checkbox', Object.keys(PAY_TYPES), Object.values(PAY_TYPES).map(t => t.label));
 
 $('profile-form').addEventListener('input', e => {
   const t = e.target;

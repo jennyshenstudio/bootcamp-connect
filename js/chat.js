@@ -6,7 +6,7 @@ function allChats() {
   const extra = demo.created
     .filter(pid => !DEMO_CHATS.some(c => c.id === 'd-' + pid))
     .map(pid => ({ id: 'd-' + pid, type: 'dm', members: [pid], unread: 0, rank: 0, messages: [] }));
-  return DEMO_CHATS.concat(extra);
+  return DEMO_CHATS.concat(demo.projectChats, extra);
 }
 const chatMessages = chat => chat.messages.concat(demo.sent[chat.id] || []);
 const chatTitle = chat => chat.type === 'group' ? chat.name : fullName(person(chat.members[0]));
@@ -27,7 +27,7 @@ function renderChatList() {
     const msgs = chatMessages(c);
     const last = msgs[msgs.length - 1];
     const unread = demo.unread[c.id] || 0;
-    const who = !last ? '' : last.from === 'me' ? 'You: ' : c.type === 'group' ? person(last.from).first + ': ' : '';
+    const who = !last || last.from === 'system' ? '' : last.from === 'me' ? 'You: ' : c.type === 'group' ? person(last.from).first + ': ' : '';
     const when = !last ? '' : last.day === 'Today' ? last.time : last.day;
     return '<li><button type="button" onclick="openChat(\'' + c.id + '\')" class="w-full flex items-center gap-3 px-2.5 py-2.5 rounded-2xl text-left transition ease-apple ' +
       (openChatId === c.id ? 'bg-[var(--glass-pill)] shadow-[inset_0_1px_0_var(--glass-highlight)]' : 'hover:bg-fill') + '"' + (openChatId === c.id ? ' aria-current="true"' : '') + '>' +
@@ -97,8 +97,12 @@ function renderThread() {
       html += '<p class="text-center text-caption text-label-2 font-semibold my-3">' + esc(m.day) + '</p>';
       lastDay = m.day;
     }
+    if (m.from === 'system') {
+      html += '<p class="mx-auto my-3 max-w-[85%] w-fit text-center text-footnote text-label-2 bg-fill rounded-2xl px-3 py-1.5">' + esc(m.text) + '</p>';
+      return;
+    }
     const prev = msgs[i - 1], next = msgs[i + 1];
-    const firstOfRun = !prev || prev.from !== m.from || prev.day !== m.day;
+    const firstOfRun = !prev || prev.from !== m.from || prev.day !== m.day || prev.from === 'system';
     const lastOfRun = !next || next.from !== m.from || next.day !== m.day;
     const gap = firstOfRun && i ? ' mt-3' : ' mt-0.5';
     const text = esc(m.text);
@@ -148,7 +152,7 @@ async function generateReply(chat, from) {
   if (!sample) return null;
   const p = person(from);
   const me = currentAccount() || {};
-  const history = chatMessages(chat).slice(-10).map(m =>
+  const history = chatMessages(chat).filter(m => m.from !== 'system').slice(-10).map(m =>
     (m.from === 'me' ? (me.first || 'Member') : person(m.from).first) + ': ' + m.text).join('\n');
   const prompt =
     'You are role-playing ' + fullName(p) + ', a sample member of Bootcamp Connect, a networking app where coding-bootcamp ' +
@@ -166,7 +170,7 @@ async function generateReply(chat, from) {
 
 function scheduleReply(chat) {
   clearTimeout(replyTimers[chat.id]);
-  const candidates = chat.members.filter(id => chat.type === 'dm' || demo.connected[id]);
+  const candidates = chat.members.filter(id => chat.type === 'dm' || chat.project || demo.connected[id]);
   const from = candidates[Math.floor(Math.random() * candidates.length)] || chat.members[0];
   replyTimers[chat.id] = setTimeout(async () => {
     typing[chat.id] = from;
@@ -204,7 +208,5 @@ function initDemo() {
   loadDemo();
   openChatId = null;
   $('chat-shell').classList.remove('thread-open');
-  renderPeople();
-  renderChatList();
-  updateBadge();
+  refreshAll();
 }

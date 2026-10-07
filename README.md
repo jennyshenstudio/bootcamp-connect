@@ -6,12 +6,19 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 
 | Path | What it is |
 | --- | --- |
-| `prototype.html` | Current interactive prototype (single file, Tailwind via CDN). Open it in a browser. |
+| `prototype.html` | Current interactive prototype (Tailwind via CDN). Open it in a browser. |
+| `css/`, `js/` | Styles and scripts for the prototype, one file per feature (load order is set in `prototype.html`). |
 | `prototype-v1.html` | Earlier design with fuller Matchmaker, Messages, and Profile tabs. |
 | `test-data/` | Sample CV for a made-up member (Maya Okafor) as PDF, Word, and HTML, for testing the profile import. |
-| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. |
+| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. `05-feed.md`, `06-matching.md`, `07-project-loop.md`: experience-first platform. |
 
 ## Prototype features
+
+Bootcamp Connect is **experience first**: members join real projects (paid, unpaid, or equity) that become verified portfolio experience.
+
+- Typed feed: Projects, Resources, Personal projects, Support, Community, with For you ranking, likes, comments, saves, and photos, videos, documents, and links on every post type
+- Matching v2: hard filters (pay type, hours, setting, track) plus skill fit, growth fit (skills you want to learn), commitment, interests, goals, and fairness, with reasons; two-way person matching; team suggestions for project owners
+- Project loop: apply, manage applicants, start a project with an automatic team chat, mark complete with ratings and endorsements, and earn verified experience on your profile
 
 - Full-page sign up / log in with Google (simulated) and email
 - Mandatory track selection (Software Developer or Business Developer) and Terms agreement

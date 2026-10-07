@@ -180,6 +180,7 @@ function enterDashboard(account, { animate = true, isNew = false } = {}) {
 
 function logout() {
   closeSheet();
+  demo = null;
   const email = load(SESSION_KEY, '');
   remove(SESSION_KEY);
 

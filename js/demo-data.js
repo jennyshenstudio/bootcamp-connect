@@ -16,6 +16,9 @@ const DEMO_PEOPLE = [
     skills: ['Financial modeling', 'Market research', 'Pitch decks', 'Outbound sales', 'Fundraising', 'Pricing'],
     projects: [{ title: 'Freelancer Finance pricing model', role: 'Business lead', desc: 'Three-tier pricing tested with 40 freelancers; 18% said they would pay for the Pro tier.' }],
     goals: ['Co-founder'], hours: '20–40', idea: 'Open to both', industries: ['Fintech', 'AI'],
+    learn: ['SQL', 'Product management'], openTo: ['Equity', 'Paid'], connections: 14,
+    endorsements: { 'Financial modeling': 4, 'Market research': 3, 'Pitch decks': 2 },
+    verified: [{ title: 'Pricing study for a meal-kit startup', role: 'Business Dev', with: ['tom'], end: '2026-08', rating: 4.9, endorsed: ['Pricing', 'Market research'] }],
   },
   {
     id: 'sarah', first: 'Sarah', last: 'Jenkins', colors: ['#FF9F0A', '#FF375F'], connected: true,
@@ -29,6 +32,9 @@ const DEMO_PEOPLE = [
     skills: ['Growth marketing', 'Customer discovery', 'Copywriting', 'Product management', 'Pitch decks'],
     projects: [{ title: 'Freelancer Finance waitlist', role: 'Founder', desc: 'Landing page and referral loop that reached 62 signups in five weeks with no ad spend.' }],
     goals: ['Co-founder', 'Hiring teammates'], hours: '40+', idea: 'I have an idea', industries: ['Fintech', 'AI'],
+    learn: ['SQL', 'Financial modeling'], openTo: ['Equity'], connections: 21,
+    endorsements: { 'Growth marketing': 5, 'Copywriting': 3 },
+    verified: [],
   },
   {
     id: 'marcus', first: 'Marcus', last: 'Johnson', colors: ['#0A84FF', '#30D158'], connected: true,
@@ -45,6 +51,9 @@ const DEMO_PEOPLE = [
       { title: 'Convoy Planner', role: 'Solo', desc: 'Route and load planner for small fleets; used by two local delivery companies.' },
     ],
     goals: ['Paid work', 'Passion project'], hours: '10–20', idea: 'I want to join an idea', industries: ['Fintech', 'Marketplaces'],
+    learn: ['Stripe', 'AWS'], openTo: ['Paid', 'Unpaid'], connections: 18,
+    endorsements: { 'TypeScript': 4, 'React': 3, 'Node.js': 3, 'PostgreSQL': 2 },
+    verified: [{ title: 'Cohort 12 attendance tracker', role: 'Software Dev', with: ['tom', 'aisha'], end: '2026-08', rating: 5, endorsed: ['React', 'Node.js', 'PostgreSQL'] }],
   },
   {
     id: 'priya', first: 'Priya', last: 'Raman', colors: ['#30D158', '#64D2FF'], connected: true,
@@ -58,6 +67,9 @@ const DEMO_PEOPLE = [
     skills: ['Python', 'PyTorch', 'FastAPI', 'SQL', 'Data analysis', 'User interviews'],
     projects: [{ title: 'RefillRadar', role: 'ML + backend', desc: 'Predicts which patients are likely to miss a refill; 0.81 AUC on a public dataset.' }],
     goals: ['Co-founder'], hours: '20–40', idea: 'I have an idea', industries: ['Health', 'AI'],
+    learn: ['React', 'Customer discovery'], openTo: ['Equity', 'Unpaid'], connections: 9,
+    endorsements: { 'Python': 4, 'Data analysis': 3, 'SQL': 2 },
+    verified: [{ title: 'Pharmacy refill survey analysis', role: 'Software Dev', with: ['diego'], end: '2026-09', rating: 4.8, endorsed: ['Python', 'Data analysis'] }],
   },
   {
     id: 'diego', first: 'Diego', last: 'Hernández', colors: ['#FF9F0A', '#FFD60A'], connected: true,
@@ -71,6 +83,9 @@ const DEMO_PEOPLE = [
     skills: ['Operations', 'Sales', 'Customer discovery', 'Partnerships', 'Spanish'],
     projects: [{ title: 'TableTurn pilot', role: 'Business lead', desc: 'Booking and deposit tool for independent restaurants; three pilots signed.' }],
     goals: ['Co-founder', 'Paid work'], hours: '40+', idea: 'I have an idea', industries: ['Marketplaces', 'Consumer'],
+    learn: ['SQL', 'Product management'], openTo: ['Paid', 'Equity'], connections: 11,
+    endorsements: { 'Operations': 4, 'Sales': 3, 'Customer discovery': 2 },
+    verified: [{ title: 'Pharmacy refill survey analysis', role: 'Business Dev', with: ['priya'], end: '2026-09', rating: 4.9, endorsed: ['Customer discovery', 'Operations'] }],
   },
   {
     id: 'aisha', first: 'Aisha', last: 'Bello', colors: ['#BF5AF2', '#FF375F'], connected: false,
@@ -84,6 +99,9 @@ const DEMO_PEOPLE = [
     skills: ['React Native', 'Swift', 'Figma', 'TypeScript', 'UI design'],
     projects: [{ title: 'StudySprint', role: 'Solo', desc: 'Pomodoro study planner with streaks; 1,200 TestFlight users.' }],
     goals: ['Passion project', 'Paid work'], hours: '10–20', idea: 'Open to both', industries: ['Edtech', 'Health'],
+    learn: ['Node.js', 'Pitch decks'], openTo: ['Paid', 'Unpaid'], connections: 6,
+    endorsements: { 'UI design': 4, 'Figma': 3, 'React Native': 2 },
+    verified: [{ title: 'Cohort 12 attendance tracker', role: 'Software Dev', with: ['marcus', 'tom'], end: '2026-08', rating: 4.9, endorsed: ['React Native', 'UI design'] }],
   },
   {
     id: 'tom', first: 'Tom', last: 'Nguyen', colors: ['#64D2FF', '#5E5CE6'], connected: false,
@@ -97,6 +115,12 @@ const DEMO_PEOPLE = [
     skills: ['UX research', 'Product management', 'Roadmapping', 'Public speaking'],
     projects: [{ title: 'GradeLoop research', role: 'Researcher', desc: 'Interviewed 30 teachers; found feedback time, not grading, is the main pain point.' }],
     goals: ['Co-founder'], hours: '20–40', idea: 'I want to join an idea', industries: ['Edtech'],
+    learn: ['Figma', 'SQL'], openTo: ['Unpaid', 'Equity'], connections: 4,
+    endorsements: { 'UX research': 5, 'Product management': 3 },
+    verified: [
+      { title: 'Cohort 12 attendance tracker', role: 'Business Dev', with: ['marcus', 'aisha'], end: '2026-08', rating: 4.8, endorsed: ['UX research', 'Product management'] },
+      { title: 'Pricing study for a meal-kit startup', role: 'Business Dev', with: ['elena'], end: '2026-08', rating: 4.7, endorsed: ['UX research'] },
+    ],
   },
   {
     id: 'hannah', first: 'Hannah', last: 'Kim', colors: ['#30D158', '#0A84FF'], connected: false,
@@ -110,6 +134,9 @@ const DEMO_PEOPLE = [
     skills: ['TypeScript', 'React', 'Tailwind CSS', 'Accessibility', 'Figma'],
     projects: [{ title: 'Footprint', role: 'Frontend', desc: 'Browser extension that shows the carbon cost of online orders.' }],
     goals: ['Paid work', 'Passion project'], hours: '10–20', idea: 'Open to both', industries: ['Climate', 'Consumer'],
+    learn: ['Node.js', 'Growth marketing'], openTo: ['Paid', 'Unpaid'], connections: 3,
+    endorsements: { 'Accessibility': 3, 'React': 2 },
+    verified: [],
   },
 ];
 
