@@ -8,16 +8,18 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 | --- | --- |
 | `prototype.html` | Current interactive prototype (single file, Tailwind via CDN). Open it in a browser. |
 | `prototype-v1.html` | Earlier design with fuller Matchmaker, Messages, and Profile tabs. |
-| `specs/` | Feature specs. `01-auth.md` covers sign-up, log in, and track selection. |
+| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. |
 
 ## Prototype features
 
 - Full-page sign up / log in with Google (simulated) and email
 - Mandatory track selection (Software Developer or Business Developer) and Terms agreement
 - Log out, and staying logged in after a refresh
-- Project feed with upvotes; Matchmaker, Messages, and Profile tabs (placeholders)
+- One-page profile setup: photo, headline, track, location, About, links, work experience, skills, projects, and what you're looking for, with a live preview card and profile strength meter
+- New sign-ups land on profile setup; returning members land on the Project Feed
+- Project feed with upvotes; Matchmaker and Messages tabs (placeholders)
 
-Accounts are stored only in the viewer's browser (`localStorage`); there is no backend yet, and passwords are not stored or checked.
+Accounts and profiles (including photos, resized to 256px) are stored only in the viewer's browser (`localStorage`); there is no backend yet, and passwords are not stored or checked.
 
 ## Run it
 

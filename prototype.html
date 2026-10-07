@@ -53,6 +53,20 @@
       #auth-screen input:not([type=radio]):not([type=checkbox]),
       #auth-screen button { padding-top: 0.4rem; padding-bottom: 0.4rem; }
     }
+    /* Profile setup */
+    .pf-label { display: block; font-size: 0.75rem; font-weight: 600; color: #334155; margin-bottom: 0.25rem; }
+    .pf-hint { font-size: 0.6875rem; color: #94A3B8; }
+    .pf-error { font-size: 0.75rem; font-weight: 500; color: #DC2626; margin-top: 0.375rem; }
+    .pf-input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.75rem; border: 1px solid #E2E8F0; background: #F8FAFC; font-size: 0.875rem; color: #0F172A; }
+    .pf-input:focus, .pf-input:focus-within { outline: none; background: #FFFFFF; box-shadow: 0 0 0 2px #007AFF; }
+    .pf-input:disabled { opacity: 0.5; }
+    .pf-input.invalid { border-color: #DC2626; }
+    .chip { display: inline-block; padding: 0.375rem 0.75rem; border-radius: 9999px; border: 1px solid #E2E8F0; background: #FFFFFF; font-size: 0.75rem; font-weight: 500; color: #334155; transition: all 0.15s ease; }
+    .chip:hover { border-color: #94A3B8; }
+    .peer:checked + .chip { background: #007AFF; border-color: #007AFF; color: #FFFFFF; }
+    .peer:focus-visible + .chip { outline: 2px solid #007AFF; outline-offset: 2px; }
+    .avatar { border-radius: 9999px; background: #0F172A; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; }
+    .entry { border: 1px solid #E2E8F0; border-radius: 0.875rem; padding: 1rem; background: #FFFFFF; }
     .no-scrollbar { scrollbar-width: none; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     @media (prefers-reduced-motion: reduce) {
@@ -249,7 +263,7 @@
           <div id="user-pill" class="hidden sm:block text-xs bg-blue-100 border border-blue-200 text-appleBlue px-3 py-1 rounded-full font-medium">
             💻 Software Dev Track
           </div>
-          <div id="user-avatar" title="" class="w-8 h-8 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">AC</div>
+          <button type="button" id="user-avatar" onclick="switchTab('profile')" title="" aria-label="Open your profile" class="avatar w-8 h-8 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-appleBlue focus-visible:ring-offset-2">AC</button>
           <button onclick="logout()" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-appleBlue">
             Log out
           </button>
@@ -334,11 +348,223 @@
         </div>
       </section>
 
-      <!-- TAB 4: PROFILE SCORECARD -->
+      <!-- TAB 4: PROFILE SETUP (specs/02-profile.md) -->
       <section id="tab-profile" class="space-y-6 hidden">
-        <h2 class="text-2xl font-bold">Scorecard Profile Setup</h2>
-        <div class="glass-card rounded-2xl p-6">
-          <p class="text-xs text-slate-600">Edit hard credentials, GitHub links, and soft factors (Motivation: Wealth vs. Control).</p>
+
+        <!-- Onboarding banner (new sign-ups) -->
+        <div id="profile-banner" class="hidden rounded-2xl border border-appleBlue/30 bg-blue-50 px-5 py-4 flex items-start gap-3">
+          <span class="text-xl" aria-hidden="true">👋</span>
+          <div class="min-w-0">
+            <p class="font-semibold text-sm text-slate-900">Finish your profile so the right people can find you</p>
+            <p class="text-xs text-slate-600 mt-0.5">Members with a photo, skills, and clear goals get matched first. You can edit this any time.</p>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight">Your Profile</h2>
+          <p class="text-xs text-slate-500">This is what other members see in the Project Feed and Matchmaker.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
+
+          <form id="profile-form" novalidate onsubmit="saveProfile(event)" class="space-y-5 min-w-0">
+
+            <!-- 1. Basics -->
+            <div id="pf-section-basics" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+              <div>
+                <h3 class="font-bold text-base">Basics</h3>
+                <p class="pf-hint">Your name, photo, and a one-line headline.</p>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-4">
+                <div id="pf-photo-preview" class="avatar w-20 h-20 text-2xl"></div>
+                <div class="space-y-1.5">
+                  <div class="flex flex-wrap gap-2">
+                    <label for="pf-photo" class="cursor-pointer bg-slate-900 hover:bg-slate-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition">Upload photo</label>
+                    <input id="pf-photo" type="file" accept="image/*" class="sr-only" onchange="handlePhoto(this)">
+                    <button type="button" id="pf-photo-remove" onclick="removePhoto()" class="hidden text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:border-slate-300 px-3.5 py-2 rounded-lg transition">Remove</button>
+                  </div>
+                  <p class="pf-hint">JPG or PNG. A square, well-lit headshot works best.</p>
+                  <p id="pf-photo-error" class="pf-error hidden"></p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="pf-first" class="pf-label">First name *</label>
+                  <input id="pf-first" type="text" autocomplete="given-name" class="pf-input">
+                  <p id="pf-first-error" class="pf-error hidden">Enter your first name.</p>
+                </div>
+                <div>
+                  <label for="pf-last" class="pf-label">Last name *</label>
+                  <input id="pf-last" type="text" autocomplete="family-name" class="pf-input">
+                  <p id="pf-last-error" class="pf-error hidden">Enter your last name.</p>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-baseline justify-between">
+                  <label for="pf-headline" class="pf-label">Headline *</label>
+                  <span id="pf-headline-count" class="pf-hint tabular-nums">0/80</span>
+                </div>
+                <input id="pf-headline" type="text" maxlength="80" placeholder="e.g. Full-stack developer · ex-teacher · building edtech" class="pf-input">
+                <p id="pf-headline-error" class="pf-error hidden">Add a headline so people know what you do.</p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="pf-track" class="pf-label">Bootcamp track *</label>
+                  <select id="pf-track" class="pf-input" onchange="onTrackChange()">
+                    <option value="Software Developer">💻 Software Developer</option>
+                    <option value="Business Developer">💼 Business Developer</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="pf-location" class="pf-label">Location</label>
+                  <input id="pf-location" type="text" autocomplete="address-level2" placeholder="e.g. Austin, TX" class="pf-input">
+                </div>
+              </div>
+
+              <div>
+                <span class="pf-label">Work setting</span>
+                <div id="pf-setting" class="flex flex-wrap gap-2"></div>
+              </div>
+
+              <div>
+                <div class="flex items-baseline justify-between">
+                  <label for="pf-about" class="pf-label">About</label>
+                  <span id="pf-about-count" class="pf-hint tabular-nums">0/500</span>
+                </div>
+                <textarea id="pf-about" rows="4" maxlength="500" placeholder="What you've built, what you're great at, and what you want to work on next." class="pf-input resize-y"></textarea>
+              </div>
+            </div>
+
+            <!-- 2. Links -->
+            <div id="pf-section-links" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+              <div>
+                <h3 class="font-bold text-base">Links</h3>
+                <p class="pf-hint">Let people check your work and background.</p>
+              </div>
+              <div>
+                <label for="pf-linkedin" class="pf-label">LinkedIn</label>
+                <input id="pf-linkedin" type="url" inputmode="url" placeholder="linkedin.com/in/your-name" class="pf-input" data-url>
+                <p id="pf-linkedin-error" class="pf-error hidden">Enter a valid link, like linkedin.com/in/your-name.</p>
+              </div>
+              <div>
+                <label for="pf-code" id="pf-code-label" class="pf-label">GitHub</label>
+                <input id="pf-code" type="url" inputmode="url" placeholder="github.com/your-name" class="pf-input" data-url>
+                <p id="pf-code-error" class="pf-error hidden">Enter a valid link.</p>
+              </div>
+              <div>
+                <label for="pf-website" class="pf-label">Personal website</label>
+                <input id="pf-website" type="url" inputmode="url" placeholder="yourname.com" class="pf-input" data-url>
+                <p id="pf-website-error" class="pf-error hidden">Enter a valid link.</p>
+              </div>
+            </div>
+
+            <!-- 3. Work experience -->
+            <div id="pf-section-experience" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+              <div>
+                <h3 class="font-bold text-base">Work experience</h3>
+                <p class="pf-hint">Jobs, internships, freelance, and volunteer work all count. Lead with results.</p>
+              </div>
+              <div id="exp-list" class="space-y-4"></div>
+              <button type="button" onclick="addExperience()" class="text-xs font-semibold text-appleBlue hover:underline">＋ Add experience</button>
+            </div>
+
+            <!-- 4. Skills -->
+            <div id="pf-section-skills" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+              <div class="flex items-baseline justify-between gap-3">
+                <div>
+                  <h3 class="font-bold text-base">Skills</h3>
+                  <p class="pf-hint">Add up to 10. Put your strongest first.</p>
+                </div>
+                <span id="skill-count" class="pf-hint tabular-nums">0/10</span>
+              </div>
+              <div class="pf-input flex flex-wrap items-center gap-1.5 min-h-[2.75rem] cursor-text" onclick="document.getElementById('pf-skill-input').focus()">
+                <div id="skill-tags" class="contents"></div>
+                <input id="pf-skill-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-sm focus:outline-none py-0.5" onkeydown="onSkillKey(event)">
+              </div>
+              <div>
+                <p class="pf-hint mb-1.5">Suggested for your track</p>
+                <div id="skill-suggestions" class="flex flex-wrap gap-1.5"></div>
+              </div>
+            </div>
+
+            <!-- 5. Projects / featured work -->
+            <div id="pf-section-projects" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+              <div>
+                <h3 class="font-bold text-base">Projects &amp; featured work</h3>
+                <p class="pf-hint">Bootcamp capstones, side projects, pitch decks, case studies.</p>
+              </div>
+              <div id="proj-list" class="space-y-4"></div>
+              <button type="button" onclick="addProject()" class="text-xs font-semibold text-appleBlue hover:underline">＋ Add project</button>
+            </div>
+
+            <!-- 6. What I'm looking for -->
+            <div id="pf-section-looking" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+              <div>
+                <h3 class="font-bold text-base">What I'm looking for</h3>
+                <p class="pf-hint">Used by the Matchmaker to suggest people and projects.</p>
+              </div>
+              <div>
+                <span class="pf-label">Goals</span>
+                <div id="pf-goals" class="flex flex-wrap gap-2"></div>
+              </div>
+              <div>
+                <span class="pf-label">Hours per week I can commit</span>
+                <div id="pf-hours" class="flex flex-wrap gap-2"></div>
+              </div>
+              <div>
+                <span class="pf-label">Idea status</span>
+                <div id="pf-idea" class="flex flex-wrap gap-2"></div>
+              </div>
+              <div>
+                <span class="pf-label">Industries I'm interested in</span>
+                <div id="pf-industries" class="flex flex-wrap gap-2"></div>
+              </div>
+              <div class="sm:w-1/2">
+                <label for="pf-available" class="pf-label">Available from</label>
+                <input id="pf-available" type="date" class="pf-input">
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <button type="submit" class="bg-appleBlue hover:bg-blue-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-appleBlue">Save profile</button>
+            </div>
+          </form>
+
+          <!-- Side panel: preview + strength -->
+          <aside class="order-first lg:order-none lg:sticky lg:top-24 space-y-4 min-w-0">
+            <div class="glass-card rounded-2xl p-5 space-y-3">
+              <p class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">How others see you</p>
+              <div class="flex items-center gap-3">
+                <div id="pv-photo" class="avatar w-14 h-14 text-lg shrink-0"></div>
+                <div class="min-w-0">
+                  <p id="pv-name" class="font-bold text-sm truncate"></p>
+                  <p id="pv-headline" class="text-xs text-slate-600 line-clamp-2"></p>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+                <span id="pv-track" class="px-2 py-0.5 rounded-full font-medium border"></span>
+                <span id="pv-location" class="text-slate-500"></span>
+              </div>
+              <div id="pv-skills" class="flex flex-wrap gap-1"></div>
+              <p id="pv-looking" class="text-[11px] text-slate-600"></p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 space-y-3">
+              <div class="flex items-baseline justify-between">
+                <p class="font-bold text-sm">Profile strength</p>
+                <p id="strength-pct" class="text-sm font-bold tabular-nums">0%</p>
+              </div>
+              <div class="h-2 rounded-full bg-slate-200 overflow-hidden">
+                <div id="strength-bar" class="h-full rounded-full bg-appleBlue transition-all duration-500" style="width:0%"></div>
+              </div>
+              <ul id="strength-list" class="space-y-1.5 text-xs"></ul>
+              <button type="submit" form="profile-form" class="w-full bg-appleBlue hover:bg-blue-600 text-white text-xs font-semibold py-2.5 rounded-xl transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-appleBlue">Save profile</button>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -357,7 +583,7 @@
       try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; }
     }
     function save(key, value) {
-      try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+      try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; }
     }
     function remove(key) {
       try { localStorage.removeItem(key); } catch {}
@@ -368,7 +594,7 @@
     function saveAccount(account) {
       const accounts = getAccounts();
       accounts[account.email] = account;
-      save(ACCOUNTS_KEY, accounts);
+      return save(ACCOUNTS_KEY, accounts);
     }
 
     // ---------- Auth (specs/01-auth.md) ----------
@@ -445,7 +671,7 @@
       const last = document.getElementById('last-name').value.trim() || 'User';
       const account = { email: 'google-user@gmail.com', first, last, track: getSelectedTrack(), provider: 'google' };
       saveAccount(account);
-      enterDashboard(account);
+      enterDashboard(account, { isNew: true });
     }
 
     function handleAuthSubmit(e) {
@@ -478,7 +704,7 @@
         provider: 'email',
       };
       saveAccount(account);
-      enterDashboard(account);
+      enterDashboard(account, { isNew: true });
     }
 
     function escapeHtml(s) {
@@ -496,16 +722,18 @@
         pill.textContent = '💻 Software Dev Track';
       }
       const avatar = document.getElementById('user-avatar');
-      avatar.textContent = ((account.first[0] || '') + (account.last[0] || '')).toUpperCase() || '?';
+      setAvatar(avatar, account.profile && account.profile.photo, initials(account.first, account.last));
       avatar.title = account.first + ' ' + account.last + ' · ' + account.email;
       document.getElementById('welcome-line').textContent = 'Signed in as ' + account.first + ' ' + account.last + ' (' + account.email + ')';
     }
 
-    function enterDashboard(account, { animate = true } = {}) {
+    function enterDashboard(account, { animate = true, isNew = false } = {}) {
       save(SESSION_KEY, account.email);
       document.getElementById('toast').classList.add('hidden');
       renderUser(account);
-      switchTab('feed');
+      loadProfileForm(account);
+      document.getElementById('profile-banner').classList.toggle('hidden', !isNew);
+      switchTab(isNew ? 'profile' : 'feed');
 
       const auth = document.getElementById('auth-screen');
       const dashboard = document.getElementById('app-dashboard');
@@ -566,6 +794,348 @@
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toast.classList.add('hidden'), 2800);
     }
+
+    // ---------- Profile setup (specs/02-profile.md) ----------
+    const SKILL_SUGGESTIONS = {
+      'Software Developer': ['React', 'Node.js', 'TypeScript', 'Python', 'SQL', 'Next.js', 'AWS', 'REST APIs', 'Git', 'UI/UX'],
+      'Business Developer': ['Market research', 'Financial modeling', 'Sales', 'Pitch decks', 'Growth marketing', 'Product management', 'Customer discovery', 'Fundraising', 'Partnerships', 'Copywriting'],
+    };
+    const SETTINGS = ['Remote', 'Hybrid', 'In person'];
+    const GOALS = ['Co-founder', 'Paid gig', 'Passion project', 'Hiring teammates'];
+    const HOURS = ['Under 10', '10–20', '20–40', '40+'];
+    const IDEA_STATUS = ['I have an idea', 'I want to join an idea', 'Open to both'];
+    const INDUSTRIES = ['AI', 'Fintech', 'Health', 'Edtech', 'Climate', 'Consumer', 'B2B SaaS', 'Marketplaces', 'Other'];
+    const MAX_SKILLS = 10;
+
+    let skills = [];
+    let photoData = null;
+    let entrySeq = 0;
+
+    const $ = id => document.getElementById(id);
+    const esc = v => escapeHtml(String(v ?? ''));
+
+    function initials(first, last) {
+      return (((first || '')[0] || '') + ((last || '')[0] || '')).toUpperCase() || '?';
+    }
+
+    function setAvatar(el, photo, fallback) {
+      el.style.backgroundImage = photo ? 'url("' + photo + '")' : '';
+      el.textContent = photo ? '' : fallback;
+    }
+
+    function renderChips(containerId, name, type, options) {
+      $(containerId).innerHTML = options.map((o, i) =>
+        '<label class="cursor-pointer"><input type="' + type + '" id="' + name + '-' + i + '" name="' + name + '" value="' + esc(o) + '" class="peer sr-only"><span class="chip">' + esc(o) + '</span></label>'
+      ).join('');
+    }
+    function getChecked(name) {
+      return [...document.querySelectorAll('input[name="' + name + '"]:checked')].map(i => i.value);
+    }
+    function setChecked(name, values) {
+      document.querySelectorAll('input[name="' + name + '"]').forEach(i => { i.checked = values.includes(i.value); });
+    }
+
+    // Repeatable entries: work experience and projects
+    function expHtml(e = {}) {
+      const id = 'exp' + (++entrySeq);
+      return '<div class="entry space-y-3" data-exp>' +
+        '<div class="flex items-center justify-between"><p class="text-xs font-semibold text-slate-500">Experience</p>' +
+        '<button type="button" onclick="removeEntry(this)" class="text-xs font-medium text-slate-500 hover:text-red-600">Remove</button></div>' +
+        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+          '<div><label for="' + id + '-title" class="pf-label">Title</label><input id="' + id + '-title" data-field="title" type="text" class="pf-input" placeholder="e.g. Frontend Developer Intern" value="' + esc(e.title) + '"></div>' +
+          '<div><label for="' + id + '-company" class="pf-label">Company</label><input id="' + id + '-company" data-field="company" type="text" class="pf-input" placeholder="e.g. Shopify" value="' + esc(e.company) + '"></div>' +
+          '<div><label for="' + id + '-start" class="pf-label">Start</label><input id="' + id + '-start" data-field="start" type="month" class="pf-input" value="' + esc(e.start) + '"></div>' +
+          '<div><label for="' + id + '-end" class="pf-label">End</label><input id="' + id + '-end" data-field="end" type="month" class="pf-input" value="' + esc(e.end) + '"' + (e.current ? ' disabled' : '') + '></div>' +
+        '</div>' +
+        '<label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer"><input id="' + id + '-current" data-field="current" type="checkbox" class="w-4 h-4 accent-appleBlue" onchange="toggleCurrent(this)"' + (e.current ? ' checked' : '') + '> I currently work here</label>' +
+        '<div><label for="' + id + '-desc" class="pf-label">What you did</label><textarea id="' + id + '-desc" data-field="desc" rows="3" class="pf-input resize-y" placeholder="What did you build or own, and what changed because of it?">' + esc(e.desc) + '</textarea></div>' +
+        '</div>';
+    }
+
+    function projHtml(p = {}) {
+      const id = 'proj' + (++entrySeq);
+      return '<div class="entry space-y-3" data-proj>' +
+        '<div class="flex items-center justify-between"><p class="text-xs font-semibold text-slate-500">Project</p>' +
+        '<button type="button" onclick="removeEntry(this)" class="text-xs font-medium text-slate-500 hover:text-red-600">Remove</button></div>' +
+        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+          '<div><label for="' + id + '-title" class="pf-label">Title</label><input id="' + id + '-title" data-field="title" type="text" class="pf-input" placeholder="e.g. AI budgeting app" value="' + esc(p.title) + '"></div>' +
+          '<div><label for="' + id + '-role" class="pf-label">Your role</label><input id="' + id + '-role" data-field="role" type="text" class="pf-input" placeholder="e.g. Built the backend" value="' + esc(p.role) + '"></div>' +
+        '</div>' +
+        '<div><label for="' + id + '-link" class="pf-label">Link</label><input id="' + id + '-link" data-field="link" type="url" inputmode="url" class="pf-input" placeholder="github.com/you/project or a demo link" value="' + esc(p.link) + '"></div>' +
+        '<div><div class="flex items-baseline justify-between"><label for="' + id + '-desc" class="pf-label">Description</label><span class="pf-hint tabular-nums" data-count-for="' + id + '-desc">0/200</span></div>' +
+        '<textarea id="' + id + '-desc" data-field="desc" rows="2" maxlength="200" class="pf-input resize-y" placeholder="One or two sentences on the problem and the result.">' + esc(p.desc) + '</textarea></div>' +
+        '</div>';
+    }
+
+    function addExperience(e) { $('exp-list').insertAdjacentHTML('beforeend', expHtml(e)); updatePreview(); }
+    function addProject(p) { $('proj-list').insertAdjacentHTML('beforeend', projHtml(p)); updateCounters(); updatePreview(); }
+    function removeEntry(btn) { btn.closest('.entry').remove(); updatePreview(); }
+
+    function toggleCurrent(box) {
+      const end = box.closest('.entry').querySelector('[data-field="end"]');
+      end.disabled = box.checked;
+      if (box.checked) end.value = '';
+    }
+
+    function readEntries(selector) {
+      return [...document.querySelectorAll(selector)].map(entry => {
+        const data = {};
+        entry.querySelectorAll('[data-field]').forEach(f => { data[f.dataset.field] = f.type === 'checkbox' ? f.checked : f.value.trim(); });
+        return data;
+      }).filter(d => Object.entries(d).some(([k, v]) => k !== 'current' && v));
+    }
+
+    // Skills
+    function addSkill(raw) {
+      const name = (raw || '').trim().replace(/,$/, '').slice(0, 30);
+      if (!name || skills.some(s => s.toLowerCase() === name.toLowerCase())) return;
+      if (skills.length >= MAX_SKILLS) { showToast('You can add up to ' + MAX_SKILLS + ' skills. Remove one to add another.'); return; }
+      skills.push(name);
+      renderSkills();
+    }
+    function removeSkill(i) { skills.splice(i, 1); renderSkills(); }
+
+    function onSkillKey(e) {
+      const input = e.target;
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        addSkill(input.value);
+        input.value = '';
+      } else if (e.key === 'Backspace' && !input.value && skills.length) {
+        removeSkill(skills.length - 1);
+      }
+    }
+
+    function renderSkills() {
+      $('skill-tags').innerHTML = skills.map((s, i) =>
+        '<span class="inline-flex items-center gap-1 bg-blue-50 text-appleBlue border border-blue-200 text-xs font-medium pl-2.5 pr-1 py-0.5 rounded-full">' + esc(s) +
+        '<button type="button" onclick="event.stopPropagation(); removeSkill(' + i + ')" aria-label="Remove ' + esc(s) + '" class="w-5 h-5 rounded-full hover:bg-blue-100 leading-none">×</button></span>'
+      ).join('');
+      $('skill-count').textContent = skills.length + '/' + MAX_SKILLS;
+      const lower = skills.map(s => s.toLowerCase());
+      const suggestions = SKILL_SUGGESTIONS[$('pf-track').value].filter(s => !lower.includes(s.toLowerCase()));
+      $('skill-suggestions').innerHTML = suggestions.length
+        ? suggestions.map(s => '<button type="button" class="chip" data-skill="' + esc(s) + '" onclick="addSkill(this.dataset.skill)">＋ ' + esc(s) + '</button>').join('')
+        : '<p class="pf-hint">You\'ve added all the suggestions.</p>';
+      updatePreview();
+    }
+
+    // Photo: center-crop and resize to 256px so it fits in browser storage
+    function handlePhoto(input) {
+      const file = input.files[0];
+      input.value = '';
+      const err = $('pf-photo-error');
+      err.classList.add('hidden');
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        err.textContent = 'Choose an image file, such as a JPG or PNG.';
+        err.classList.remove('hidden');
+        return;
+      }
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const size = 256;
+        const side = Math.min(img.width, img.height);
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = size;
+        canvas.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+        photoData = canvas.toDataURL('image/jpeg', 0.85);
+        URL.revokeObjectURL(url);
+        updatePhotoUI();
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        err.textContent = "That file couldn't be opened as an image. Try a different photo.";
+        err.classList.remove('hidden');
+      };
+      img.src = url;
+    }
+    function removePhoto() { photoData = null; updatePhotoUI(); }
+    function updatePhotoUI() {
+      setAvatar($('pf-photo-preview'), photoData, initials($('pf-first').value, $('pf-last').value));
+      $('pf-photo-remove').classList.toggle('hidden', !photoData);
+      updatePreview();
+    }
+
+    function onTrackChange() {
+      const isDev = $('pf-track').value === 'Software Developer';
+      $('pf-code-label').textContent = isDev ? 'GitHub' : 'Portfolio';
+      $('pf-code').placeholder = isDev ? 'github.com/your-name' : 'Link to your portfolio, Notion, or case studies';
+      renderSkills();
+    }
+
+    function updateCounters() {
+      $('pf-headline-count').textContent = $('pf-headline').value.length + '/80';
+      $('pf-about-count').textContent = $('pf-about').value.length + '/500';
+      document.querySelectorAll('[data-count-for]').forEach(c => {
+        const field = $(c.dataset.countFor);
+        if (field) c.textContent = field.value.length + '/200';
+      });
+    }
+
+    function collectProfile() {
+      return {
+        first: $('pf-first').value.trim(),
+        last: $('pf-last').value.trim(),
+        track: $('pf-track').value,
+        headline: $('pf-headline').value.trim(),
+        location: $('pf-location').value.trim(),
+        setting: getChecked('pf-setting')[0] || '',
+        about: $('pf-about').value.trim(),
+        linkedin: $('pf-linkedin').value.trim(),
+        code: $('pf-code').value.trim(),
+        website: $('pf-website').value.trim(),
+        experience: readEntries('[data-exp]'),
+        skills: [...skills],
+        projects: readEntries('[data-proj]'),
+        goals: getChecked('pf-goals'),
+        hours: getChecked('pf-hours')[0] || '',
+        idea: getChecked('pf-idea')[0] || '',
+        industries: getChecked('pf-industries'),
+        available: $('pf-available').value,
+        photo: photoData,
+      };
+    }
+
+    function loadProfileForm(account) {
+      const p = account.profile || {};
+      $('pf-first').value = account.first || '';
+      $('pf-last').value = account.last || '';
+      $('pf-track').value = account.track || 'Software Developer';
+      $('pf-headline').value = p.headline || '';
+      $('pf-location').value = p.location || '';
+      $('pf-about').value = p.about || '';
+      $('pf-linkedin').value = p.linkedin || '';
+      $('pf-code').value = p.code || '';
+      $('pf-website').value = p.website || '';
+      $('pf-available').value = p.available || '';
+      setChecked('pf-setting', p.setting ? [p.setting] : []);
+      setChecked('pf-goals', p.goals || []);
+      setChecked('pf-hours', p.hours ? [p.hours] : []);
+      setChecked('pf-idea', p.idea ? [p.idea] : []);
+      setChecked('pf-industries', p.industries || []);
+      $('exp-list').innerHTML = (p.experience && p.experience.length ? p.experience : [{}]).map(expHtml).join('');
+      $('proj-list').innerHTML = (p.projects && p.projects.length ? p.projects : [{}]).map(projHtml).join('');
+      skills = [...(p.skills || [])];
+      photoData = p.photo || null;
+      document.querySelectorAll('#profile-form .pf-error').forEach(e => e.classList.add('hidden'));
+      document.querySelectorAll('#profile-form .invalid').forEach(e => e.classList.remove('invalid'));
+      $('pf-photo-error').classList.add('hidden');
+      onTrackChange();
+      updateCounters();
+      updatePhotoUI();
+    }
+
+    function updatePreview() {
+      const d = collectProfile();
+      setAvatar($('pv-photo'), d.photo, initials(d.first, d.last));
+      $('pv-name').textContent = (d.first + ' ' + d.last).trim() || 'Your name';
+      const headline = $('pv-headline');
+      headline.textContent = d.headline || 'Your headline appears here';
+      headline.classList.toggle('text-slate-400', !d.headline);
+      const track = $('pv-track');
+      const isBiz = d.track === 'Business Developer';
+      track.textContent = isBiz ? '💼 Business Dev' : '💻 Software Dev';
+      track.className = 'px-2 py-0.5 rounded-full font-medium border ' + (isBiz ? 'bg-purple-50 border-purple-200 text-applePurple' : 'bg-blue-50 border-blue-200 text-appleBlue');
+      $('pv-location').textContent = [d.location, d.setting].filter(Boolean).join(' · ');
+      $('pv-skills').innerHTML = d.skills.slice(0, 5).map(s => '<span class="bg-slate-100 text-slate-700 text-[11px] px-2 py-0.5 rounded-md">' + esc(s) + '</span>').join('');
+      $('pv-looking').textContent = d.goals.length
+        ? 'Looking for: ' + d.goals.join(', ') + (d.hours ? ' · ' + d.hours + ' hrs/week' : '')
+        : '';
+      updateStrength(d);
+    }
+
+    function updateStrength(d) {
+      const checks = [
+        ['Add a profile photo', !!d.photo, 15, 'basics'],
+        ['Write a headline', !!d.headline, 10, 'basics'],
+        ['Write your About section', !!d.about, 15, 'basics'],
+        ['Add a work experience', d.experience.some(e => e.title && e.company), 15, 'experience'],
+        ['Add at least 3 skills', d.skills.length >= 3, 15, 'skills'],
+        ['Add a project', d.projects.some(p => p.title), 15, 'projects'],
+        ['Choose your goals and hours', d.goals.length > 0 && !!d.hours, 15, 'looking'],
+      ];
+      const pct = checks.reduce((sum, [, done, weight]) => sum + (done ? weight : 0), 0);
+      $('strength-pct').textContent = pct + '%';
+      const bar = $('strength-bar');
+      bar.style.width = pct + '%';
+      bar.className = 'h-full rounded-full transition-all duration-500 ' + (pct === 100 ? 'bg-emerald-500' : pct >= 50 ? 'bg-appleBlue' : 'bg-orange-400');
+      $('strength-list').innerHTML = checks.map(([label, done, , section]) => done
+        ? '<li class="flex items-center gap-2 text-slate-400"><span class="text-emerald-500 font-bold">✓</span>' + label + '</li>'
+        : '<li><button type="button" onclick="goToSection(\'' + section + '\')" class="flex items-center gap-2 text-slate-700 hover:text-appleBlue text-left"><span class="w-3 h-3 rounded-full border-2 border-slate-300 shrink-0"></span>' + label + '</button></li>'
+      ).join('');
+    }
+
+    function goToSection(section) {
+      $('pf-section-' + section).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Accepts "github.com/me" and returns "https://github.com/me"; null if not a valid link
+    function normalizeUrl(value) {
+      const v = value.trim();
+      if (!v) return '';
+      const withScheme = /^https?:\/\//i.test(v) ? v : 'https://' + v;
+      try {
+        const u = new URL(withScheme);
+        return u.hostname.includes('.') ? u.href : null;
+      } catch { return null; }
+    }
+
+    function saveProfile(e) {
+      e.preventDefault();
+      const invalid = [];
+
+      [['pf-first'], ['pf-last'], ['pf-headline']].forEach(([id]) => {
+        if (!$(id).value.trim()) { showError(id); $(id).classList.add('invalid'); invalid.push($(id)); }
+      });
+
+      document.querySelectorAll('#profile-form input[type="url"]').forEach(input => {
+        const normalized = normalizeUrl(input.value);
+        if (normalized === null) {
+          input.classList.add('invalid');
+          if ($(input.id + '-error')) showError(input.id);
+          invalid.push(input);
+        } else {
+          input.value = normalized;
+        }
+      });
+
+      if (invalid.length) {
+        invalid[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast('Fix the highlighted fields to save your profile.');
+        return;
+      }
+
+      const account = getAccounts()[load(SESSION_KEY, '')];
+      if (!account) return;
+      const { first, last, track, ...profile } = collectProfile();
+      Object.assign(account, { first, last, track, profile });
+      if (!saveAccount(account)) {
+        showToast("Couldn't save. This browser's storage is full; try a smaller photo.");
+        return;
+      }
+      renderUser(account);
+      $('profile-banner').classList.add('hidden');
+      showToast('Profile saved');
+    }
+
+    // Static chip groups, then live preview wiring
+    renderChips('pf-setting', 'pf-setting', 'radio', SETTINGS);
+    renderChips('pf-goals', 'pf-goals', 'checkbox', GOALS);
+    renderChips('pf-hours', 'pf-hours', 'radio', HOURS);
+    renderChips('pf-idea', 'pf-idea', 'radio', IDEA_STATUS);
+    renderChips('pf-industries', 'pf-industries', 'checkbox', INDUSTRIES);
+
+    $('profile-form').addEventListener('input', e => {
+      const t = e.target;
+      t.classList.remove('invalid');
+      if (t.id && $(t.id + '-error')) clearError(t.id);
+      if (t.id === 'pf-first' || t.id === 'pf-last') updatePhotoUI();
+      updateCounters();
+      updatePreview();
+    });
+    $('profile-form').addEventListener('change', updatePreview);
 
     // Restore an existing session in this browser
     (function init() {
