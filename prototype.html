@@ -1275,6 +1275,12 @@
       return m ? { title: m[1].trim(), company: m[2].trim() } : null;
     }
 
+    const BULLET_RE = /^[-*●▪•◦]\s*/;
+    const URL_TOKEN_RE = /(?:https?:\/\/\S+|(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+\/[^\s,;)]+)/i;
+    const LOCATION_RE = /^[A-Z][A-Za-z.'\- ]+,\s*[A-Z][A-Za-z.'\- ]+(?:,\s*[A-Z][A-Za-z.'\- ]+)?$/;
+    const isUrlOnly = l => /^\S+$/.test(l) && URL_TOKEN_RE.test(l);
+    const stripBullets = t => t.replace(/(^|\s)[●▪•◦]\s*/g, '$1').replace(BULLET_RE, '').replace(/\s+/g, ' ').trim();
+
     function basicParse(text) {
       const lines = text.split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
       // PDFs wrap long links onto the next line after a hyphen or slash; rejoin them
@@ -1289,64 +1295,101 @@
 
       // Group lines under recognised section headings
       const sections = { top: [] };
-      let current = 'top';
+      const preamble = [];   // everything before Summary / Experience (name, headline, contact, LinkedIn sidebar)
+      let current = 'top', inBody = false;
       for (const line of lines) {
         const h = line.replace(/:$/, '');
         const key = Object.keys(HEADINGS).find(k => HEADINGS[k].test(h));
+        if (key === 'about' || key === 'experience') inBody = true;
+        if (!inBody && !key) preamble.push(line);
         if (key) { current = key; sections[key] = sections[key] || []; continue; }
         (sections[current] = sections[current] || []).push(line);
       }
 
+      // Location, then the headline that sits just above it (CVs and LinkedIn PDFs both use name / headline / location)
+      const contactish = l => /@|https?:|www\.|linkedin\.com|github\.com|\d{3}[\s.-]?\d{3}/i.test(l);
+      const locIdx = preamble.findIndex(l => l.length <= 60 && l.split(' ').length <= 7 && LOCATION_RE.test(l) && !contactish(l));
+      if (locIdx >= 0) result.location = preamble[locIdx];
+      const headlineOk = l => l && l.length >= 8 && l.length <= 100 && !contactish(l) && !LOCATION_RE.test(l);
+      const headlineLine = locIdx > 0 && headlineOk(preamble[locIdx - 1]) ? preamble[locIdx - 1]
+        : (sections.top[0] && headlineOk(sections.top[1]) ? sections.top[1] : '');
+      result.headline = headlineLine.slice(0, 80);
+
+      // Personal website: a domain in the contact area that isn't LinkedIn, GitHub, or an email address
+      const site = (preamble.join(' ').match(/(?<![@\w.])(?:https?:\/\/)?(?:www\.)?[a-z0-9][a-z0-9-]*\.(?:com|dev|io|me|co|app|net|org|design|ai|xyz|site|tech|page)(?:\/[^\s·|,]*)?/gi) || [])
+        .find(u => !/linkedin\.com|github\.com/i.test(u));
+      if (site) result.website = site;
+
       result.about = (sections.about || []).join(' ').slice(0, 500);
 
-      const skillSet = [];
+      // Skills: comma-style lists can wrap across lines, so join them first; otherwise one skill per line
+      const skillLines = [];
       for (const line of sections.skills || []) {
         if (line.split(' ').length > 6 && !/[,•|;·]/.test(line)) break;
-        line.replace(/^[A-Za-z ]{2,25}:\s*/, '').split(/[,•|;·]/).map(s => s.replace(/^[-*●▪◦]\s*/, '').trim())
-          .filter(s => s && s.length <= 30).forEach(s => { if (!skillSet.some(x => x.toLowerCase() === s.toLowerCase())) skillSet.push(s); });
+        skillLines.push(line);
       }
+      const listStyle = skillLines.some(l => /[,;|]/.test(l));
+      const rawSkills = listStyle ? skillLines.join(' ').split(/[,•|;·]/) : skillLines.flatMap(l => l.split(/[•·]/));
+      const skillSet = [];
+      rawSkills.map(s => s.replace(/^[A-Za-z ]{2,25}:\s*/, '').replace(BULLET_RE, '').trim())
+        .filter(s => s && s.length <= 30)
+        .forEach(s => { if (!skillSet.some(x => x.toLowerCase() === s.toLowerCase())) skillSet.push(s); });
       result.skills = skillSet.slice(0, 15);
 
+      // Experience: anchor on date-range lines, then read the title/company lines above each one
       const exp = sections.experience || [];
       const dateIdx = exp.map((l, i) => DATE_RANGE_RE.test(l) ? i : -1).filter(i => i >= 0);
-      dateIdx.forEach((di, n) => {
+      const companyOk = l => l && l.length <= 60 && !BULLET_RE.test(l) && !/\.$/.test(l);
+      const heads = dateIdx.map((di, n) => {
         const m = exp[di].match(DATE_RANGE_RE);
         const rest = exp[di].replace(m[0], '').replace(/\(.*?\)/g, '').replace(/[|·,–—-]\s*$/, '').trim();
-        let title = '', company = '';
-        const sameLine = rest && splitTitleCompany(rest);
-        const prev1 = exp[di - 1] || '', prev2 = exp[di - 2] || '';
         const prevEnd = n > 0 ? dateIdx[n - 1] : -1;
+        const prev1 = di - 1 > prevEnd ? exp[di - 1] : '';
+        const prev2 = di - 2 > prevEnd ? exp[di - 2] : '';
+        let title = '', company = '', start = di;
+        const sameLine = rest && splitTitleCompany(rest);
+        const split = !rest && prev1 && splitTitleCompany(prev1);
         if (sameLine) ({ title, company } = sameLine);
-        else if (rest) { title = rest; company = di - 1 > prevEnd ? prev1 : ''; }
+        else if (rest) { title = rest; company = prev1; start = prev1 ? di - 1 : di; }
+        else if (split) { ({ title, company } = split); start = di - 1; }
         else {
-          const split = di - 1 > prevEnd && splitTitleCompany(prev1);
-          if (split) ({ title, company } = split);
-          else { title = di - 1 > prevEnd ? prev1 : ''; company = di - 2 > prevEnd ? prev2 : ''; }
+          title = prev1; start = prev1 ? di - 1 : di;
+          if (companyOk(prev2)) { company = prev2; start = di - 2; }   // LinkedIn PDF: company, then title, then dates
         }
-        const isCurrent = /present|current|now|today/i.test(m[2]);
-        const descEnd = n + 1 < dateIdx.length ? dateIdx[n + 1] - 2 : exp.length;
-        const desc = exp.slice(di + 1, Math.max(di + 1, descEnd)).join(' ').replace(/^[-*●▪•◦]\s*/, '');
-        if (title || company) result.experience.push({
-          title: title.slice(0, 80), company: company.slice(0, 80),
-          start: toYearMonth(m[1]), end: isCurrent ? '' : toYearMonth(m[2]), current: isCurrent, desc: desc.slice(0, 400),
+        return { di, m, title, company, start };
+      });
+      heads.forEach((h, n) => {
+        const descEnd = n + 1 < heads.length ? heads[n + 1].start : exp.length;
+        const desc = stripBullets(exp.slice(h.di + 1, Math.max(h.di + 1, descEnd)).join(' '));
+        const isCurrent = /present|current|now|today/i.test(h.m[2]);
+        if (h.title || h.company) result.experience.push({
+          title: h.title.slice(0, 80), company: h.company.slice(0, 80),
+          start: toYearMonth(h.m[1]), end: isCurrent ? '' : toYearMonth(h.m[2]), current: isCurrent, desc: desc.slice(0, 400),
         });
       });
       result.experience = result.experience.slice(0, 8);
 
+      // Projects: short title lines, followed by description lines; links go to the Link field
       let proj = null;
       for (const line of sections.projects || []) {
-        const bullet = /^[-*●▪•◦]/.test(line);
-        if (!bullet && line.length <= 80 && (!proj || proj.desc)) {
-          proj = { title: line, link: (line.match(/https?:\/\/\S+/) || [''])[0], role: '', desc: '' };
+        const looksLikeTitle = !BULLET_RE.test(line) && line.length <= 60 && line.split(' ').length <= 6 && !/\.$/.test(line) && !isUrlOnly(line);
+        if (looksLikeTitle && (!proj || proj.desc)) {
+          proj = { title: line, link: '', role: '', desc: '' };
           result.projects.push(proj);
         } else if (proj) {
-          proj.desc = (proj.desc + ' ' + line.replace(/^[-*●▪•◦]\s*/, '')).trim().slice(0, 200);
+          let body = stripBullets(line);
+          const link = body.match(URL_TOKEN_RE);
+          if (link) {
+            if (!proj.link) proj.link = link[0].replace(/[.,;]+$/, '');
+            body = body.replace(link[0], '').replace(/\s+([.,;])/g, '$1').trim();
+          }
+          proj.desc = (proj.desc + ' ' + body).trim().slice(0, 200);
         }
       }
       result.projects = result.projects.slice(0, 5);
 
       const first = result.experience[0];
-      if (first && first.title) result.headline = (first.title + (first.company ? ' at ' + first.company : '')).slice(0, 80);
+      if (!result.headline && first && first.title) result.headline = (first.title + (first.company ? ' at ' + first.company : '')).slice(0, 80);
       return result;
     }
 

@@ -8,6 +8,7 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 | --- | --- |
 | `prototype.html` | Current interactive prototype (single file, Tailwind via CDN). Open it in a browser. |
 | `prototype-v1.html` | Earlier design with fuller Matchmaker, Messages, and Profile tabs. |
+| `test-data/` | Sample CV for a made-up member (Maya Okafor) as PDF, Word, and HTML, for testing the profile import. |
 | `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. |
 
 ## Prototype features
