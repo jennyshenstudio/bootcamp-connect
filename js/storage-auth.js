@@ -150,7 +150,6 @@ function renderUser(account) {
   const avatar = document.getElementById('user-avatar');
   setAvatar(avatar, account.profile && account.profile.photo, initials(account.first, account.last));
   avatar.title = account.first + ' ' + account.last + ' · ' + account.email;
-  document.getElementById('welcome-line').textContent = 'Signed in as ' + account.first + ' ' + account.last + ' (' + account.email + ')';
 }
 
 function enterDashboard(account, { animate = true, isNew = false } = {}) {

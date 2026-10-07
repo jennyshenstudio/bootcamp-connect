@@ -52,8 +52,8 @@ function openChat(id) {
   openChatId = id;
   demo.unread[id] = 0;
   saveDemo();
-  $('chat-shell').classList.add('thread-open');
-  $('chat-thread-pane').classList.remove('hidden');
+  $('chat-shell').classList.add('thread-open');   // phones show the thread full screen; desktop shows both panes
+  fitChatShell();
   renderChatList();
   renderThread();
   updateBadge();
@@ -62,6 +62,7 @@ function openChat(id) {
 
 function closeThread() {
   $('chat-shell').classList.remove('thread-open');
+  fitChatShell();
   openChatId = null;
   renderChatList();
 }

@@ -241,6 +241,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: rgb(var(--blue)); }
 .chip-active:hover { background: var(--label); }
 
 /* ---------- Messages ---------- */
+#app-main.chat-mode { padding-bottom: var(--chat-gap, 24px); }
 .bubble { max-width: min(78vw, 520px); padding: 8px 14px; border-radius: 20px; font-size: 17px; line-height: 22px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .bubble-me { background: linear-gradient(180deg, rgb(var(--blue) / 0.9), rgb(var(--blue))); color: #FFFFFF; border-bottom-right-radius: 6px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3); }
 .bubble-them { background: var(--glass-control); color: var(--label); border: 1px solid var(--glass-rim-soft); border-bottom-left-radius: 6px; box-shadow: inset 0 1px 0 var(--glass-highlight); }
