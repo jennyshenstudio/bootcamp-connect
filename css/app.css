@@ -1,0 +1,311 @@
+/* Bootcamp Connect prototype styles (Apple HIG + Liquid Glass). Loaded after Tailwind. */
+
+/* Layout: Apple Liquid Glass. Ambient color behind everything; floating glass navigation;
+   thicker frosted glass for content so text stays legible. Light values first, then dark. */
+:root {
+  color-scheme: light;
+  --bg-grouped: #EEF0F6;
+  --surface: #FFFFFF;
+  --surface-2: #F2F2F7;
+  --fill: rgba(120, 120, 128, 0.12);
+  --fill-2: rgba(120, 120, 128, 0.2);
+  --separator: rgba(60, 60, 67, 0.22);
+  --hairline: rgba(60, 60, 67, 0.12);
+  --label: #000000;
+  --label-2: rgba(60, 60, 67, 0.8);
+  --label-3: rgba(60, 60, 67, 0.45);
+  /* Glass material */
+  --glass-nav: rgba(255, 255, 255, 0.52);
+  --glass-card: rgba(255, 255, 255, 0.66);
+  --glass-control: rgba(255, 255, 255, 0.6);
+  --glass-control-hover: rgba(255, 255, 255, 0.8);
+  --glass-field: rgba(118, 118, 128, 0.1);
+  --field-rim: rgba(60, 60, 67, 0.1);
+  --glass-entry: rgba(255, 255, 255, 0.55);
+  --glass-rim: rgba(255, 255, 255, 0.85);
+  --glass-rim-soft: rgba(255, 255, 255, 0.55);
+  --glass-highlight: rgba(255, 255, 255, 0.95);
+  --glass-sheen: rgba(255, 255, 255, 0.55);
+  --glass-shadow: 0 10px 34px rgba(30, 41, 80, 0.12), 0 1px 3px rgba(30, 41, 80, 0.06);
+  --glass-pill: rgba(255, 255, 255, 0.92);
+  --toast-bg: rgba(28, 28, 32, 0.78);
+  --glass-sheet: rgba(255, 255, 255, 0.86);
+  /* Ambient light behind the glass */
+  --ambient-1: rgba(0, 122, 255, 0.24);
+  --ambient-2: rgba(175, 82, 222, 0.2);
+  --ambient-3: rgba(52, 199, 89, 0.14);
+  --ambient-4: rgba(255, 149, 0, 0.12);
+  --blue: 0 113 227;        --blue-text: 0 102 204;
+  --purple: 175 82 222;     --purple-text: 137 68 171;
+  --green: 52 199 89;       --green-text: 36 138 61;
+  --orange: 255 149 0;      --orange-text: 201 52 0;
+  --red: 255 59 48;         --red-text: 215 0 21;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg-grouped: #040406;
+    --surface: #1C1C1E;
+    --surface-2: #2C2C2E;
+    --fill: rgba(120, 120, 128, 0.24);
+    --fill-2: rgba(120, 120, 128, 0.36);
+    --separator: rgba(255, 255, 255, 0.14);
+    --hairline: rgba(255, 255, 255, 0.08);
+    --label: #FFFFFF;
+    --label-2: rgba(235, 235, 245, 0.74);
+    --label-3: rgba(235, 235, 245, 0.4);
+    --glass-nav: rgba(38, 38, 44, 0.5);
+    --glass-card: rgba(30, 30, 36, 0.62);
+    --glass-control: rgba(255, 255, 255, 0.09);
+    --glass-control-hover: rgba(255, 255, 255, 0.15);
+    --glass-field: rgba(255, 255, 255, 0.07);
+    --field-rim: rgba(255, 255, 255, 0.1);
+    --glass-entry: rgba(255, 255, 255, 0.05);
+    --glass-rim: rgba(255, 255, 255, 0.16);
+    --glass-rim-soft: rgba(255, 255, 255, 0.1);
+    --glass-highlight: rgba(255, 255, 255, 0.22);
+    --glass-sheen: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --glass-pill: rgba(255, 255, 255, 0.16);
+    --toast-bg: rgba(60, 60, 66, 0.78);
+    --glass-sheet: rgba(30, 30, 34, 0.88);
+    --ambient-1: rgba(10, 132, 255, 0.3);
+    --ambient-2: rgba(191, 90, 242, 0.24);
+    --ambient-3: rgba(48, 209, 88, 0.1);
+    --ambient-4: rgba(255, 159, 10, 0.08);
+    --blue: 10 132 255;       --blue-text: 77 163 255;
+    --purple: 191 90 242;     --purple-text: 218 143 255;
+    --green: 48 209 88;       --green-text: 48 219 91;
+    --orange: 255 159 10;     --orange-text: 255 179 64;
+    --red: 255 69 58;         --red-text: 255 105 97;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-grouped: #040406;
+  --surface: #1C1C1E;
+  --surface-2: #2C2C2E;
+  --fill: rgba(120, 120, 128, 0.24);
+  --fill-2: rgba(120, 120, 128, 0.36);
+  --separator: rgba(255, 255, 255, 0.14);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --label: #FFFFFF;
+  --label-2: rgba(235, 235, 245, 0.74);
+  --label-3: rgba(235, 235, 245, 0.4);
+  --glass-nav: rgba(38, 38, 44, 0.5);
+  --glass-card: rgba(30, 30, 36, 0.62);
+  --glass-control: rgba(255, 255, 255, 0.09);
+  --glass-control-hover: rgba(255, 255, 255, 0.15);
+  --glass-field: rgba(255, 255, 255, 0.07);
+  --field-rim: rgba(255, 255, 255, 0.1);
+  --glass-entry: rgba(255, 255, 255, 0.05);
+  --glass-rim: rgba(255, 255, 255, 0.16);
+  --glass-rim-soft: rgba(255, 255, 255, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.22);
+  --glass-sheen: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --glass-pill: rgba(255, 255, 255, 0.16);
+  --toast-bg: rgba(60, 60, 66, 0.78);
+  --glass-sheet: rgba(30, 30, 34, 0.88);
+  --ambient-1: rgba(10, 132, 255, 0.3);
+  --ambient-2: rgba(191, 90, 242, 0.24);
+  --ambient-3: rgba(48, 209, 88, 0.1);
+  --ambient-4: rgba(255, 159, 10, 0.08);
+  --blue: 10 132 255;       --blue-text: 77 163 255;
+  --purple: 191 90 242;     --purple-text: 218 143 255;
+  --green: 48 209 88;       --green-text: 48 219 91;
+  --orange: 255 159 10;     --orange-text: 255 179 64;
+  --red: 255 69 58;         --red-text: 255 105 97;
+}
+
+html, body { height: 100%; }
+body { background: var(--bg-grouped); color: var(--label); -webkit-tap-highlight-color: transparent; }
+/* Ambient color field: what the glass refracts */
+body::before {
+  content: ''; position: fixed; inset: -10%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(40% 45% at 12% 10%, var(--ambient-1), transparent 70%),
+    radial-gradient(38% 42% at 90% 18%, var(--ambient-2), transparent 70%),
+    radial-gradient(42% 40% at 18% 92%, var(--ambient-3), transparent 70%),
+    radial-gradient(36% 38% at 88% 88%, var(--ambient-4), transparent 70%);
+}
+::selection { background: rgb(var(--blue) / 0.3); }
+::placeholder { color: var(--label-3); }
+
+/* ---------- Glass material ---------- */
+.glass, .card {
+  position: relative; isolation: isolate;
+  border: 1px solid var(--glass-rim-soft);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight), inset 0 -1px 0 var(--glass-rim-soft);
+}
+/* Specular sheen across the top-left of every glass surface */
+.glass::after, .card::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(150deg, var(--glass-sheen) 0%, transparent 38%, transparent 70%, var(--glass-rim-soft) 100%);
+  opacity: 0.7;
+}
+.glass { background: var(--glass-nav); border-color: var(--glass-rim);
+  -webkit-backdrop-filter: blur(24px) saturate(190%); backdrop-filter: blur(24px) saturate(190%); }
+.card { background: var(--glass-card); border-radius: 24px;
+  -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); }
+.entry { background: var(--glass-entry); border: 1px solid var(--glass-rim-soft); border-radius: 16px; padding: 16px;
+  box-shadow: inset 0 1px 0 var(--glass-highlight); }
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass, .card { background: var(--surface); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  body::before { display: none; }
+  .glass, .card, .btn-gray, .chip { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: var(--surface) !important; }
+  .glass::after, .card::after { display: none; }
+}
+@media (prefers-contrast: more) {
+  .glass, .card { border-color: var(--separator); }
+}
+
+/* ---------- Buttons: capsule glass, 44pt targets, springy press ---------- */
+.btn {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 20px; border-radius: 9999px;
+  font-size: 17px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap;
+  transition: transform 250ms var(--spring), background-color 200ms var(--ease), box-shadow 200ms var(--ease);
+  cursor: pointer;
+}
+.btn:active { transform: scale(0.96); }
+.btn:focus-visible, .tap:focus-visible { outline: none; box-shadow: 0 0 0 4px rgb(var(--blue) / 0.35); }
+/* Prominent glass: tinted, lit from the top edge */
+.btn-primary {
+  color: #FFFFFF;
+  background: linear-gradient(180deg, rgb(var(--blue) / 0.86), rgb(var(--blue)));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.12), 0 6px 18px rgb(var(--blue) / 0.32);
+}
+.btn-primary:hover { background: linear-gradient(180deg, rgb(var(--blue) / 0.78), rgb(var(--blue) / 0.94)); }
+.btn-secondary {
+  color: rgb(var(--blue-text)); background: rgb(var(--blue) / 0.14);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), inset 0 0 0 1px rgb(var(--blue) / 0.18);
+}
+.btn-secondary:hover { background: rgb(var(--blue) / 0.2); }
+/* Regular glass button */
+.btn-gray {
+  color: var(--label); background: var(--glass-control);
+  border: 1px solid var(--glass-rim-soft);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 2px 8px rgba(0, 0, 0, 0.06);
+  -webkit-backdrop-filter: blur(16px) saturate(170%); backdrop-filter: blur(16px) saturate(170%);
+}
+.btn-gray:hover { background: var(--glass-control-hover); }
+.btn-plain { color: rgb(var(--blue-text)); padding: 0 10px; }
+.btn-plain:hover { background: rgb(var(--blue) / 0.1); }
+.btn-sm { min-height: 36px; padding: 0 14px; font-size: 15px; }
+@media (pointer: coarse) { .btn-sm { min-height: 44px; } }
+
+/* ---------- Segmented control: lit glass pill slides between segments ---------- */
+.segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: 3px; border-radius: 9999px; background: var(--fill); }
+.segmented-btn { min-height: 32px; padding: 0 16px; border-radius: 9999px; font-size: 13px; font-weight: 600; color: var(--label); transition: background-color 250ms var(--ease), box-shadow 250ms var(--ease); white-space: nowrap; }
+.segmented-btn.active { background: var(--glass-pill); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 var(--glass-highlight), inset 0 0 0 0.5px var(--glass-rim); }
+.segmented-lg .segmented-btn { min-height: 36px; font-size: 15px; }
+
+/* ---------- Form fields: clear glass wells ---------- */
+.pf-label { display: block; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--label); margin-bottom: 6px; }
+.pf-hint { font-size: 13px; line-height: 18px; color: var(--label-2); }
+.pf-error { font-size: 13px; line-height: 18px; font-weight: 500; color: rgb(var(--red-text)); margin-top: 6px; }
+.pf-input {
+  width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 14px;
+  background: var(--glass-field); border: 1px solid var(--field-rim); color: var(--label);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-size: 17px; line-height: 22px;
+  transition: box-shadow 150ms var(--ease), border-color 150ms var(--ease), background-color 150ms var(--ease);
+}
+.pf-input:focus, .pf-input:focus-within { outline: none; background: var(--glass-control-hover); border-color: rgb(var(--blue)); box-shadow: 0 0 0 4px rgb(var(--blue) / 0.28); }
+.pf-input:disabled { opacity: 0.45; }
+.pf-input.invalid { border-color: rgb(var(--red)); box-shadow: 0 0 0 4px rgb(var(--red) / 0.2); }
+select.pf-input { appearance: none; -webkit-appearance: none; padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%238E8E93' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 7.5l3-3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; }
+input[type="checkbox"], input[type="radio"] { accent-color: rgb(var(--blue)); }
+
+/* ---------- Chips: small glass capsules ---------- */
+.chip {
+  display: inline-flex; align-items: center; min-height: 32px; padding: 0 14px; border-radius: 9999px;
+  background: var(--glass-control); color: var(--label); font-size: 15px; font-weight: 500;
+  border: 1px solid var(--glass-rim-soft); box-shadow: inset 0 1px 0 var(--glass-highlight);
+  transition: background-color 150ms var(--ease), color 150ms var(--ease), transform 250ms var(--spring); cursor: pointer;
+}
+.chip:hover { background: var(--glass-control-hover); }
+.chip:active { transform: scale(0.96); }
+.peer:checked + .chip { background: rgb(var(--blue)); color: #FFFFFF; border-color: transparent; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 3px 10px rgb(var(--blue) / 0.3); }
+.peer:focus-visible + .chip { box-shadow: 0 0 0 4px rgb(var(--blue) / 0.35); }
+.chip-active { background: var(--label); color: var(--bg-grouped); border-color: transparent; }
+.chip-active:hover { background: var(--label); }
+
+/* ---------- Messages ---------- */
+.bubble { max-width: min(78vw, 520px); padding: 8px 14px; border-radius: 20px; font-size: 17px; line-height: 22px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.bubble-me { background: linear-gradient(180deg, rgb(var(--blue) / 0.9), rgb(var(--blue))); color: #FFFFFF; border-bottom-right-radius: 6px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+.bubble-them { background: var(--glass-control); color: var(--label); border: 1px solid var(--glass-rim-soft); border-bottom-left-radius: 6px; box-shadow: inset 0 1px 0 var(--glass-highlight); }
+.typing { display: inline-flex; gap: 4px; align-items: center; padding: 12px 14px; }
+.typing span { width: 7px; height: 7px; border-radius: 9999px; background: var(--label-3); animation: typing 1.2s infinite var(--ease); }
+.typing span:nth-child(2) { animation-delay: 0.15s; } .typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-3px); opacity: 1; } }
+.nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9999px; background: rgb(var(--red)); color: #FFFFFF; font-size: 11px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.nav-badge[hidden] { display: none; }
+@media (max-width: 767px) {
+  #chat-shell.thread-open #chat-list-pane { display: none; }
+  #chat-shell.thread-open #chat-thread-pane { display: flex; }
+  /* An open conversation goes full screen on phones, like Messages on iOS */
+  #chat-shell.thread-open {
+    position: fixed; inset: 0; z-index: 50; height: auto; min-height: 0; border-radius: 0; border: 0;
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--glass-sheet);
+  }
+}
+.sheet-panel { background: var(--glass-sheet) !important; }
+
+/* Monogram avatar, like iOS Contacts */
+.avatar { border-radius: 9999px; background: linear-gradient(180deg, #A5ABB8, #858994); color: #FFFFFF; font-weight: 600; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; flex-shrink: 0; box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.4); }
+
+/* ---------- Floating glass tab bar (phones), iOS 26 style ---------- */
+.tab-bar { position: fixed; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 40; }
+.tab-item { flex: 1; min-height: 54px; border-radius: 9999px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--label); font-size: 10px; line-height: 12px; font-weight: 600; transition: background-color 250ms var(--ease), color 250ms var(--ease); }
+.tab-item svg { width: 24px; height: 24px; }
+.tab-item.active { color: rgb(var(--blue-text)); background: var(--glass-pill); box-shadow: inset 0 1px 0 var(--glass-highlight), 0 2px 8px rgba(0, 0, 0, 0.1); }
+.tab-item.active svg { stroke-width: 2.2; }
+.icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+.toast { background: var(--toast-bg); color: #FFFFFF; bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 30px rgba(0, 0, 0, 0.25); }
+@media (max-width: 767px) { .toast { bottom: calc(10px + 62px + 14px + env(safe-area-inset-bottom, 0px)); } }
+
+.auth-brand {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(0, 113, 227, 0.4), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(175, 82, 222, 0.32), transparent 45%),
+    #0B0B0F;
+}
+
+/* Keep the full sign-up form on one screen on short laptop windows */
+@media (max-height: 820px) {
+  #auth-screen .pf-input { min-height: 40px; padding-top: 8px; padding-bottom: 8px; }
+  #auth-screen .btn { min-height: 40px; }
+}
+@media (max-height: 700px) {
+  #auth-screen .pf-input { min-height: 36px; padding: 6px 12px; font-size: 16px; }
+  #auth-screen .btn { min-height: 36px; font-size: 16px; }
+  #auth-screen .pf-label { margin-bottom: 3px; }
+  #auth-screen .auth-main { padding-top: 8px !important; padding-bottom: 8px !important; }
+  #auth-screen .auth-card { padding-top: 12px !important; padding-bottom: 12px !important; }
+}
+
+/* Phones: the form sits straight on the ambient background instead of inside a card */
+@media (max-width: 639px) {
+  .auth-card { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  .auth-card::after { display: none; }
+}
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+h1, h2, h3 { text-wrap: balance; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
