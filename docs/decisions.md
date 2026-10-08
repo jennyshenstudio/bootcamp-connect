@@ -33,7 +33,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D023 | Skills model: three layers (roles, capabilities, tools) from UK standards | Accepted (not built yet) | Profile, matching, AI, library |
 | D024 | Community library: resources attached to gap items and capabilities | Accepted (not built yet) | Library, AI |
 | D025 | Decisions log, production process standards, and CLAUDE.md | Accepted (built) | How we work |
-| D026 | Backend: Supabase (London) for data, sign-in, files, and live chat; Vercel for hosting | Proposed | Storage, auth, sharing, release |
+| D026 | Backend: Supabase (London) for data, sign-in, files, and live chat; Vercel for hosting | Parked | Storage, auth, sharing, release |
 
 ## Entries
 
@@ -156,7 +156,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Affects:** How we work.
 
 ### D026 Backend: Supabase, hosted on Vercel
-- **Date:** 2026-10-08 · **Status:** Proposed
+- **Date:** 2026-10-08 · **Status:** Parked (recommended; on hold at the owner's request, 2026-10-08)
 - **Context:** D003 keeps all data in each browser, so testers can't see each other's posts, messages, or projects.
 - **Decision:** Supabase in its London region (UK GDPR) for the Postgres database, real sign-in (email and Google), file storage for attachments, and realtime updates for Messages, with row-level security on every table. The app is hosted on Vercel, because the claude.ai artifact link is not expected to reach an outside database. The artifact stays as a demo with sample data.
 - **Rejected:** Vercel's own storage, which is third-party add-ons (Neon, Upstash) and would still need separate sign-in, file storage, and realtime.
