@@ -79,7 +79,7 @@ module.exports = async (browser, t) => {
   await page.click('#cp-submit'); await sleep(900);
   t.ok('new post shows photo, video, and link', await page.$eval('#feed-list article', e => e.dataset.post.startsWith('u-') && e.querySelectorAll('img').length === 1 && e.querySelectorAll('video').length === 1 && e.querySelectorAll('a[target=_blank]').length === 1));
   t.ok('uploaded photo loads from browser storage', await page.$eval('#feed-list article img', e => e.src.startsWith('blob:') && e.naturalWidth > 0));
-  await page.$eval('#feed-list article button[onclick^="openViewer"]', e => e.click()); await sleep(500);
+  await page.$eval('#feed-list article button[data-on-click^="openViewer"]', e => e.click()); await sleep(500);
   t.ok('viewer opens the photo', await page.$eval('#viewer-media', e => e.tagName === 'IMG' && e.src.startsWith('blob:')));
   await page.keyboard.press('ArrowRight'); await sleep(400);
   t.ok('arrow key moves to the video', await page.$eval('#viewer-media', e => e.tagName === 'VIDEO'));

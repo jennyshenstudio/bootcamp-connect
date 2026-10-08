@@ -1,0 +1,6 @@
+/* Tailwind CSS input (D027). Compiled to css/tailwind.css by `npm run build:css`.
+   Don't edit css/tailwind.css by hand: change the markup, js/ or tailwind.config.js and rebuild.
+   Custom components and design tokens live in css/app.css. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

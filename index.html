@@ -1,92 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en-GB" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Bootcamp Connect</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Design system: Apple Human Interface Guidelines (.claude/skills/apple-hig-designer).
-    // Colors resolve to CSS variables below, so every class follows light and dark mode.
-    const rgb = v => `rgb(var(${v}) / <alpha-value>)`;
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-            mono: ['"SF Mono"', 'SFMono-Regular', 'ui-monospace', 'Menlo', 'monospace'],
-          },
-          fontSize: {
-            caption2: ['11px', '13px'],
-            caption: ['12px', '16px'],
-            footnote: ['13px', '18px'],
-            subhead: ['15px', '20px'],
-            callout: ['16px', '21px'],
-            body: ['17px', '22px'],
-            title3: ['20px', '25px'],
-            title2: ['22px', '28px'],
-            title1: ['28px', '34px'],
-            largetitle: ['34px', '41px'],
-          },
-          colors: {
-            canvas: 'var(--bg-grouped)',
-            surface: 'var(--surface)',
-            elevated: 'var(--surface-2)',
-            fill: 'var(--fill)',
-            fill2: 'var(--fill-2)',
-            separator: 'var(--separator)',
-            hairline: 'var(--hairline)',
-            label: 'var(--label)',
-            'label-2': 'var(--label-2)',
-            'label-3': 'var(--label-3)',
-            appleBlue: rgb('--blue'),
-            applePurple: rgb('--purple'),
-            appleGreen: rgb('--green'),
-            appleOrange: rgb('--orange'),
-            appleRed: rgb('--red'),
-            blueText: rgb('--blue-text'),
-            purpleText: rgb('--purple-text'),
-            greenText: rgb('--green-text'),
-            orangeText: rgb('--orange-text'),
-            redText: rgb('--red-text'),
-          },
-          transitionTimingFunction: { apple: 'cubic-bezier(0.25, 0.1, 0.25, 1)' },
-        }
-      }
-    }
-  </script>
+  <meta name="description" content="Team up with bootcamp Software and Business Developers on real projects that build your portfolio.">
+  <!-- Installable web app (PWA): manifest, icons, and phone home-screen settings (D028) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#EEF0F6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#040406" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Bootcamp">
+  <!-- Styles: design tokens and components, then compiled Tailwind utilities (npm run build:css).
+       Utilities load last so classes such as text-label-2 override component defaults. -->
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/tailwind.css">
 </head>
 <body class="h-full font-sans antialiased text-body">
-
-  <!-- SVG symbols (SF Symbols-style outlines) -->
-  <svg width="0" height="0" class="absolute" aria-hidden="true">
-    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.2 2.5 5 13.6h6.2L10.6 21.5l8.4-11.3h-6.3z" fill="currentColor" stroke="none"/></symbol>
-    <symbol id="i-feed" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="3.5"/><path d="M7.5 9h9M7.5 12.5h9M7.5 16h5"/></symbol>
-    <symbol id="i-match" viewBox="0 0 24 24"><path d="M10 3.5 11.8 8.2 16.5 10l-4.7 1.8L10 16.5l-1.8-4.7L3.5 10l4.7-1.8z"/><path d="M17.5 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></symbol>
-    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-6.5L6 20.5V17h0a2 2 0 0 1-2-2z"/></symbol>
-    <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.75"/><path d="M4.75 20c1.1-3.6 3.9-5.5 7.25-5.5s6.15 1.9 7.25 5.5"/></symbol>
-    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4.5" y="5" width="15" height="10.5" rx="1.75"/><path d="M2.5 18.5h19"/></symbol>
-    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.75"/><path d="M8.75 7V5.75C8.75 4.78 9.53 4 10.5 4h3c.97 0 1.75.78 1.75 1.75V7M3 12.5h18"/></symbol>
-    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7.5A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V8z"/><path d="M14 3v5h5M9 13h6M9 16.5h4"/></symbol>
-    <symbol id="i-hand" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16.25v.25"/></symbol>
-    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19.5V5M5.75 11 12 4.75 18.25 11"/></symbol>
-    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
-    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h5.25v15H6a1.5 1.5 0 0 0-1.5 1.5zM19.5 5.5A1.5 1.5 0 0 0 18 4h-5.25v15H18a1.5 1.5 0 0 1 1.5 1.5z"/></symbol>
-    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></symbol>
-    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.1-2.4 3.7M12 17.2v.3"/></symbol>
-    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M4 10v4a1 1 0 0 0 1 1h2l6 4V5L7 9H5a1 1 0 0 0-1 1zM16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
-    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></symbol>
-    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6.5 4h11v16.5L12 16.6l-5.5 3.9z"/></symbol>
-    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/></symbol>
-    <symbol id="i-photo" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.75"/><path d="M20.5 15.5l-4.5-4.5-8 8"/></symbol>
-    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
-    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
-    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
-    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.8-3 3-4.6 5.5-4.6s4.7 1.6 5.5 4.6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.9 14.3c2.2.1 3.9 1.7 4.6 4.7"/></symbol>
-  </svg>
 
   <!-- ==================== AUTH: FULL-PAGE SIGN UP / LOG IN (specs/01-auth.md) ==================== -->
   <div id="auth-screen" class="min-h-full flex transition-opacity duration-300 ease-apple">
@@ -103,7 +38,7 @@
         </div>
       </div>
 
-      <div class="max-w-lg space-y-8">
+      <div class="auth-brand-body max-w-lg space-y-8">
         <h1 class="text-[44px] xl:text-[56px] font-bold tracking-[-0.025em] leading-[1.05]">
           Where bootcamp coders and business builders team up.
         </h1>
@@ -155,12 +90,12 @@
 
         <!-- Sign up / Log in switch -->
         <div class="segmented segmented-lg" role="tablist">
-          <button type="button" id="mode-signup" onclick="setAuthMode('signup')" class="segmented-btn active" role="tab">Sign up</button>
-          <button type="button" id="mode-login" onclick="setAuthMode('login')" class="segmented-btn text-label-2" role="tab">Log in</button>
+          <button type="button" id="mode-signup" data-on-click="setAuthMode('signup')" class="segmented-btn active" role="tab">Sign up</button>
+          <button type="button" id="mode-login" data-on-click="setAuthMode('login')" class="segmented-btn text-label-2" role="tab">Log in</button>
         </div>
 
         <!-- Google SSO -->
-        <button type="button" onclick="handleGoogle()" class="btn btn-gray w-full !gap-3 !font-semibold">
+        <button type="button" data-on-click="handleGoogle()" class="btn btn-gray w-full !gap-3 !font-semibold">
           <svg class="w-5 h-5" viewBox="0 0 48 48" aria-hidden="true">
             <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
             <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
@@ -180,7 +115,7 @@
         <!-- Form-level message (e.g. account not found) -->
         <p id="auth-error" class="hidden text-subhead text-redText bg-appleRed/10 rounded-xl px-4 py-3"></p>
 
-        <form id="auth-form" onsubmit="handleAuthSubmit(event)" novalidate class="space-y-3 [@media(max-height:700px)]:space-y-2">
+        <form id="auth-form" data-on-submit="handleAuthSubmit(event)" novalidate class="space-y-3 [@media(max-height:700px)]:space-y-2">
           <div data-signup-only class="grid grid-cols-2 gap-3">
             <div>
               <label for="first-name" class="pf-label">First name</label>
@@ -200,7 +135,7 @@
           <div>
             <div class="flex items-baseline justify-between">
               <label for="password" class="pf-label">Password</label>
-              <button type="button" data-login-only onclick="showForgot()" class="hidden text-footnote text-blueText font-medium hover:underline">Forgot password?</button>
+              <button type="button" data-login-only data-on-click="showForgot()" class="hidden text-footnote text-blueText font-medium hover:underline">Forgot password?</button>
             </div>
             <input id="password" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" class="pf-input">
             <p id="forgot-note" class="hidden pf-hint mt-1.5">Password reset emails aren't part of this prototype yet.</p>
@@ -211,14 +146,14 @@
             <legend class="pf-label">Your bootcamp track</legend>
             <div class="grid grid-cols-2 gap-2">
               <label class="cursor-pointer">
-                <input type="radio" id="track-dev" name="track" value="Software Developer" class="peer sr-only" onchange="clearError('track')">
+                <input type="radio" id="track-dev" name="track" value="Software Developer" class="peer sr-only" data-on-change="clearError('track')">
                 <div class="h-full flex items-center gap-2 px-2.5 py-2 rounded-2xl bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-appleBlue peer-checked:bg-appleBlue/10 peer-focus-visible:ring-4 peer-focus-visible:ring-appleBlue/30">
                   <svg class="icon w-5 h-5 text-blueText"><use href="#i-laptop"/></svg>
                   <span class="leading-tight min-w-0"><span class="font-semibold block text-subhead sm:whitespace-nowrap">Software Developer</span><span class="text-footnote text-label-2">Coder / Engineer</span></span>
                 </div>
               </label>
               <label class="cursor-pointer">
-                <input type="radio" id="track-biz" name="track" value="Business Developer" class="peer sr-only" onchange="clearError('track')">
+                <input type="radio" id="track-biz" name="track" value="Business Developer" class="peer sr-only" data-on-change="clearError('track')">
                 <div class="h-full flex items-center gap-2 px-2.5 py-2 rounded-2xl bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-applePurple peer-checked:bg-applePurple/10 peer-focus-visible:ring-4 peer-focus-visible:ring-applePurple/30">
                   <svg class="icon w-5 h-5 text-purpleText"><use href="#i-briefcase"/></svg>
                   <span class="leading-tight min-w-0"><span class="font-semibold block text-subhead sm:whitespace-nowrap">Business Developer</span><span class="text-footnote text-label-2">Growth / Product</span></span>
@@ -231,7 +166,7 @@
           <!-- Terms & Privacy (sign up only, mandatory) -->
           <div data-signup-only>
             <label class="flex items-start gap-2.5 cursor-pointer text-subhead text-label-2">
-              <input id="terms" type="checkbox" class="mt-0.5 w-[18px] h-[18px] rounded" onchange="clearError('terms')">
+              <input id="terms" type="checkbox" class="mt-0.5 w-[18px] h-[18px] rounded" data-on-change="clearError('terms')">
               <span>I agree to the <a href="#" class="text-blueText font-medium hover:underline">Terms of Service</a> &amp; <a href="#" class="text-blueText font-medium hover:underline">Privacy Policy</a></span>
             </label>
             <p id="terms-error" class="hidden pf-error">You must agree to the Terms of Service &amp; Privacy Policy.</p>
@@ -252,7 +187,7 @@
   <!-- ==================== MAIN APP DASHBOARD (HIDDEN UNTIL LOGIN) ==================== -->
   <div id="app-dashboard" class="hidden opacity-0 transition-opacity duration-500 ease-apple min-h-full">
     <!-- Navigation bar (translucent, HIG) -->
-    <header class="sticky z-40 px-3 sm:px-6 pt-3" style="top: env(safe-area-inset-top, 0px)">
+    <header class="app-header sticky z-40 px-3 sm:px-6 pt-3">
       <div class="glass max-w-6xl mx-auto h-14 rounded-full pl-3 pr-2 flex items-center justify-between gap-4">
         <div class="flex items-center gap-2.5 min-w-0">
           <div class="w-8 h-8 rounded-[9px] bg-gradient-to-br from-[#0A84FF] to-[#BF5AF2] flex items-center justify-center shrink-0">
@@ -264,18 +199,18 @@
         <!-- Segmented control (tablet / desktop) -->
         <nav class="hidden md:block" aria-label="Main sections">
           <div class="segmented" role="tablist">
-            <button onclick="switchTab('feed')" id="btn-feed" data-tab="feed" class="segmented-btn active" role="tab">Feed</button>
-            <button onclick="switchTab('matching')" id="btn-matching" data-tab="matching" class="segmented-btn" role="tab">Connect</button>
-            <button onclick="switchTab('chat')" id="btn-chat" data-tab="chat" class="segmented-btn" role="tab">Messages<span data-badge hidden class="nav-badge ml-1.5"></span></button>
-            <button onclick="switchTab('profile')" id="btn-profile" data-tab="profile" class="segmented-btn" role="tab">Profile</button>
+            <button data-on-click="switchTab('feed')" id="btn-feed" data-tab="feed" class="segmented-btn active" role="tab">Feed</button>
+            <button data-on-click="switchTab('matching')" id="btn-matching" data-tab="matching" class="segmented-btn" role="tab">Connect</button>
+            <button data-on-click="switchTab('chat')" id="btn-chat" data-tab="chat" class="segmented-btn" role="tab">Messages<span data-badge hidden class="nav-badge ml-1.5"></span></button>
+            <button data-on-click="switchTab('profile')" id="btn-profile" data-tab="profile" class="segmented-btn" role="tab">Profile</button>
           </div>
         </nav>
 
         <!-- Current user + Log out -->
         <div class="flex items-center gap-1 sm:gap-2 shrink-0">
           <div id="user-pill" class="hidden lg:block text-footnote bg-appleBlue/10 text-blueText px-3 py-1 rounded-full font-semibold">Software Dev Track</div>
-          <button type="button" id="user-avatar" onclick="switchTab('profile')" title="" aria-label="Open your profile" class="tap avatar w-8 h-8 text-footnote m-1.5">AC</button>
-          <button onclick="logout()" class="btn btn-plain btn-sm">Log out</button>
+          <button type="button" id="user-avatar" data-on-click="switchTab('profile')" title="" aria-label="Open your profile" class="tap avatar w-8 h-8 text-footnote m-1.5">AC</button>
+          <button data-on-click="logout()" class="btn btn-plain btn-sm">Log out</button>
         </div>
       </div>
     </header>
@@ -295,13 +230,13 @@
             <div class="card p-4 space-y-3">
               <div class="flex items-center gap-3">
                 <div id="composer-avatar" class="avatar w-10 h-10 text-subhead"></div>
-                <button type="button" onclick="openComposer('community')" class="flex-1 text-left pf-input !rounded-full text-label-3 hover:bg-[var(--glass-control-hover)]">Share an update, resource, or project…</button>
+                <button type="button" data-on-click="openComposer('community')" class="flex-1 text-left pf-input !rounded-full text-label-3 hover:bg-[var(--glass-control-hover)]">Share an update, resource, or project…</button>
               </div>
               <div class="flex flex-wrap gap-1.5">
-                <button type="button" class="btn btn-plain btn-sm !text-label-2" onclick="openComposer('work')"><svg class="icon w-4 h-4 text-blueText"><use href="#i-briefcase"/></svg>Project</button>
-                <button type="button" class="btn btn-plain btn-sm !text-label-2" onclick="openComposer('resource')"><svg class="icon w-4 h-4 text-greenText"><use href="#i-book"/></svg>Resource</button>
-                <button type="button" class="btn btn-plain btn-sm !text-label-2" onclick="openComposer('personal')"><svg class="icon w-4 h-4 text-purpleText"><use href="#i-spark"/></svg>Personal project</button>
-                <button type="button" class="btn btn-plain btn-sm !text-label-2" onclick="openComposer('support')"><svg class="icon w-4 h-4 text-orangeText"><use href="#i-help"/></svg>Ask for help</button>
+                <button type="button" class="btn btn-plain btn-sm !text-label-2" data-on-click="openComposer('work')"><svg class="icon w-4 h-4 text-blueText"><use href="#i-briefcase"/></svg>Project</button>
+                <button type="button" class="btn btn-plain btn-sm !text-label-2" data-on-click="openComposer('resource')"><svg class="icon w-4 h-4 text-greenText"><use href="#i-book"/></svg>Resource</button>
+                <button type="button" class="btn btn-plain btn-sm !text-label-2" data-on-click="openComposer('personal')"><svg class="icon w-4 h-4 text-purpleText"><use href="#i-spark"/></svg>Personal project</button>
+                <button type="button" class="btn btn-plain btn-sm !text-label-2" data-on-click="openComposer('support')"><svg class="icon w-4 h-4 text-orangeText"><use href="#i-help"/></svg>Ask for help</button>
               </div>
             </div>
             <!-- Filters -->
@@ -322,13 +257,13 @@
           </div>
           <div class="flex flex-wrap gap-2">
           <div id="mm-view" class="segmented" role="tablist" aria-label="Show">
-            <button type="button" class="segmented-btn active" data-view="projects" onclick="setMatchmakerView('projects')">Projects</button>
-            <button type="button" class="segmented-btn" data-view="people" onclick="setMatchmakerView('people')">People</button>
+            <button type="button" class="segmented-btn active" data-view="projects" data-on-click="setMatchmakerView('projects')">Projects</button>
+            <button type="button" class="segmented-btn" data-view="people" data-on-click="setMatchmakerView('people')">People</button>
           </div>
           <div id="people-filter" class="segmented hidden" role="tablist" aria-label="Filter people">
-            <button type="button" class="segmented-btn active" data-filter="all" onclick="setPeopleFilter('all')">All</button>
-            <button type="button" class="segmented-btn" data-filter="connected" onclick="setPeopleFilter('connected')">Connections</button>
-            <button type="button" class="segmented-btn" data-filter="suggested" onclick="setPeopleFilter('suggested')">Suggested</button>
+            <button type="button" class="segmented-btn active" data-filter="all" data-on-click="setPeopleFilter('all')">All</button>
+            <button type="button" class="segmented-btn" data-filter="connected" data-on-click="setPeopleFilter('connected')">Connections</button>
+            <button type="button" class="segmented-btn" data-filter="suggested" data-on-click="setPeopleFilter('suggested')">Suggested</button>
           </div>
           </div>
         </div>
@@ -347,7 +282,7 @@
           <div id="chat-list-pane" class="flex flex-col min-h-0 md:border-r border-hairline">
             <div class="p-3">
               <label for="chat-search" class="sr-only">Search messages</label>
-              <input id="chat-search" type="search" placeholder="Search" class="pf-input !min-h-[36px] !py-1.5 !text-subhead" oninput="renderChatList()">
+              <input id="chat-search" type="search" placeholder="Search" class="pf-input !min-h-[36px] !py-1.5 !text-subhead" data-on-input="renderChatList()">
             </div>
             <ul id="chat-list" class="flex-1 overflow-y-auto px-2 pb-2 space-y-0.5"></ul>
           </div>
@@ -355,9 +290,9 @@
           <div id="chat-thread-pane" class="hidden md:flex flex-col min-h-0">
             <div id="thread-header" class="flex items-center gap-3 pl-2 pr-3 md:pl-4 min-h-[60px] border-b border-hairline"></div>
             <div id="thread-body" class="flex-1 overflow-y-auto px-3 sm:px-5 py-4" aria-live="polite"></div>
-            <form id="thread-composer" class="flex items-end gap-2 p-3 border-t border-hairline" onsubmit="sendMessage(event)">
+            <form id="thread-composer" class="flex items-end gap-2 p-3 border-t border-hairline" data-on-submit="sendMessage(event)">
               <label for="composer-input" class="sr-only">Message</label>
-              <textarea id="composer-input" rows="1" placeholder="Message" class="pf-input !rounded-[22px] !min-h-[40px] !py-2 resize-none max-h-32" onkeydown="onComposerKey(event)" oninput="autoGrow(this)"></textarea>
+              <textarea id="composer-input" rows="1" placeholder="Message" class="pf-input !rounded-[22px] !min-h-[40px] !py-2 resize-none max-h-32" data-on-keydown="onComposerKey(event)" data-on-input="autoGrow(this)"></textarea>
               <button type="submit" class="btn btn-primary !min-h-[40px] !w-10 !p-0 shrink-0" aria-label="Send"><svg class="icon w-5 h-5"><use href="#i-up"/></svg></button>
             </form>
           </div>
@@ -383,7 +318,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
 
-          <form id="profile-form" novalidate onsubmit="saveProfile(event)" class="space-y-4 min-w-0">
+          <form id="profile-form" novalidate data-on-submit="saveProfile(event)" class="space-y-4 min-w-0">
 
             <!-- 0. Import from CV or LinkedIn (specs/03-profile-import.md) -->
             <div id="pf-section-import" class="card p-5 sm:p-6 space-y-4">
@@ -398,7 +333,7 @@
                   <span class="text-body font-semibold">Drop your CV here or <span class="text-blueText">choose a file</span></span>
                   <span class="pf-hint">PDF, Word (.docx), or text · up to 10 MB</span>
                 </label>
-                <input id="pf-import-file" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" class="sr-only" onchange="handleImportFile(this.files[0]); this.value = ''">
+                <input id="pf-import-file" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" class="sr-only" data-on-change="importFromInput(this)">
 
                 <details class="text-subhead text-label-2 group">
                   <summary class="cursor-pointer font-semibold text-blueText list-none flex items-center gap-1 min-h-[44px]">
@@ -419,7 +354,7 @@
                   <span class="w-4 h-4 rounded-full border-2 border-appleBlue border-t-transparent animate-spin shrink-0"></span>
                   <p id="import-status" class="text-subhead truncate">Reading your file…</p>
                 </div>
-                <button type="button" onclick="cancelImport()" class="btn btn-plain btn-sm">Stop</button>
+                <button type="button" data-on-click="cancelImport()" class="btn btn-plain btn-sm">Stop</button>
               </div>
 
               <div id="import-review" class="hidden space-y-4">
@@ -429,8 +364,8 @@
                 </div>
                 <div id="import-review-body" class="space-y-4 text-subhead"></div>
                 <div class="flex flex-wrap justify-end gap-2">
-                  <button type="button" onclick="resetImport()" class="btn btn-gray btn-sm">Cancel</button>
-                  <button type="button" onclick="applyImport()" class="btn btn-primary btn-sm">Add selected to my profile</button>
+                  <button type="button" data-on-click="resetImport()" class="btn btn-gray btn-sm">Cancel</button>
+                  <button type="button" data-on-click="applyImport()" class="btn btn-primary btn-sm">Add selected to my profile</button>
                 </div>
               </div>
             </div>
@@ -447,8 +382,8 @@
                 <div class="space-y-1.5">
                   <div class="flex flex-wrap gap-2">
                     <label for="pf-photo" class="btn btn-secondary btn-sm">Upload photo</label>
-                    <input id="pf-photo" type="file" accept="image/*" class="sr-only" onchange="handlePhoto(this)">
-                    <button type="button" id="pf-photo-remove" onclick="removePhoto()" class="hidden btn btn-gray btn-sm">Remove</button>
+                    <input id="pf-photo" type="file" accept="image/*" class="sr-only" data-on-change="handlePhoto(this)">
+                    <button type="button" id="pf-photo-remove" data-on-click="removePhoto()" class="hidden btn btn-gray btn-sm">Remove</button>
                   </div>
                   <p class="pf-hint">JPG or PNG. A square, well-lit headshot works best.</p>
                   <p id="pf-photo-error" class="pf-error hidden"></p>
@@ -480,7 +415,7 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label for="pf-track" class="pf-label">Bootcamp track *</label>
-                  <select id="pf-track" class="pf-input" onchange="onTrackChange()">
+                  <select id="pf-track" class="pf-input" data-on-change="onTrackChange()">
                     <option value="Software Developer">Software Developer</option>
                     <option value="Business Developer">Business Developer</option>
                   </select>
@@ -535,7 +470,7 @@
                 <p class="pf-hint mt-0.5">Jobs, internships, freelance, and volunteer work all count. Lead with results.</p>
               </div>
               <div id="exp-list" class="space-y-3"></div>
-              <button type="button" onclick="addExperience()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add experience</button>
+              <button type="button" data-on-click="addExperience()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add experience</button>
             </div>
 
             <!-- 4. Skills -->
@@ -547,9 +482,9 @@
                 </div>
                 <span id="skill-count" class="pf-hint tabular-nums">0/10</span>
               </div>
-              <div class="pf-input flex flex-wrap items-center gap-1.5 cursor-text" onclick="document.getElementById('pf-skill-input').focus()">
+              <div class="pf-input flex flex-wrap items-center gap-1.5 cursor-text" data-on-click="focusField('pf-skill-input')">
                 <div id="skill-tags" class="contents"></div>
-                <input id="pf-skill-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-body focus:outline-none" onkeydown="onSkillKey(event)">
+                <input id="pf-skill-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-body focus:outline-none" data-on-keydown="onSkillKey(event)">
               </div>
               <div>
                 <p class="pf-hint mb-2">Suggested for your track</p>
@@ -563,10 +498,10 @@
                   </div>
                   <span id="learn-count" class="pf-hint tabular-nums">0/5</span>
                 </div>
-                <div class="pf-input flex flex-wrap items-center gap-1.5 cursor-text" onclick="document.getElementById('pf-learn-input').focus()">
+                <div class="pf-input flex flex-wrap items-center gap-1.5 cursor-text" data-on-click="focusField('pf-learn-input')">
                   <div id="learn-tags" class="contents"></div>
                   <label for="pf-learn-input" class="sr-only">Add a skill you want to learn</label>
-                  <input id="pf-learn-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-body focus:outline-none" onkeydown="onLearnKey(event)">
+                  <input id="pf-learn-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-body focus:outline-none" data-on-keydown="onLearnKey(event)">
                 </div>
                 <div id="learn-suggestions" class="flex flex-wrap gap-2"></div>
               </div>
@@ -579,7 +514,7 @@
                 <p class="pf-hint mt-0.5">Bootcamp capstones, side projects, pitch decks, case studies.</p>
               </div>
               <div id="proj-list" class="space-y-3"></div>
-              <button type="button" onclick="addProject()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add project</button>
+              <button type="button" data-on-click="addProject()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add project</button>
             </div>
 
             <!-- Verified experience (specs/07-project-loop.md) -->
@@ -658,7 +593,7 @@
                 <p id="strength-pct" class="text-body font-semibold tabular-nums">0%</p>
               </div>
               <div class="h-1.5 rounded-full bg-fill overflow-hidden">
-                <div id="strength-bar" class="h-full rounded-full bg-appleBlue transition-all duration-500 ease-apple" style="width:0%"></div>
+                <div id="strength-bar" class="h-full rounded-full bg-appleBlue transition-all duration-500 ease-apple w-0"></div>
               </div>
               <ul id="strength-list" class="space-y-0.5 text-subhead"></ul>
               <button type="submit" form="profile-form" class="btn btn-primary w-full">Save profile</button>
@@ -672,23 +607,26 @@
     <!-- Tab bar (phones) -->
     <nav class="tab-bar md:hidden" aria-label="Main sections">
       <div class="glass flex max-w-md mx-auto rounded-full p-1.5 gap-1" role="tablist">
-        <button onclick="switchTab('feed')" data-tab="feed" class="tab-item active" role="tab"><svg class="icon"><use href="#i-feed"/></svg>Feed</button>
-        <button onclick="switchTab('matching')" data-tab="matching" class="tab-item" role="tab"><svg class="icon"><use href="#i-match"/></svg>Connect</button>
-        <button onclick="switchTab('chat')" data-tab="chat" class="tab-item" role="tab"><span class="relative"><svg class="icon"><use href="#i-chat"/></svg><span data-badge hidden class="nav-badge absolute -top-1.5 left-4"></span></span>Messages</button>
-        <button onclick="switchTab('profile')" data-tab="profile" class="tab-item" role="tab"><svg class="icon"><use href="#i-person"/></svg>Profile</button>
+        <button data-on-click="switchTab('feed')" data-tab="feed" class="tab-item active" role="tab"><svg class="icon"><use href="#i-feed"/></svg>Feed</button>
+        <button data-on-click="switchTab('matching')" data-tab="matching" class="tab-item" role="tab"><svg class="icon"><use href="#i-match"/></svg>Connect</button>
+        <button data-on-click="switchTab('chat')" data-tab="chat" class="tab-item" role="tab"><span class="relative"><svg class="icon"><use href="#i-chat"/></svg><span data-badge hidden class="nav-badge absolute -top-1.5 left-4"></span></span>Messages</button>
+        <button data-on-click="switchTab('profile')" data-tab="profile" class="tab-item" role="tab"><svg class="icon"><use href="#i-person"/></svg>Profile</button>
       </div>
     </nav>
   </div>
 
   <!-- Profile & group sheet -->
   <div id="sheet" class="hidden fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-6" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
-    <div class="absolute inset-0 bg-black/35" onclick="closeSheet()"></div>
+    <div class="absolute inset-0 bg-black/35" data-on-click="closeSheet()"></div>
     <div id="sheet-panel" class="card sheet-panel relative w-full sm:max-w-xl max-h-[92dvh] overflow-y-auto !rounded-b-none sm:!rounded-[28px]"></div>
   </div>
 
   <!-- Toast -->
   <div id="toast" class="toast hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-32px)] text-subhead font-medium px-5 py-3 rounded-full shadow-lg text-center" role="status"></div>
 
+  <!-- Plain scripts that share globals, in this order (D017, D027). No inline script or handlers. -->
+  <script src="js/actions.js"></script>
+  <script src="js/icons.js"></script>
   <script src="js/storage-auth.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/profile.js"></script>
@@ -704,5 +642,6 @@
   <script src="js/projects.js"></script>
   <script src="js/feed.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/pwa.js"></script>
 </body>
 </html>

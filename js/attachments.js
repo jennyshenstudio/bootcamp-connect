@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: post attachments (photos, videos, documents, links) (specs/05-feed.md).
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 // Uploaded files live in this browser's IndexedDB; posts keep only metadata.
 
 const MAX_ATTACHMENTS = 6;
@@ -147,7 +147,7 @@ function attTile(post, att, cls, extra = '') {
     ? '<video class="w-full h-full object-cover" muted playsinline preload="metadata" ' + (att.src ? 'src="' + esc(att.src) + '"' : 'data-att-id="' + att.id + '"') + ' data-post-id="' + post.id + '"></video>' +
       '<span class="absolute inset-0 flex items-center justify-center"><span class="w-12 h-12 rounded-full bg-black/45 backdrop-blur flex items-center justify-center text-white"><svg class="w-5 h-5 ml-0.5" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg></span></span>'
     : '<img class="w-full h-full object-cover" alt="' + esc(att.name) + '" loading="lazy" ' + (att.src ? 'src="' + esc(att.src) + '"' : 'data-att-id="' + att.id + '"') + ' data-post-id="' + post.id + '">';
-  return '<button type="button" class="relative overflow-hidden bg-fill ' + cls + '" onclick="openViewer(\'' + post.id + '\', \'' + att.id + '\')" aria-label="Open ' + esc(att.name) + '">' + media + extra + '</button>';
+  return '<button type="button" class="relative overflow-hidden bg-fill ' + cls + '" data-on-click="openViewer(\'' + post.id + '\', \'' + att.id + '\')" aria-label="Open ' + esc(att.name) + '">' + media + extra + '</button>';
 }
 
 function renderAttachments(post) {
@@ -173,7 +173,7 @@ function renderAttachments(post) {
   if (docs.length) {
     html += '<div class="space-y-2">' + docs.map(a => {
       const info = docInfo(a);
-      return '<button type="button" onclick="openViewer(\'' + post.id + '\', \'' + a.id + '\')" class="entry !p-3 w-full flex items-center gap-3 text-left hover:bg-[var(--glass-control-hover)] transition">' +
+      return '<button type="button" data-on-click="openViewer(\'' + post.id + '\', \'' + a.id + '\')" class="entry !p-3 w-full flex items-center gap-3 text-left hover:bg-[var(--glass-control-hover)] transition">' +
         '<span class="w-10 h-12 rounded-lg flex items-center justify-center text-white text-caption2 font-bold shrink-0" style="background:' + info.color + '">' + esc(info.label === 'Spreadsheet' ? 'XLS' : info.label.slice(0, 4).toUpperCase()) + '</span>' +
         '<span class="min-w-0 flex-1"><span class="block font-semibold text-subhead truncate">' + esc(a.name) + '</span><span class="block text-footnote text-label-2">' + esc(info.label) + ' · ' + fmtSize(a.size || 0) + '</span></span>' +
         '<span class="text-footnote font-semibold text-blueText shrink-0">Open</span></button>';
@@ -231,8 +231,8 @@ async function renderViewer(first) {
   const att = items[viewer.index];
   const many = items.length > 1;
   const nav = many
-    ? '<button type="button" class="btn btn-gray !min-h-0 !w-10 !h-10 !p-0 absolute left-3 top-1/2 -translate-y-1/2 z-10" onclick="stepViewer(-1)" aria-label="Previous"><svg class="icon w-5 h-5"><use href="#i-back"/></svg></button>' +
-      '<button type="button" class="btn btn-gray !min-h-0 !w-10 !h-10 !p-0 absolute right-3 top-1/2 -translate-y-1/2 z-10" onclick="stepViewer(1)" aria-label="Next"><svg class="icon w-5 h-5"><use href="#i-chevron"/></svg></button>'
+    ? '<button type="button" class="btn btn-gray !min-h-0 !w-10 !h-10 !p-0 absolute left-3 top-1/2 -translate-y-1/2 z-10" data-on-click="stepViewer(-1)" aria-label="Previous"><svg class="icon w-5 h-5"><use href="#i-back"/></svg></button>' +
+      '<button type="button" class="btn btn-gray !min-h-0 !w-10 !h-10 !p-0 absolute right-3 top-1/2 -translate-y-1/2 z-10" data-on-click="stepViewer(1)" aria-label="Next"><svg class="icon w-5 h-5"><use href="#i-chevron"/></svg></button>'
     : '';
   let stage;
   if (att.kind === 'image') stage = '<img id="viewer-media" class="max-w-full max-h-[70dvh] object-contain mx-auto rounded-xl" alt="' + esc(att.name) + '">';
@@ -265,10 +265,8 @@ async function renderPdfPages(att) {
   try {
     const bytes = await attachmentBytes(att);
     if (!bytes) throw new Error('missing');
-    await loadScript(CDN + 'pdf.js/3.11.174/pdf.min.js');
-    await loadScript(CDN + 'pdf.js/3.11.174/pdf.worker.min.js');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = CDN + 'pdf.js/3.11.174/pdf.worker.min.js';
-    const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+    await loadPdfJs();
+    const pdf = await openPdf(bytes);
     if (!$('viewer-pdf')) return;
     box.innerHTML = '';
     const width = Math.min(box.clientWidth || 640, 820);

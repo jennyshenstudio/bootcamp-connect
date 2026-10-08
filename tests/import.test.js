@@ -17,7 +17,7 @@ module.exports = async (browser, t) => {
   await upload(page, fixture('linkedin-profile.pdf'));
   t.ok('LinkedIn PDF: summary finds 2 experiences and 3 skills', (await page.$eval('#import-summary', e => e.textContent)).startsWith('Found 2 experiences, 3 skills'));
   t.ok('LinkedIn PDF: uses the basic reader locally', (await page.$eval('#import-method', e => e.textContent)).includes('basic importer'));
-  await page.click('button[onclick="applyImport()"]'); await sleep(300);
+  await page.click('button[data-on-click="applyImport()"]'); await sleep(300);
   let f = await form(page);
   t.ok('LinkedIn PDF: headline, location, and wrapped link are read',
     f.headline === 'Full-Stack Developer | Bootcamp Grad | Ex-Barista' && f.location === 'Seattle, Washington, United States' && (await page.$eval('#pf-linkedin', e => e.value)) === 'www.linkedin.com/in/jordan-lee-dev', JSON.stringify(f));
@@ -27,7 +27,7 @@ module.exports = async (browser, t) => {
   await upload(page, fixture('cv-word.docx'));
   t.ok('Word CV: 2 experiences, 6 skills, 1 project', (await page.$eval('#import-summary', e => e.textContent)).startsWith('Found 2 experiences, 6 skills, 1 project'));
   t.ok('fields with a value are marked "replaces what you have"', (await reviewText(page)).includes('replaces what you have'));
-  await page.click('button[onclick="resetImport()"]');
+  await page.click('button[data-on-click="resetImport()"]');
   await upload(page, fixture('photo.png'));
   t.ok('an image file is rejected with a clear error', (await page.$eval('#import-error', e => e.textContent)).includes('PDF, Word (.docx), or text'));
   await page.close();
@@ -35,11 +35,11 @@ module.exports = async (browser, t) => {
   // The repo's sample CV, signed up with Google so the name is a placeholder
   page = await openApp(browser, t);
   await page.click('#track-dev + div'); await page.click('#terms');
-  await page.click('button[onclick="handleGoogle()"]'); await sleep(900);
+  await page.click('button[data-on-click="handleGoogle()"]'); await sleep(900);
   t.ok('Google sign-up without a name uses "Google User"', (await page.$eval('#pf-first', e => e.value)) === 'Google');
   await upload(page, path.join(ROOT, 'test-data', 'sample-cv.pdf'));
   t.ok('CV name is offered and ticked', (await page.$eval('label[for="imp-basic-name"]', e => e.innerText)).includes('Maya Okafor (replaces Google User)') && await page.$eval('#imp-basic-name', e => e.checked));
-  await page.click('button[onclick="applyImport()"]'); await sleep(300);
+  await page.click('button[data-on-click="applyImport()"]'); await sleep(300);
   f = await form(page);
   t.ok('sample CV fills every section', f.first === 'Maya' && f.last === 'Okafor' && f.location === 'Chicago, IL' && f.website === 'mayaokafor.dev' &&
     f.exps.length === 3 && f.skills.length === 10 && f.skills.includes('User research') && f.projects[0] === 'ShiftSwap|github.com/mayaokafor/shiftswap' && f.projects.length === 2, JSON.stringify(f));

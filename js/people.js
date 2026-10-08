@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: Matchmaker, profile and members sheets
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 // ----- Matchmaker -----
 function setPeopleFilter(f) {
@@ -9,9 +9,9 @@ function setPeopleFilter(f) {
 }
 
 function connectButton(p, extra) {
-  if (demo.connected[p.id]) return '<button type="button" class="btn btn-secondary btn-sm ' + extra + '" onclick="messagePerson(\'' + p.id + '\')"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Message</button>';
+  if (demo.connected[p.id]) return '<button type="button" class="btn btn-secondary btn-sm ' + extra + '" data-on-click="messagePerson(\'' + p.id + '\')"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Message</button>';
   if (demo.requested[p.id]) return '<button type="button" class="btn btn-gray btn-sm ' + extra + '" disabled aria-disabled="true">Requested</button>';
-  return '<button type="button" class="btn btn-primary btn-sm ' + extra + '" onclick="connectPerson(\'' + p.id + '\')"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Connect</button>';
+  return '<button type="button" class="btn btn-primary btn-sm ' + extra + '" data-on-click="connectPerson(\'' + p.id + '\')"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Connect</button>';
 }
 
 function renderPeople() {
@@ -23,10 +23,10 @@ function renderPeople() {
   $('people-grid').innerHTML = list.length ? list.map(({ p, m }) =>
     '<article class="card p-5 flex flex-col gap-3">' +
       '<div class="flex items-start gap-3">' +
-        '<button type="button" class="tap rounded-full" onclick="openPerson(\'' + p.id + '\')" aria-label="View ' + esc(fullName(p)) + '\'s profile">' + personAvatar(p, 'w-14 h-14 text-title3') + '</button>' +
+        '<button type="button" class="tap rounded-full" data-on-click="openPerson(\'' + p.id + '\')" aria-label="View ' + esc(fullName(p)) + '\'s profile">' + personAvatar(p, 'w-14 h-14 text-title3') + '</button>' +
         '<div class="min-w-0 flex-1">' +
           '<div class="flex items-start justify-between gap-2">' +
-            '<button type="button" class="font-semibold text-body text-left hover:underline" onclick="openPerson(\'' + p.id + '\')">' + esc(fullName(p)) + '</button>' +
+            '<button type="button" class="font-semibold text-body text-left hover:underline" data-on-click="openPerson(\'' + p.id + '\')">' + esc(fullName(p)) + '</button>' +
             '<span class="shrink-0 bg-appleGreen/15 text-greenText text-footnote font-semibold px-2.5 py-0.5 rounded-full tabular-nums">' + m.score + '%</span>' +
           '</div>' +
           '<p class="text-footnote text-label-2 line-clamp-2">' + esc(p.headline) + '</p>' +
@@ -39,7 +39,7 @@ function renderPeople() {
       '<div class="flex flex-wrap gap-1">' + p.skills.slice(0, 4).map(s => '<span class="bg-fill text-label-2 text-caption px-2 py-0.5 rounded-md">' + esc(s) + '</span>').join('') + '</div>' +
       '<p class="text-footnote text-label-2"><span class="text-label font-medium">Looking for:</span> ' + esc(p.goals.join(', ')) + ' · ' + esc(p.hours) + ' hrs/week</p>' +
       '<div class="mt-auto pt-1 flex gap-2">' +
-        '<button type="button" class="btn btn-gray btn-sm flex-1" onclick="openPerson(\'' + p.id + '\')">View profile</button>' +
+        '<button type="button" class="btn btn-gray btn-sm flex-1" data-on-click="openPerson(\'' + p.id + '\')">View profile</button>' +
         connectButton(p, 'flex-1') +
       '</div>' +
     '</article>'
@@ -89,7 +89,7 @@ function closeSheet() {
 }
 
 function sheetClose() {
-  return '<button type="button" id="sheet-close" class="btn btn-gray !min-h-0 !w-9 !h-9 !p-0 absolute top-3 right-3 z-10" onclick="closeSheet()" aria-label="Close"><svg class="icon w-4 h-4"><use href="#i-close"/></svg></button>';
+  return '<button type="button" id="sheet-close" class="btn btn-gray !min-h-0 !w-9 !h-9 !p-0 absolute top-3 right-3 z-10" data-on-click="closeSheet()" aria-label="Close"><svg class="icon w-4 h-4"><use href="#i-close"/></svg></button>';
 }
 
 function openPerson(id, { keepFocus = false } = {}) {
@@ -139,7 +139,7 @@ function openPerson(id, { keepFocus = false } = {}) {
           '<dt class="text-label-2">Industries</dt><dd>' + esc(p.industries.join(', ')) + '</dd>' +
         '</dl>') +
       (groups.length ? section('Group chats together', '<div class="flex flex-wrap gap-2">' + groups.map(g =>
-        '<button type="button" class="chip !text-footnote gap-1.5" onclick="closeSheet(); goToChat(\'' + g.id + '\')"><svg class="icon w-4 h-4"><use href="#i-users"/></svg>' + esc(g.name) + '</button>').join('') + '</div>') : '') +
+        '<button type="button" class="chip !text-footnote gap-1.5" data-on-click="closeSheet(); goToChat(\'' + g.id + '\')"><svg class="icon w-4 h-4"><use href="#i-users"/></svg>' + esc(g.name) + '</button>').join('') + '</div>') : '') +
     '</div>';
   openSheet(html, id);
   if (!keepFocus) $('sheet-close').focus();
@@ -150,7 +150,7 @@ function openMembers(chatId) {
   const me = currentAccount() || { first: 'You', last: '' };
   const rows = chat.members.map(id => {
     const p = person(id);
-    return '<li><button type="button" class="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-fill text-left min-h-[56px]" onclick="openPerson(\'' + id + '\')">' +
+    return '<li><button type="button" class="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-fill text-left min-h-[56px]" data-on-click="openPerson(\'' + id + '\')">' +
       personAvatar(p, 'w-10 h-10 text-subhead') +
       '<span class="min-w-0 flex-1"><span class="block font-semibold text-subhead">' + esc(fullName(p)) + '</span><span class="block text-footnote text-label-2 truncate">' + esc(p.headline) + '</span></span>' +
       '<svg class="icon w-4 h-4 text-label-3"><use href="#i-chevron"/></svg></button></li>';

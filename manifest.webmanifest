@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Bootcamp Connect",
+  "short_name": "Bootcamp",
+  "description": "Team up with bootcamp Software and Business Developers on real projects that build your portfolio.",
+  "lang": "en-GB",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EEF0F6",
+  "theme_color": "#EEF0F6",
+  "categories": ["education", "productivity", "social"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
