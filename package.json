@@ -1,0 +1,14 @@
+{
+  "name": "bootcamp-connect",
+  "version": "0.10.0",
+  "private": true,
+  "description": "Bootcamp Connect prototype: experience-first collaboration for bootcamp Software and Business Developers.",
+  "scripts": {
+    "test": "node tests/run.js",
+    "test:fixtures": "node tests/make-fixtures.js",
+    "build:artifact": "python3 scripts/build_artifact.py"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.43.1"
+  }
+}

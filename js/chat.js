@@ -46,7 +46,8 @@ function updateBadge() {
   document.querySelectorAll('[data-badge]').forEach(b => { b.textContent = total; b.hidden = !total; });
 }
 
-function goToChat(id) { switchTab('chat'); openChat(id); }
+// Set the target first so switching tabs doesn't auto-open (and mark read) the top conversation.
+function goToChat(id) { openChatId = id; switchTab('chat'); openChat(id); }
 
 function openChat(id) {
   openChatId = id;
