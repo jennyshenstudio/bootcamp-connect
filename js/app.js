@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: start-up wiring (runs after every other script)
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 // Drag and drop onto the import area
 (function wireDrop() {

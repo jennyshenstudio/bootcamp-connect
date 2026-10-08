@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: matching v2 (specs/06-matching.md).
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 //
 // Three questions, each with plain-language reasons:
 //   projectFit(post, member)  how well a project fits a member (hard filters + weighted fit)

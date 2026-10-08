@@ -7,7 +7,7 @@ module.exports = async (browser, t) => {
   await page.click('#auth-submit');
   t.ok('sign-up without track or terms shows both errors', await visible(page, 'track-error') && await visible(page, 'terms-error'));
   t.ok('dashboard stays hidden after a failed sign-up', !(await visible(page, 'app-dashboard')));
-  await page.click('button[onclick="handleGoogle()"]');
+  await page.click('button[data-on-click="handleGoogle()"]');
   t.ok('Google sign-up is blocked until track and terms are chosen', !(await visible(page, 'app-dashboard')));
 
   await page.click('#mode-login');
@@ -25,7 +25,7 @@ module.exports = async (browser, t) => {
   await page.reload({ waitUntil: 'networkidle0' });
   t.ok('session survives a reload', await visible(page, 'app-dashboard'));
 
-  await page.click('button[onclick="logout()"]'); await sleep(800);
+  await page.click('button[data-on-click="logout()"]'); await sleep(800);
   t.ok('log out returns to Log in with the email filled in',
     await visible(page, 'auth-screen') && (await page.$eval('#auth-title', e => e.textContent)) === 'Welcome back' && (await page.$eval('#email', e => e.value)) === 'alex@bootcamp.edu');
   await page.type('#password', 'anything1'); await page.click('#auth-submit'); await sleep(1000);

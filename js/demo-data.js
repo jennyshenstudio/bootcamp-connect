@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: sample members and conversations (specs/04-connections-messages.md)
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 // ---------- Demo community: connections, profiles, group chats (specs/04-connections-messages.md) ----------
 // Sample members for the prototype. Not real people.

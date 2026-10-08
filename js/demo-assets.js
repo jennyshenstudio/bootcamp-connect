@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: demo attachments (sample images and PDFs for demo posts).
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 // Screenshot-style images drawn as SVG so the demo needs no external image hosting.
 function svgData(svg) { return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }

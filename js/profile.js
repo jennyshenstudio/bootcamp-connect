@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: profile setup (specs/02-profile.md)
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 // ---------- Profile setup (specs/02-profile.md) ----------
 const SKILL_SUGGESTIONS = {
@@ -46,14 +46,14 @@ function expHtml(e = {}) {
   const id = 'exp' + (++entrySeq);
   return '<div class="entry space-y-3" data-exp>' +
     '<div class="flex items-center justify-between"><p class="text-footnote font-semibold text-label-2">Experience</p>' +
-    '<button type="button" onclick="removeEntry(this)" class="text-footnote font-medium text-label-2 hover:text-redText">Remove</button></div>' +
+    '<button type="button" data-on-click="removeEntry(this)" class="text-footnote font-medium text-label-2 hover:text-redText">Remove</button></div>' +
     '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
       '<div><label for="' + id + '-title" class="pf-label">Title</label><input id="' + id + '-title" data-field="title" type="text" class="pf-input" placeholder="e.g. Frontend Developer Intern" value="' + esc(e.title) + '"></div>' +
       '<div><label for="' + id + '-company" class="pf-label">Company</label><input id="' + id + '-company" data-field="company" type="text" class="pf-input" placeholder="e.g. Shopify" value="' + esc(e.company) + '"></div>' +
       '<div><label for="' + id + '-start" class="pf-label">Start</label><input id="' + id + '-start" data-field="start" type="month" class="pf-input" value="' + esc(e.start) + '"></div>' +
       '<div><label for="' + id + '-end" class="pf-label">End</label><input id="' + id + '-end" data-field="end" type="month" class="pf-input" value="' + esc(e.end) + '"' + (e.current ? ' disabled' : '') + '></div>' +
     '</div>' +
-    '<label class="flex items-center gap-2 text-footnote text-label-2 cursor-pointer"><input id="' + id + '-current" data-field="current" type="checkbox" class="w-4 h-4 accent-appleBlue" onchange="toggleCurrent(this)"' + (e.current ? ' checked' : '') + '> I currently work here</label>' +
+    '<label class="flex items-center gap-2 text-footnote text-label-2 cursor-pointer"><input id="' + id + '-current" data-field="current" type="checkbox" class="w-4 h-4 accent-appleBlue" data-on-change="toggleCurrent(this)"' + (e.current ? ' checked' : '') + '> I currently work here</label>' +
     '<div><label for="' + id + '-desc" class="pf-label">What you did</label><textarea id="' + id + '-desc" data-field="desc" rows="3" class="pf-input resize-y" placeholder="What did you build or own, and what changed because of it?">' + esc(e.desc) + '</textarea></div>' +
     '</div>';
 }
@@ -62,7 +62,7 @@ function projHtml(p = {}) {
   const id = 'proj' + (++entrySeq);
   return '<div class="entry space-y-3" data-proj>' +
     '<div class="flex items-center justify-between"><p class="text-footnote font-semibold text-label-2">Project</p>' +
-    '<button type="button" onclick="removeEntry(this)" class="text-footnote font-medium text-label-2 hover:text-redText">Remove</button></div>' +
+    '<button type="button" data-on-click="removeEntry(this)" class="text-footnote font-medium text-label-2 hover:text-redText">Remove</button></div>' +
     '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
       '<div><label for="' + id + '-title" class="pf-label">Title</label><input id="' + id + '-title" data-field="title" type="text" class="pf-input" placeholder="e.g. AI budgeting app" value="' + esc(p.title) + '"></div>' +
       '<div><label for="' + id + '-role" class="pf-label">Your role</label><input id="' + id + '-role" data-field="role" type="text" class="pf-input" placeholder="e.g. Built the backend" value="' + esc(p.role) + '"></div>' +
@@ -134,12 +134,12 @@ function renderLearn() {
   if (!$('learn-tags')) return;
   $('learn-tags').innerHTML = learn.map((s, i) =>
     '<span class="inline-flex items-center gap-1 bg-applePurple/10 text-purpleText border border-applePurple/25 text-footnote font-medium pl-2.5 pr-1 py-0.5 rounded-full">' + esc(s) +
-    '<button type="button" onclick="event.stopPropagation(); removeLearn(' + i + ')" aria-label="Remove ' + esc(s) + '" class="w-5 h-5 rounded-full hover:bg-applePurple/20 leading-none">×</button></span>').join('');
+    '<button type="button" data-on-click="event.stopPropagation(); removeLearn(' + i + ')" aria-label="Remove ' + esc(s) + '" class="w-5 h-5 rounded-full hover:bg-applePurple/20 leading-none">×</button></span>').join('');
   $('learn-count').textContent = learn.length + '/' + MAX_LEARN;
   const taken = skills.concat(learn).map(s => s.toLowerCase());
   const other = SKILL_SUGGESTIONS[$('pf-track').value === 'Software Developer' ? 'Business Developer' : 'Software Developer'];
   const pool = [...new Set(LEARN_EXTRAS.concat(other))].filter(s => !taken.includes(s.toLowerCase())).slice(0, 8);
-  $('learn-suggestions').innerHTML = pool.map(s => '<button type="button" class="chip" data-skill="' + esc(s) + '" onclick="addLearn(this.dataset.skill)">＋ ' + esc(s) + '</button>').join('');
+  $('learn-suggestions').innerHTML = pool.map(s => '<button type="button" class="chip" data-skill="' + esc(s) + '" data-on-click="addLearn(this.dataset.skill)">＋ ' + esc(s) + '</button>').join('');
   updatePreview();
 }
 
@@ -147,13 +147,13 @@ function renderSkills() {
   $('skill-tags').innerHTML = skills.map((s, i) =>
     '<span class="inline-flex items-center gap-1 bg-appleBlue/10 text-blueText border border-appleBlue/25 text-footnote font-medium pl-2.5 pr-1 py-0.5 rounded-full">' + esc(s) +
     (demo && demo.endorsements[s] ? '<span class="text-greenText font-semibold" title="Endorsements from teammates">' + demo.endorsements[s] + '</span>' : '') +
-    '<button type="button" onclick="event.stopPropagation(); removeSkill(' + i + ')" aria-label="Remove ' + esc(s) + '" class="w-5 h-5 rounded-full hover:bg-appleBlue/20 leading-none">×</button></span>'
+    '<button type="button" data-on-click="event.stopPropagation(); removeSkill(' + i + ')" aria-label="Remove ' + esc(s) + '" class="w-5 h-5 rounded-full hover:bg-appleBlue/20 leading-none">×</button></span>'
   ).join('');
   $('skill-count').textContent = skills.length + '/' + MAX_SKILLS;
   const lower = skills.map(s => s.toLowerCase());
   const suggestions = SKILL_SUGGESTIONS[$('pf-track').value].filter(s => !lower.includes(s.toLowerCase()));
   $('skill-suggestions').innerHTML = suggestions.length
-    ? suggestions.map(s => '<button type="button" class="chip" data-skill="' + esc(s) + '" onclick="addSkill(this.dataset.skill)">＋ ' + esc(s) + '</button>').join('')
+    ? suggestions.map(s => '<button type="button" class="chip" data-skill="' + esc(s) + '" data-on-click="addSkill(this.dataset.skill)">＋ ' + esc(s) + '</button>').join('')
     : '<p class="pf-hint">You\'ve added all the suggestions.</p>';
   updatePreview();
 }
@@ -311,7 +311,7 @@ function updateStrength(d) {
   bar.className = 'h-full rounded-full transition-all duration-500 ' + (pct === 100 ? 'bg-appleGreen' : pct >= 50 ? 'bg-appleBlue' : 'bg-appleOrange');
   $('strength-list').innerHTML = checks.map(([label, done, , section]) => done
     ? '<li class="flex items-center gap-2 text-label-3"><span class="text-greenText font-bold">✓</span>' + label + '</li>'
-    : '<li><button type="button" onclick="goToSection(\'' + section + '\')" class="flex items-center gap-2 text-label hover:text-blueText text-left"><span class="w-3 h-3 rounded-full border-2 border-label-3 shrink-0"></span>' + label + '</button></li>'
+    : '<li><button type="button" data-on-click="goToSection(\'' + section + '\')" class="flex items-center gap-2 text-label hover:text-blueText text-left"><span class="w-3 h-3 rounded-full border-2 border-label-3 shrink-0"></span>' + label + '</button></li>'
   ).join('');
 }
 

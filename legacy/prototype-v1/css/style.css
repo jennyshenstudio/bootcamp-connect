@@ -1,0 +1,56 @@
+/* Archived v1 prototype styles (moved out of its inline <style>, D027).
+   Loaded before css/tailwind.css, as the Tailwind CDN script used to add its styles last. */
+/* Apple HIG Glassmorphism & Micro-Interactions */
+.glass-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 0 2px 0 rgba(0, 0, 0, 0.05);
+}
+.glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+.segmented-control {
+  background: rgba(120, 120, 128, 0.12);
+  border-radius: 9999px;
+  padding: 3px;
+}
+.segmented-btn {
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  border-radius: 9999px;
+}
+.segmented-btn.active {
+  background: #FFFFFF;
+  color: #000000;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
+}
+.btn-apple-primary {
+  background: #007AFF;
+  color: #FFFFFF;
+  transition: all 0.2s ease;
+}
+.btn-apple-primary:hover {
+  background: #0062CC;
+  transform: scale(1.01);
+}
+.btn-apple-primary:active {
+  transform: scale(0.98);
+}
+.badge-dev {
+  background: rgba(0, 122, 255, 0.12);
+  color: #007AFF;
+  border: 1px solid rgba(0, 122, 255, 0.25);
+}
+.badge-biz {
+  background: rgba(175, 82, 222, 0.12);
+  color: #AF52DE;
+  border: 1px solid rgba(175, 82, 222, 0.25);
+}
+.match-banner {
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.15) 0%, rgba(0, 122, 255, 0.15) 100%);
+  border: 1px solid rgba(52, 199, 89, 0.3);
+}

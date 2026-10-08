@@ -24,7 +24,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D014 | Matching v2: hard filters, weighted fit, two-way person fit, team suggestions | Accepted (built) | Feed, Connect |
 | D015 | Project loop ending in verified experience | Accepted (built) | Projects, profile |
 | D016 | Claude features run on the published page, with a fallback elsewhere | Accepted (built) | Import, chat replies |
-| D017 | Code organised as `prototype.html` + `css/` + `js/` modules; build script for the artifact | Accepted (built) | Codebase, release |
+| D017 | Code organised as `prototype.html` + `css/` + `js/` modules; build script for the artifact | Superseded by D027 | Codebase, release |
 | D018 | Messages fits one screen | Accepted (built) | Messages |
 | D019 | AI Coach (open coaching chat) | Superseded by D020 | AI |
 | D020 | AI companion = Project Kickstart: idea → scope → gap map → team and resources → post | Accepted (not built yet) | AI, projects |
@@ -34,6 +34,9 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D024 | Community library: resources attached to gap items and capabilities | Accepted (not built yet) | Library, AI |
 | D025 | Decisions log, production process standards, and CLAUDE.md | Accepted (built) | How we work |
 | D026 | Backend: Supabase (London) for data, sign-in, files, and live chat; Vercel for hosting | Parked | Storage, auth, sharing, release |
+| D027 | Code fully separated: `index.html` (markup), `css/` (styles + compiled Tailwind), `js/` (scripts, no inline handlers) | Accepted (built) | Codebase, release |
+| D028 | Installable web app (PWA) with a `dist/` build, CSP, offline support, CI, and GitHub Pages deploy (off until the owner turns it on) | Accepted (built) | Release, sharing, mobile |
+| D029 | Native App Store and Google Play apps by wrapping the web app (Capacitor) | Proposed | Release, mobile |
 
 ## Entries
 
@@ -110,8 +113,8 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Decision:** CV extraction and chat replies use Claude through the artifact's `sample` capability on the published page (each viewer is asked first and uses their own account). Every Claude feature has a working fallback when Claude isn't available.
 
 ### D017 Code organisation and release build
-- **Date:** 2026-10-07
-- **Decision:** `prototype.html` holds markup; `css/app.css` holds styles; `js/` holds one plain script per feature, loaded in a fixed order. `scripts/build_artifact.py` builds the artifact copy.
+- **Date:** 2026-10-07 · **Status:** Superseded by D027 (2026-10-08)
+- **Decision (original):** `prototype.html` holds markup; `css/app.css` holds styles; `js/` holds one plain script per feature, loaded in a fixed order. `scripts/build_artifact.py` builds the artifact copy.
 
 ### D018 Messages fits one screen
 - **Date:** 2026-10-07
@@ -162,3 +165,39 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Rejected:** Vercel's own storage, which is third-party add-ons (Neon, Upstash) and would still need separate sign-in, file storage, and realtime.
 - **Supersedes when accepted:** D003.
 - **Affects:** Storage, auth, sharing, release.
+
+### D027 Code fully separated into HTML, CSS and JavaScript; compiled Tailwind
+- **Date:** 2026-10-08 · **Status:** Accepted (built) · **Supersedes:** D017 · **Spec:** `specs/08-installable-app.md`
+- **Context:** `prototype.html` still held the Tailwind configuration in an inline script, the icon sprite, 47 inline event handlers and 2 style attributes, and the `js/` files wrote about 70 more inline handlers. Tailwind came from `cdn.tailwindcss.com`, which Tailwind says not to use in production: it compiles CSS in the browser on every visit and needs a connection.
+- **Decision:**
+  - `prototype.html` is renamed `index.html`, so any web host serves it at the site's address. It holds markup only.
+  - Tailwind 3.4.17 (the version the CDN ran) is compiled ahead of time: `tailwind.config.js` + `src/styles/tailwind.css` → `css/tailwind.css` with `npm run build:css`. The compiled file is committed so `index.html` still opens straight from disk. It loads after `css/app.css`, matching the order the CDN produced, so utilities still override component defaults.
+  - Inline handlers are replaced by `data-on-click="fn('arg')"` attributes (also `-submit`, `-change`, `-input`, `-keydown`), run by `js/actions.js`. It reads only plain function calls with literal arguments or `this`/`event` paths, never evaluates code, and keeps the old order and `stopPropagation` behaviour.
+  - The SVG icon sprite moves to `js/icons.js`; the two style attributes become CSS classes.
+  - The archived `prototype-v1.html` moves to `legacy/prototype-v1/` with its own CSS, JS and compiled Tailwind.
+  - Page language is `en-GB` (D002).
+- **Checked by:** `tests/structure.test.js` (no inline code; every class on screen has CSS) and a pixel comparison of 8 screens against the CDN-era layout, which matched.
+- **Consequence:** class names must be written in full in `index.html` or `js/` (never built from pieces), and `npm run build:css` must be run after adding new classes. CI warns if the committed CSS is out of date.
+- **Fixed alongside:** the desktop sign-up brand panel overflowed short laptop screens (1280×650) when the Apple system font wasn't available (Windows, Linux). On screens 700px tall or less its padding and headline now shrink.
+- **Affects:** Codebase, release.
+
+### D028 Installable web app (PWA), production build and deployment
+- **Date:** 2026-10-08 · **Status:** Accepted (built; the Pages deploy is off until the owner turns it on) · **Spec:** `specs/08-installable-app.md`
+- **Context:** The app needs to be ready to publish as a web app and as a phone app from the GitHub repository. D003 (no backend) still holds and D026 (Supabase + Vercel) is still parked.
+- **Decision:**
+  - **Mobile app = installable web app (PWA).** `manifest.webmanifest`, app icons (`assets/icons/`, including maskable and Apple touch icons) and home-screen tags let members add it to iPhone, Android and desktop. A service worker (`sw.js`) keeps the app's files so it opens offline; pages are fetched network first so new versions show straight away.
+  - **Production build:** `npm run build` writes `dist/`, a plain static site that any host can serve (GitHub Pages, Netlify, Vercel, a bucket). The build adds a Content Security Policy (no inline script; only cdnjs as an outside script source, for Mammoth) and a version stamp that turns the service worker on. The service worker is never used from disk, from `npm start`, or on the claude.ai artifact.
+  - **pdf.js is self-hosted** in `vendor/` (official 3.11.174 release) so PDFs work offline and under the CSP, and it always runs with `isEvalSupported: false` (CVE-2024-4367). Mammoth stays on cdnjs for now (`vendor/README.md`).
+  - **CI** (`.github/workflows/ci.yml`) runs the whole test suite on every push and pull request, against the source and against `dist/`.
+  - **GitHub Pages deploy** (`.github/workflows/deploy-pages.yml`) publishes `dist/` after CI passes on `main`, but only once the owner turns it on (Pages source set to GitHub Actions and the `DEPLOY_PAGES` variable set to `true`), because a Pages site is public, which changes how the app is shared (D004). It can also be run by hand.
+  - **Local tools without extra dependencies:** `npm start` (source at http://localhost:8080), `npm run preview` (built site), `npm run test:dist`.
+  - The claude.ai artifact build (`npm run build:artifact`) now uses `index.html`, includes the compiled CSS and pdf.js, and leaves out the install features.
+- **Rejected:** Workbox and other service worker libraries (one small hand-written worker is enough while there's no backend); Vercel for now (D026 is parked and Pages needs no new account); committing `dist/` (it's built in CI).
+- **Open questions:** whether and when to make the app public on Pages (D004); a custom domain.
+- **Affects:** Release, sharing, mobile.
+
+### D029 Native app store apps
+- **Date:** 2026-10-08 · **Status:** Proposed
+- **Context:** The installable web app (D028) covers phones without the App Store or Google Play. Store listings need native wrappers, paid developer accounts (Apple charges yearly, Google once) and store review.
+- **Proposal:** When store presence is needed, wrap `dist/` with Capacitor (iOS and Android projects in the repo, built from the same web code). Do this after D026, because a store app with data only on one device would disappoint members.
+- **Affects:** Release, mobile.

@@ -6,14 +6,22 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 
 | Path | What it is |
 | --- | --- |
-| `prototype.html` | Current interactive prototype (Tailwind via CDN). Open it in a browser. |
-| `css/`, `js/` | Styles and scripts for the prototype, one file per feature (load order is set in `prototype.html`). |
-| `prototype-v1.html` | Earlier design with fuller Matchmaker, Messages, and Profile tabs. |
+| `index.html` | The app (markup only). Open it in a browser, or run `npm start`. |
+| `css/` | `app.css` (design tokens and components) and `tailwind.css` (compiled Tailwind, built by `npm run build:css`). |
+| `js/` | One plain script per feature, loaded in the order set in `index.html`. `actions.js` runs the `data-on-*` handlers; `icons.js` holds the icon sprite; `pwa.js` turns on offline support. |
+| `manifest.webmanifest`, `sw.js`, `assets/icons/` | Installable app: name, icons, and the service worker for offline use. |
+| `vendor/` | Self-hosted third-party libraries (pdf.js). See `vendor/README.md`. |
+| `tailwind.config.js`, `src/styles/` | Tailwind theme and input. |
+| `scripts/` | `build.mjs` (writes `dist/`), `build-css.mjs`, `serve.mjs` (local server), `build_artifact.py` (claude.ai artifact). |
+| `.github/workflows/` | CI (tests on every push) and GitHub Pages deployment (off until turned on). |
+| `legacy/prototype-v1/` | Earlier design with fuller Matchmaker, Messages, and Profile tabs. |
 | `CLAUDE.md` | How we work: standards, tests, and release steps for every change. |
+| `CHANGELOG.md` | What changed in each version. |
 | `docs/decisions.md` | Every product, design, and technical decision. |
+| `docs/deployment.md` | Building, deploying, and installing the app. |
 | `tests/` | Browser tests (`npm install`, then `npm test`). Needs Google Chrome. |
 | `test-data/` | Sample CV for a made-up member (Maya Okafor) as PDF, Word, and HTML, for testing the profile import. |
-| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. `05-feed.md`, `06-matching.md`, `07-project-loop.md`: experience-first platform. |
+| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. `05-feed.md`, `06-matching.md`, `07-project-loop.md`: experience-first platform. `08-installable-app.md`: web and phone app. |
 
 ## Prototype features
 
@@ -31,6 +39,7 @@ Bootcamp Connect is **experience first**: members join real projects (paid, unpa
 - New sign-ups land on profile setup; returning members land on the Project Feed
 - Demo community: 8 sample members with full profiles, a ranked Connect tab (projects and people) with connection requests and profile view, 3 group chats and direct messages with unread badges, typing indicators, and replies (written by Claude on the published page)
 - Project feed with upvotes
+- Installable on phones and computers (Add to Home Screen) and works offline once opened, when published from `dist/`
 
 Accounts and profiles (including photos, resized to 256px) are stored only in the viewer's browser (`localStorage`); there is no backend yet, and passwords are not stored or checked.
 
@@ -45,4 +54,15 @@ The interface follows Apple's Human Interface Guidelines with a **Liquid Glass**
 
 ## Run it
 
-Open `prototype.html` in any modern browser. An internet connection is needed for the Tailwind CDN.
+Open `index.html` in any modern browser, or run `npm start` and go to http://localhost:8080. No internet connection is needed, except to import a Word (.docx) CV.
+
+## Build and deploy
+
+```
+npm install          # once: test tools
+npm run build        # compiles the CSS and writes the publishable site to dist/
+npm run preview      # serves dist/ at http://localhost:8080 as it runs live
+npm test             # browser tests (npm run test:dist tests the built site)
+```
+
+`dist/` is a static site for any https host. GitHub Pages deployment is set up in `.github/workflows/` but off until the owner turns it on. Steps, hosting options, and how members install the app on iPhone, Android, and desktop: [docs/deployment.md](docs/deployment.md).

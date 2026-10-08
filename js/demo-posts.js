@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: sample feed posts (specs/05-feed.md).
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 // Posts from the sample members in demo-data.js. Not real people or projects.
 
 const POST_TYPES = {

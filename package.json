@@ -1,10 +1,19 @@
 {
   "name": "bootcamp-connect",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "private": true,
-  "description": "Bootcamp Connect prototype: experience-first collaboration for bootcamp Software and Business Developers.",
+  "description": "Bootcamp Connect: experience-first collaboration for bootcamp Software and Business Developers. Installable web app (PWA).",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "start": "node scripts/serve.mjs .",
+    "build:css": "node scripts/build-css.mjs",
+    "build:legacy-css": "node scripts/build-css.mjs --legacy",
+    "build": "npm run build:css && node scripts/build.mjs",
+    "preview": "npm run build && node scripts/serve.mjs dist",
     "test": "node tests/run.js",
+    "test:dist": "npm run build && node tests/run.js --dist",
     "test:fixtures": "node tests/make-fixtures.js",
     "build:artifact": "python3 scripts/build_artifact.py"
   },

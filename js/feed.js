@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: typed feed, composer, and Matchmaker project view (specs/05-feed.md).
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 let feedFilter = 'foryou';
 let mmView = 'projects';
@@ -54,11 +54,11 @@ function renderFeed() {
     posts = posts.filter(p => p.type === feedFilter);
   }
   $('feed-filters').innerHTML = FEED_FILTERS.map(([k, label]) =>
-    '<button type="button" class="chip whitespace-nowrap' + (feedFilter === k ? ' chip-active' : '') + '" onclick="setFeedFilter(\'' + k + '\')" aria-pressed="' + (feedFilter === k) + '">' + label + '</button>').join('');
+    '<button type="button" class="chip whitespace-nowrap' + (feedFilter === k ? ' chip-active' : '') + '" data-on-click="setFeedFilter(\'' + k + '\')" aria-pressed="' + (feedFilter === k) + '">' + label + '</button>').join('');
   $('feed-hint').textContent = feedFilter === 'foryou' ? 'Ranked by your skills, the skills you want to learn, your goals, and your weekly hours.' : '';
   list.innerHTML = posts.length ? posts.map(p => renderPost(p)).join('')
     : '<div class="card p-8 text-center space-y-2"><p class="font-semibold text-body">Nothing here yet</p><p class="text-subhead text-label-2">Be the first to post in ' + esc((FEED_FILTERS.find(f => f[0] === feedFilter) || [])[1] || 'this section') + '.</p>' +
-      '<button type="button" class="btn btn-primary btn-sm" onclick="openComposer(\'' + (POST_TYPES[feedFilter] ? feedFilter : 'community') + '\')">Create a post</button></div>';
+      '<button type="button" class="btn btn-primary btn-sm" data-on-click="openComposer(\'' + (POST_TYPES[feedFilter] ? feedFilter : 'community') + '\')">Create a post</button></div>';
   hydrateAttachments(list);
   $('composer-avatar').outerHTML = myAvatar('w-10 h-10 text-subhead" id="composer-avatar');
 }
@@ -79,8 +79,8 @@ function authorBlock(post) {
   const t = POST_TYPES[post.type];
   return '<div class="flex items-start justify-between gap-3">' +
     '<div class="flex items-center gap-3 min-w-0">' +
-      '<button type="button" class="tap rounded-full shrink-0" onclick="' + open + '" aria-label="View ' + esc(memberName(a, true)) + '\'s profile">' + memberAvatar(a, 'w-10 h-10 text-subhead') + '</button>' +
-      '<div class="min-w-0"><button type="button" class="font-semibold text-subhead hover:underline text-left" onclick="' + open + '">' + esc(memberName(a, true)) + '</button>' +
+      '<button type="button" class="tap rounded-full shrink-0" data-on-click="' + open + '" aria-label="View ' + esc(memberName(a, true)) + '\'s profile">' + memberAvatar(a, 'w-10 h-10 text-subhead') + '</button>' +
+      '<div class="min-w-0"><button type="button" class="font-semibold text-subhead hover:underline text-left" data-on-click="' + open + '">' + esc(memberName(a, true)) + '</button>' +
       '<p class="text-footnote text-label-2">' + esc(shortTrack(memberTrack(a)) || 'Member') + ' · ' + esc(post.ts ? relTime(post.ts) : post.time) + '</p></div>' +
     '</div>' +
     '<span class="shrink-0 inline-flex items-center gap-1 text-footnote font-semibold px-2.5 py-1 rounded-full ' + t.cls + '"><svg class="icon w-3.5 h-3.5"><use href="#' + t.icon + '"/></svg>' + t.label + '</span>' +
@@ -119,17 +119,17 @@ function workBlock(post, compact) {
   }
   let actions = '';
   if (mine) {
-    actions = '<button type="button" class="btn btn-primary btn-sm" onclick="openManage(\'' + post.id + '\')">Manage' + (pending ? ' <span class="nav-badge !bg-white !text-blueText">' + pending + '</span>' : '') + '</button>';
+    actions = '<button type="button" class="btn btn-primary btn-sm" data-on-click="openManage(\'' + post.id + '\')">Manage' + (pending ? ' <span class="nav-badge !bg-white !text-blueText">' + pending + '</span>' : '') + '</button>';
   } else if (member && status === 'in-progress') {
-    actions = '<button type="button" class="btn btn-gray btn-sm" onclick="goToChat(\'' + (post.chatId || projectState(post).chatId) + '\')"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Project chat</button>' +
-      '<button type="button" class="btn btn-primary btn-sm" onclick="openComplete(\'' + post.id + '\')">Mark complete</button>';
+    actions = '<button type="button" class="btn btn-gray btn-sm" data-on-click="goToChat(\'' + (post.chatId || projectState(post).chatId) + '\')"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Project chat</button>' +
+      '<button type="button" class="btn btn-primary btn-sm" data-on-click="openComplete(\'' + post.id + '\')">Mark complete</button>';
   } else if (member && status === 'completed') {
     actions = '<span class="inline-flex items-center gap-1 text-footnote font-semibold text-greenText"><svg class="icon w-4 h-4"><use href="#i-check"/></svg>Completed · on your profile</span>';
   } else if (app && app.status === 'applied') {
     actions = '<button type="button" class="btn btn-gray btn-sm" disabled aria-disabled="true">Applied · waiting for ' + esc(memberName(post.author)) + '</button>';
   } else if (status === 'open') {
     const blocked = projectFit(post, me).blocked;
-    actions = '<button type="button" class="btn ' + (blocked ? 'btn-gray' : 'btn-primary') + ' btn-sm" onclick="openApply(\'' + post.id + '\')">Apply</button>';
+    actions = '<button type="button" class="btn ' + (blocked ? 'btn-gray' : 'btn-primary') + ' btn-sm" data-on-click="openApply(\'' + post.id + '\')">Apply</button>';
   }
   return html + (actions ? '<div class="flex flex-wrap gap-2">' + actions + '</div>' : '');
 }
@@ -147,18 +147,18 @@ function renderPost(post, { compact = false } = {}) {
     const solved = postSolved(post);
     body += '<div class="flex flex-wrap items-center gap-2"><span class="text-footnote font-semibold px-2.5 py-0.5 rounded-full ' + (solved ? 'bg-appleGreen/15 text-greenText' : 'bg-appleOrange/15 text-orangeText') + '">' + (solved ? 'Solved' : 'Open question') + '</span>' +
       '<span class="text-footnote text-label-2">' + comments.length + ' answer' + (comments.length === 1 ? '' : 's') + '</span>' +
-      (isMine(post) && !solved ? '<button type="button" class="btn btn-plain btn-sm !min-h-[32px]" onclick="markSolved(\'' + post.id + '\')">Mark solved</button>' : '') + '</div>';
+      (isMine(post) && !solved ? '<button type="button" class="btn btn-plain btn-sm !min-h-[32px]" data-on-click="markSolved(\'' + post.id + '\')">Mark solved</button>' : '') + '</div>';
   }
   if (!compact) body += renderAttachments(post);
 
   const likeCount = (post.likes || 0) + (ps.liked ? 1 : 0);
   const footer = compact ? '' :
     '<div class="pt-2 border-t border-hairline flex items-center gap-1 -mx-2">' +
-      '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] ' + (ps.liked ? '!text-redText' : '!text-label-2') + '" onclick="toggleLike(\'' + post.id + '\')" aria-pressed="' + ps.liked + '" aria-label="Like">' +
+      '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] ' + (ps.liked ? '!text-redText' : '!text-label-2') + '" data-on-click="toggleLike(\'' + post.id + '\')" aria-pressed="' + ps.liked + '" aria-label="Like">' +
         '<svg class="icon w-[18px] h-[18px]"' + (ps.liked ? ' style="fill:currentColor"' : '') + '><use href="#i-heart"/></svg><span class="tabular-nums">' + likeCount + '</span></button>' +
-      '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" onclick="toggleComments(\'' + post.id + '\')" aria-expanded="' + openComments.has(post.id) + '">' +
+      '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="toggleComments(\'' + post.id + '\')" aria-expanded="' + openComments.has(post.id) + '">' +
         '<svg class="icon w-[18px] h-[18px]"><use href="#i-chat"/></svg><span class="tabular-nums">' + comments.length + '</span><span class="sr-only"> comments</span></button>' +
-      (post.type === 'resource' ? '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] ml-auto ' + (ps.saved ? '!text-blueText' : '!text-label-2') + '" onclick="toggleSave(\'' + post.id + '\')" aria-pressed="' + ps.saved + '">' +
+      (post.type === 'resource' ? '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] ml-auto ' + (ps.saved ? '!text-blueText' : '!text-label-2') + '" data-on-click="toggleSave(\'' + post.id + '\')" aria-pressed="' + ps.saved + '">' +
         '<svg class="icon w-[18px] h-[18px]"' + (ps.saved ? ' style="fill:currentColor"' : '') + '><use href="#i-bookmark"/></svg>' + (ps.saved ? 'Saved' : 'Save') + ' <span class="tabular-nums">' + ((post.saves || 0) + (ps.saved ? 1 : 0)) + '</span></button>' : '') +
     '</div>' +
     (openComments.has(post.id) ? commentsBlock(post, comments) : '');
@@ -171,7 +171,7 @@ function commentsBlock(post, comments) {
     comments.map(c => '<div class="flex items-start gap-2.5">' + memberAvatar(c.from, 'w-7 h-7 text-caption2') +
       '<div class="min-w-0 flex-1 entry !py-2 !px-3"><p class="text-footnote"><span class="font-semibold">' + esc(memberName(c.from, true)) + '</span> <span class="text-label-3">· ' + esc(c.ts ? relTime(c.ts) : c.time) + '</span></p>' +
       '<p class="text-subhead whitespace-pre-line">' + esc(c.text) + '</p></div></div>').join('') +
-    '<form class="flex items-end gap-2" onsubmit="addComment(event, \'' + post.id + '\')">' + myAvatar('w-7 h-7 text-caption2 mb-1.5') +
+    '<form class="flex items-end gap-2" data-on-submit="addComment(event, \'' + post.id + '\')">' + myAvatar('w-7 h-7 text-caption2 mb-1.5') +
       '<label for="comment-' + post.id + '" class="sr-only">Add a comment</label>' +
       '<input id="comment-' + post.id + '" class="pf-input !min-h-[38px] !py-1.5 !text-subhead !rounded-full" placeholder="' + (post.type === 'support' ? 'Write an answer…' : 'Add a comment…') + '" maxlength="500">' +
       '<button type="submit" class="btn btn-primary !min-h-[38px] !w-[38px] !p-0 shrink-0" aria-label="Send"><svg class="icon w-4 h-4"><use href="#i-up"/></svg></button></form>' +
@@ -221,19 +221,19 @@ function renderFeedSidebar() {
     const app = demo.applications[p.id];
     const label = isMine(p) ? (st === 'open' ? 'Your post · ' + projectApplicantList(p).filter(a => a.status === 'applied').length + ' to review' : statusLabel(st)) :
       app && app.status === 'applied' ? 'Applied · waiting' : statusLabel(st);
-    return '<li><button type="button" class="w-full text-left rounded-xl px-2 py-2 hover:bg-fill" onclick="' + (isMine(p) ? 'openManage(\'' + p.id + '\')' : 'scrollToPost(\'' + p.id + '\')') + '">' +
+    return '<li><button type="button" class="w-full text-left rounded-xl px-2 py-2 hover:bg-fill" data-on-click="' + (isMine(p) ? 'openManage(\'' + p.id + '\')' : 'scrollToPost(\'' + p.id + '\')') + '">' +
       '<span class="block font-semibold text-subhead truncate">' + esc(p.title) + '</span><span class="block text-footnote text-label-2">' + esc(label) + '</span></button></li>';
   });
   box.innerHTML =
-    '<div class="card p-4 space-y-2"><div class="flex items-baseline justify-between px-1"><h3 class="font-semibold text-body">Projects for you</h3><button type="button" class="text-footnote font-semibold text-blueText hover:underline" onclick="showProjectMatches()">See all</button></div>' +
-      (picks.length ? '<ul>' + picks.map(({ p, fit }) => '<li><button type="button" class="w-full text-left rounded-xl px-2 py-2 hover:bg-fill" onclick="scrollToPost(\'' + p.id + '\')">' +
+    '<div class="card p-4 space-y-2"><div class="flex items-baseline justify-between px-1"><h3 class="font-semibold text-body">Projects for you</h3><button type="button" class="text-footnote font-semibold text-blueText hover:underline" data-on-click="showProjectMatches()">See all</button></div>' +
+      (picks.length ? '<ul>' + picks.map(({ p, fit }) => '<li><button type="button" class="w-full text-left rounded-xl px-2 py-2 hover:bg-fill" data-on-click="scrollToPost(\'' + p.id + '\')">' +
         '<span class="flex items-start justify-between gap-2"><span class="font-semibold text-subhead line-clamp-2">' + esc(p.title) + '</span><span class="shrink-0 text-footnote font-semibold text-greenText tabular-nums">' + fit.score + '%</span></span>' +
         '<span class="block text-footnote text-label-2">' + esc(memberName(p.author)) + ' · ' + esc(payLabel(p.pay)) + ' · ' + esc(p.hours) + ' hrs/wk</span></button></li>').join('') + '</ul>'
         : '<p class="text-footnote text-label-2 px-1">No open projects match your profile right now. Add skills you want to learn to see stretch projects.</p>') + '</div>' +
     '<div class="card p-4 space-y-2"><h3 class="font-semibold text-body px-1">Your projects</h3>' +
       (mineRows.length ? '<ul>' + mineRows.join('') + '</ul>' : '<p class="text-footnote text-label-2 px-1">Post a project or apply to one to see it here.</p>') + '</div>' +
     '<div class="card p-4 flex items-center justify-between gap-3"><div><p class="font-semibold text-body">Verified experience</p><p class="text-footnote text-label-2">' + demo.verified.length + ' completed project' + (demo.verified.length === 1 ? '' : 's') + '</p></div>' +
-      '<button type="button" class="btn btn-gray btn-sm" onclick="switchTab(\'profile\'); setTimeout(() => goToSection(\'verified\'), 50)">View</button></div>';
+      '<button type="button" class="btn btn-gray btn-sm" data-on-click="openVerifiedExperience()">View</button></div>';
 }
 
 // ----- Matchmaker: Projects / People -----
@@ -272,10 +272,10 @@ function openComposer(type) {
   cp = { type: POST_TYPES[type] ? type : 'community', attachments: [], posted: false, roles: [{ track: me.track || 'Software Developer', count: 1, skills: '' }] };
   sheetOnClose = discardComposer;
   openSheet(
-    '<form id="composer" class="relative p-5 sm:p-7 space-y-4" onsubmit="submitPost(event)" novalidate>' + sheetClose() +
+    '<form id="composer" class="relative p-5 sm:p-7 space-y-4" data-on-submit="submitPost(event)" novalidate>' + sheetClose() +
       '<h2 id="sheet-title" class="text-title3 font-bold pr-10">Create a post</h2>' +
       '<fieldset><legend class="pf-label">Post type</legend><div class="flex flex-wrap gap-2">' +
-        Object.entries(POST_TYPES).map(([k, t]) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-type" value="' + k + '"' + (k === cp.type ? ' checked' : '') + ' onchange="setComposerType(this.value)">' +
+        Object.entries(POST_TYPES).map(([k, t]) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-type" value="' + k + '"' + (k === cp.type ? ' checked' : '') + ' data-on-change="setComposerType(this.value)">' +
           '<span class="chip gap-1.5"><svg class="icon w-4 h-4"><use href="#' + t.icon + '"/></svg>' + t.label + '</span></label>').join('') + '</div></fieldset>' +
       '<div><label for="cp-title" id="cp-title-label" class="pf-label"></label><input id="cp-title" class="pf-input" maxlength="120"><p id="cp-title-error" class="pf-error hidden"></p></div>' +
       '<div><label for="cp-body" id="cp-body-label" class="pf-label"></label><textarea id="cp-body" rows="4" maxlength="2000" class="pf-input resize-y"></textarea><p id="cp-body-error" class="pf-error hidden"></p></div>' +
@@ -284,20 +284,20 @@ function openComposer(type) {
         '<p class="pf-label !mb-0">Attachments <span class="pf-hint font-normal">· up to ' + MAX_ATTACHMENTS + '</span></p>' +
         '<div class="flex flex-wrap gap-2">' +
           '<label for="cp-media" class="btn btn-gray btn-sm cursor-pointer"><svg class="icon w-4 h-4"><use href="#i-photo"/></svg>Photo or video</label>' +
-          '<input id="cp-media" type="file" accept="image/*,video/*" multiple class="sr-only" onchange="addComposerFiles(this.files); this.value=\'\'">' +
+          '<input id="cp-media" type="file" accept="image/*,video/*" multiple class="sr-only" data-on-change="addComposerFilesFromInput(this)">' +
           '<label for="cp-doc" class="btn btn-gray btn-sm cursor-pointer"><svg class="icon w-4 h-4"><use href="#i-doc"/></svg>Document</label>' +
-          '<input id="cp-doc" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.key,.xls,.xlsx,.csv,.numbers,.pages,.txt,.md" multiple class="sr-only" onchange="addComposerFiles(this.files); this.value=\'\'">' +
-          '<button type="button" class="btn btn-gray btn-sm" onclick="toggleLinkForm()"><svg class="icon w-4 h-4"><use href="#i-link"/></svg>Link</button>' +
+          '<input id="cp-doc" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.key,.xls,.xlsx,.csv,.numbers,.pages,.txt,.md" multiple class="sr-only" data-on-change="addComposerFilesFromInput(this)">' +
+          '<button type="button" class="btn btn-gray btn-sm" data-on-click="toggleLinkForm()"><svg class="icon w-4 h-4"><use href="#i-link"/></svg>Link</button>' +
         '</div>' +
         '<div id="cp-link-form" class="hidden entry !p-3 space-y-2"><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
           '<div><label for="cp-link-url" class="sr-only">Link URL</label><input id="cp-link-url" type="url" inputmode="url" class="pf-input !min-h-[38px] !py-1.5 !text-subhead" placeholder="https://…"></div>' +
           '<div><label for="cp-link-title" class="sr-only">Link title (optional)</label><input id="cp-link-title" class="pf-input !min-h-[38px] !py-1.5 !text-subhead" placeholder="Title (optional)"></div></div>' +
-          '<div class="flex justify-end"><button type="button" class="btn btn-secondary btn-sm" onclick="addComposerLink()">Add link</button></div></div>' +
+          '<div class="flex justify-end"><button type="button" class="btn btn-secondary btn-sm" data-on-click="addComposerLink()">Add link</button></div></div>' +
         '<ul id="cp-atts" class="space-y-2"></ul>' +
         '<p id="cp-att-error" class="pf-error hidden" role="alert"></p>' +
         '<p class="pf-hint">You can also drag files onto this form. In the prototype, files are stored only in this browser.</p>' +
       '</section>' +
-      '<div class="flex justify-end gap-2 pt-1"><button type="button" class="btn btn-gray btn-sm" onclick="closeSheet()">Cancel</button><button id="cp-submit" type="submit" class="btn btn-primary btn-sm">Post</button></div>' +
+      '<div class="flex justify-end gap-2 pt-1"><button type="button" class="btn btn-gray btn-sm" data-on-click="closeSheet()">Cancel</button><button id="cp-submit" type="submit" class="btn btn-primary btn-sm">Post</button></div>' +
     '</form>', 'composer', { wide: true });
   const form = $('composer');
   form.addEventListener('input', e => {
@@ -324,14 +324,14 @@ function setComposerType(type) {
   if (type === 'work') {
     f.innerHTML =
       '<div><p class="pf-label">Roles needed</p><div id="cp-roles" class="space-y-2"></div>' +
-        '<button type="button" class="btn btn-plain btn-sm -ml-2 mt-1" onclick="addRole()"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add role</button><p id="cp-roles-error" class="pf-error hidden"></p></div>' +
+        '<button type="button" class="btn btn-plain btn-sm -ml-2 mt-1" data-on-click="addRole()"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add role</button><p id="cp-roles-error" class="pf-error hidden"></p></div>' +
       '<fieldset><legend class="pf-label">Hours per week</legend><div class="flex flex-wrap gap-2">' + HOURS.map((h, i) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-hours" value="' + h + '"' + (i === 1 ? ' checked' : '') + '><span class="chip">' + h + '</span></label>').join('') + '</div></fieldset>' +
       '<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">' +
         '<div><label for="cp-weeks" class="pf-label">Duration (weeks)</label><input id="cp-weeks" type="number" min="1" max="26" value="4" class="pf-input"></div>' +
         '<div><label for="cp-setting" class="pf-label">Work setting</label><select id="cp-setting" class="pf-input">' + SETTINGS.map(s => '<option>' + s + '</option>').join('') + '</select></div>' +
         '<div class="col-span-2 sm:col-span-1"><label for="cp-industry" class="pf-label">Industry</label><select id="cp-industry" class="pf-input">' + INDUSTRIES.map(s => '<option>' + s + '</option>').join('') + '</select></div>' +
       '</div>' +
-      '<fieldset><legend class="pf-label">Pay</legend><div class="flex flex-wrap gap-2">' + Object.entries(PAY_TYPES).map(([k, t], i) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-pay" value="' + k + '"' + (i === 0 ? ' checked' : '') + ' onchange="$(\'cp-amount-wrap\').classList.toggle(\'hidden\', this.value !== \'Paid\')"><span class="chip">' + t.label + '</span></label>').join('') + '</div>' +
+      '<fieldset><legend class="pf-label">Pay</legend><div class="flex flex-wrap gap-2">' + Object.entries(PAY_TYPES).map(([k, t], i) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-pay" value="' + k + '"' + (i === 0 ? ' checked' : '') + ' data-on-change="onPayTypeChange(this)"><span class="chip">' + t.label + '</span></label>').join('') + '</div>' +
         '<div id="cp-amount-wrap" class="mt-2 sm:w-2/3"><label for="cp-amount" class="pf-label">Fixed fee</label><div class="flex gap-2">' +
           '<label for="cp-currency" class="sr-only">Currency</label><select id="cp-currency" class="pf-input !w-auto shrink-0">' + CURRENCIES.map(([c, l]) => '<option value="' + c + '"' + (c === 'GBP' ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>' +
           '<input id="cp-amount" type="number" min="1" step="1" placeholder="e.g. 750" class="pf-input"></div><p id="cp-amount-error" class="pf-error hidden"></p></div></fieldset>' +
@@ -362,13 +362,22 @@ function renderRoles() {
         ['Software Developer', 'Business Developer'].map(t => '<option value="' + t + '"' + (t === r.track ? ' selected' : '') + '>' + shortTrack(t) + '</option>').join('') + '</select></div>' +
       '<div><label for="cp-role-count-' + i + '" class="pf-hint">People</label><select id="cp-role-count-' + i + '" data-f="count" class="pf-input !min-h-[38px] !py-1.5 !text-subhead">' + [1, 2, 3].map(n => '<option' + (n === r.count ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></div>' +
       '<div class="col-span-2 sm:col-span-1"><label for="cp-role-skills-' + i + '" class="pf-hint">Skills (comma-separated)</label><input id="cp-role-skills-' + i + '" data-f="skills" class="pf-input !min-h-[38px] !py-1.5 !text-subhead" value="' + esc(r.skills) + '" placeholder="' + esc(SKILL_SUGGESTIONS[r.track].slice(0, 3).join(', ')) + '"></div>' +
-      (cp.roles.length > 1 ? '<button type="button" class="btn btn-plain btn-sm !text-redText col-span-2 sm:col-span-1 justify-self-end" onclick="removeRole(' + i + ')">Remove</button>' : '<span class="hidden sm:block"></span>') +
+      (cp.roles.length > 1 ? '<button type="button" class="btn btn-plain btn-sm !text-redText col-span-2 sm:col-span-1 justify-self-end" data-on-click="removeRole(' + i + ')">Remove</button>' : '<span class="hidden sm:block"></span>') +
     '</div>').join('');
 }
 function addRole() { syncRoles(); if (cp.roles.length >= 4) return; cp.roles.push({ track: cp.roles[0].track === 'Software Developer' ? 'Business Developer' : 'Software Developer', count: 1, skills: '' }); renderRoles(); }
 function removeRole(i) { syncRoles(); cp.roles.splice(i, 1); renderRoles(); }
 
 function attError(msg) { const el = $('cp-att-error'); el.textContent = msg; el.classList.toggle('hidden', !msg); }
+
+// File inputs: add the chosen files, then clear the input so the same file can be chosen again
+function addComposerFilesFromInput(input) { addComposerFiles(input.files); input.value = ''; }
+
+// The fixed fee field only applies to paid projects
+function onPayTypeChange(input) { $('cp-amount-wrap').classList.toggle('hidden', input.value !== 'Paid'); }
+
+// Open Profile and scroll to Verified experience once the tab has rendered
+function openVerifiedExperience() { switchTab('profile'); setTimeout(() => goToSection('verified'), 50); }
 
 async function addComposerFiles(files) {
   attError('');
@@ -422,7 +431,7 @@ function renderComposerAtts() {
     const bg = a.kind === 'video' ? 'background:#1C1C1E' : a.kind === 'doc' ? 'background:' + docInfo(a).color : '';
     return '<li class="entry !p-2 flex items-center gap-3"><span class="w-12 h-12 rounded-lg overflow-hidden bg-fill flex items-center justify-center shrink-0" style="' + bg + '">' + thumb + '</span>' +
       '<span class="min-w-0 flex-1"><span class="block text-subhead font-semibold truncate">' + esc(label) + '</span><span class="block text-footnote text-label-2 truncate">' + esc(sub) + (a.sessionOnly ? ' · this session only' : '') + '</span></span>' +
-      (a.kind === 'pending' ? '' : '<button type="button" class="btn btn-plain !min-h-0 !w-9 !h-9 !p-0 !text-label-2" onclick="removeComposerAtt(\'' + a.id + '\')" aria-label="Remove ' + esc(label) + '"><svg class="icon w-4 h-4"><use href="#i-close"/></svg></button>') + '</li>';
+      (a.kind === 'pending' ? '' : '<button type="button" class="btn btn-plain !min-h-0 !w-9 !h-9 !p-0 !text-label-2" data-on-click="removeComposerAtt(\'' + a.id + '\')" aria-label="Remove ' + esc(label) + '"><svg class="icon w-4 h-4"><use href="#i-close"/></svg></button>') + '</li>';
   }).join('');
   ul.querySelectorAll('[data-thumb]').forEach(async img => {
     const att = cp.attachments.find(a => a.id === img.dataset.thumb);

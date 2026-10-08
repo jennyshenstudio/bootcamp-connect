@@ -1,30 +1,53 @@
 // Bootcamp Connect prototype: CV / LinkedIn import (specs/03-profile-import.md)
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 // ---------- Import from CV / LinkedIn PDF (specs/03-profile-import.md) ----------
+// Third-party libraries load only when a file needs them (D028).
+// pdf.js is self-hosted in vendor/ so PDFs work offline and under the Content Security Policy.
+// Mammoth (Word files) still loads from cdnjs until it is added to vendor/ (see vendor/README.md).
 const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/';
+const PDFJS_DIR = 'vendor/pdfjs/3.11.174/';
+const MAMMOTH_SRC = CDN + 'mammoth/1.6.0/mammoth.browser.min.js';
 const MAX_IMPORT_BYTES = 10 * 1024 * 1024;
 let importCtl = null;
 let importResult = null;
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
-    if (document.querySelector('script[src="' + src + '"]')) return resolve();
+    const existing = document.querySelector('script[src="' + src + '"]');
+    if (existing) {
+      if (existing.dataset.loaded) return resolve();
+      existing.addEventListener('load', () => resolve());
+      existing.addEventListener('error', () => reject(new Error('Could not load ' + src)));
+      return;
+    }
     const s = document.createElement('script');
     s.src = src;
-    s.onload = resolve;
-    s.onerror = () => reject(new Error('Could not load ' + src));
+    s.onload = () => { s.dataset.loaded = 'true'; resolve(); };
+    // Remove a failed script so the next attempt tries again instead of reusing the failure
+    s.onerror = () => { s.remove(); reject(new Error('Could not load ' + src)); };
     document.head.appendChild(s);
   });
 }
 
+// pdf.js runs on the main thread: loading the worker as a script avoids a separate Worker,
+// which file:// pages can't start.
+async function loadPdfJs() {
+  await loadScript(PDFJS_DIR + 'pdf.min.js');
+  await loadScript(PDFJS_DIR + 'pdf.worker.min.js');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_DIR + 'pdf.worker.min.js';
+  return pdfjsLib;
+}
+
+// isEvalSupported: false keeps pdf.js from compiling font code with eval (CVE-2024-4367)
+function openPdf(data) {
+  return pdfjsLib.getDocument({ data, isEvalSupported: false }).promise;
+}
+
 // Text extraction runs entirely in the browser
 async function extractPdfText(file) {
-  await loadScript(CDN + 'pdf.js/3.11.174/pdf.min.js');
-  // Loading the worker as a script lets pdf.js run on the main thread (cross-origin Workers are blocked)
-  await loadScript(CDN + 'pdf.js/3.11.174/pdf.worker.min.js');
-  pdfjsLib.GlobalWorkerOptions.workerSrc = CDN + 'pdf.js/3.11.174/pdf.worker.min.js';
-  const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+  await loadPdfJs();
+  const pdf = await openPdf(await file.arrayBuffer());
   const pages = [];
   for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
     const content = await (await pdf.getPage(i)).getTextContent();
@@ -41,7 +64,7 @@ async function extractPdfText(file) {
 }
 
 async function extractDocxText(file) {
-  await loadScript(CDN + 'mammoth/1.6.0/mammoth.browser.min.js');
+  await loadScript(MAMMOTH_SRC);
   const { value } = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
   return value;
 }
@@ -277,6 +300,9 @@ function cancelImport() {
   importCtl = null;
   resetImport();
 }
+
+// File input: import the chosen file, then clear the input so the same file can be chosen again
+function importFromInput(input) { handleImportFile(input.files[0]); input.value = ''; }
 
 async function handleImportFile(file) {
   if (!file) return;

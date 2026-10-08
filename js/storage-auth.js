@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: storage and authentication (specs/01-auth.md)
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 // ---------- Local prototype storage (this browser only) ----------
 const ACCOUNTS_KEY = 'bc_accounts';
@@ -88,7 +88,7 @@ function handleGoogle() {
 
   if (authMode === 'login') {
     if (googleAccount) return enterDashboard(googleAccount);
-    showFormError('No Google account is linked yet. <button type="button" class="underline font-semibold" onclick="setAuthMode(\'signup\')">Sign up</button>, pick your track, then choose Continue with Google.');
+    showFormError('No Google account is linked yet. <button type="button" class="underline font-semibold" data-on-click="setAuthMode(\'signup\')">Sign up</button>, pick your track, then choose Continue with Google.');
     return;
   }
 
@@ -110,7 +110,7 @@ function handleAuthSubmit(e) {
     if (!form.reportValidity()) return;
     const account = getAccounts()[email];
     if (!account) {
-      showFormError('No account found for <strong>' + escapeHtml(email) + '</strong>. Check the spelling or <button type="button" class="underline font-semibold" onclick="setAuthMode(\'signup\')">create an account</button>.');
+      showFormError('No account found for <strong>' + escapeHtml(email) + '</strong>. Check the spelling or <button type="button" class="underline font-semibold" data-on-click="setAuthMode(\'signup\')">create an account</button>.');
       return;
     }
     return enterDashboard(account);
@@ -119,7 +119,7 @@ function handleAuthSubmit(e) {
   const trackAndTermsOk = validateTrackAndTerms();
   if (!form.reportValidity() || !trackAndTermsOk) return;
   if (getAccounts()[email]) {
-    showFormError('An account with this email already exists. <button type="button" class="underline font-semibold" onclick="setAuthMode(\'login\')">Log in instead</button>.');
+    showFormError('An account with this email already exists. <button type="button" class="underline font-semibold" data-on-click="setAuthMode(\'login\')">Log in instead</button>.');
     return;
   }
   const account = {

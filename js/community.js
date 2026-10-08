@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: per-account demo state and shared helpers
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 let demo = null;              // per-user demo state, saved in this browser
 let openChatId = null;

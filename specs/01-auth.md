@@ -9,4 +9,4 @@
 ## Acceptance Criteria
 1. Track Selection is mandatory; form throws an error if unselected.
 2. Terms & Conditions checkbox must be checked before submitting.
-3. Successful login hides the auth modal and reveals the main dashboard (`prototype.html`).
+3. Successful login hides the auth modal and reveals the main dashboard (`index.html`, formerly `prototype.html`).

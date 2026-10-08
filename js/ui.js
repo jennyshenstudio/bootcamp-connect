@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: tab navigation, feed actions, toast
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 // ---------- App ----------
 function switchTab(tabName) {

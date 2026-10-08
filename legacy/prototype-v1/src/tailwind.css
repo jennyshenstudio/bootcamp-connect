@@ -1,0 +1,4 @@
+/* Tailwind input for the archived v1 prototype. Output: css/tailwind.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

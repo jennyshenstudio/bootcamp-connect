@@ -1,6 +1,9 @@
 .DS_Store
 .vscode/
 *.log
+# Build output (npm run build, npm run build:artifact)
 build/
-node_modules/
+dist/
+# Dependencies (also matches a symlinked node_modules)
+node_modules
 tests/output/

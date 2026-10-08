@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: messages: conversation list, threads, replies
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 
 // ----- Messages -----
 function allChats() {
@@ -29,7 +29,7 @@ function renderChatList() {
     const unread = demo.unread[c.id] || 0;
     const who = !last || last.from === 'system' ? '' : last.from === 'me' ? 'You: ' : c.type === 'group' ? person(last.from).first + ': ' : '';
     const when = !last ? '' : last.day === 'Today' ? last.time : last.day;
-    return '<li><button type="button" onclick="openChat(\'' + c.id + '\')" class="w-full flex items-center gap-3 px-2.5 py-2.5 rounded-2xl text-left transition ease-apple ' +
+    return '<li><button type="button" data-on-click="openChat(\'' + c.id + '\')" class="w-full flex items-center gap-3 px-2.5 py-2.5 rounded-2xl text-left transition ease-apple ' +
       (openChatId === c.id ? 'bg-[var(--glass-pill)] shadow-[inset_0_1px_0_var(--glass-highlight)]' : 'hover:bg-fill') + '"' + (openChatId === c.id ? ' aria-current="true"' : '') + '>' +
       chatAvatar(c, 'w-12 h-12 text-subhead') +
       '<span class="min-w-0 flex-1">' +
@@ -85,12 +85,12 @@ function renderThread() {
     ? (chat.members.length <= 3 ? chat.members.map(id => person(id).first).join(', ') + ' & you' : (chat.members.length + 1) + ' members')
     : p.headline;
   $('thread-header').innerHTML =
-    '<button type="button" class="md:hidden btn btn-plain !min-h-[44px] !px-2" onclick="closeThread()" aria-label="Back to conversations"><svg class="icon w-6 h-6"><use href="#i-back"/></svg></button>' +
-    '<button type="button" class="flex items-center gap-3 min-w-0 flex-1 text-left rounded-xl py-2" onclick="' + (isGroup ? 'openMembers(\'' + chat.id + '\')' : 'openPerson(\'' + p.id + '\')') + '">' +
+    '<button type="button" class="md:hidden btn btn-plain !min-h-[44px] !px-2" data-on-click="closeThread()" aria-label="Back to conversations"><svg class="icon w-6 h-6"><use href="#i-back"/></svg></button>' +
+    '<button type="button" class="flex items-center gap-3 min-w-0 flex-1 text-left rounded-xl py-2" data-on-click="' + (isGroup ? 'openMembers(\'' + chat.id + '\')' : 'openPerson(\'' + p.id + '\')') + '">' +
       chatAvatar(chat, 'w-10 h-10 text-subhead') +
       '<span class="min-w-0"><span class="block font-semibold text-body truncate">' + esc(chatTitle(chat)) + '</span><span class="block text-footnote text-label-2 truncate">' + esc(subtitle) + '</span></span>' +
     '</button>' +
-    '<button type="button" class="btn btn-gray !min-h-0 !w-9 !h-9 !p-0 shrink-0" onclick="' + (isGroup ? 'openMembers(\'' + chat.id + '\')' : 'openPerson(\'' + p.id + '\')') + '" aria-label="' + (isGroup ? 'Group members' : 'View profile') + '"><svg class="icon w-5 h-5"><use href="#' + (isGroup ? 'i-users' : 'i-person') + '"/></svg></button>';
+    '<button type="button" class="btn btn-gray !min-h-0 !w-9 !h-9 !p-0 shrink-0" data-on-click="' + (isGroup ? 'openMembers(\'' + chat.id + '\')' : 'openPerson(\'' + p.id + '\')') + '" aria-label="' + (isGroup ? 'Group members' : 'View profile') + '"><svg class="icon w-5 h-5"><use href="#' + (isGroup ? 'i-users' : 'i-person') + '"/></svg></button>';
 
   const msgs = chatMessages(chat);
   let html = '', lastDay = null;
@@ -114,7 +114,7 @@ function renderThread() {
     } else {
       const sender = person(m.from);
       html += '<div class="flex items-end gap-2' + gap + '">' +
-        '<div class="w-7 shrink-0">' + (lastOfRun ? '<button type="button" class="tap rounded-full" onclick="openPerson(\'' + sender.id + '\')" aria-label="View ' + esc(fullName(sender)) + '">' + personAvatar(sender, 'w-7 h-7 text-caption2') + '</button>' : '') + '</div>' +
+        '<div class="w-7 shrink-0">' + (lastOfRun ? '<button type="button" class="tap rounded-full" data-on-click="openPerson(\'' + sender.id + '\')" aria-label="View ' + esc(fullName(sender)) + '">' + personAvatar(sender, 'w-7 h-7 text-caption2') + '</button>' : '') + '</div>' +
         '<div class="flex flex-col items-start max-w-[78%] min-w-0">' +
           (isGroup && firstOfRun ? '<span class="text-caption text-label-2 ml-3 mb-0.5">' + esc(sender.first) + '</span>' : '') +
           '<div class="bubble bubble-them">' + text + '</div>' +

@@ -1,5 +1,5 @@
 // Bootcamp Connect prototype: project loop (specs/07-project-loop.md).
-// Plain script (shared globals); load order is set in prototype.html.
+// Plain script (shared globals); load order is set in index.html.
 // Apply → team forms → project chat → mark complete → ratings and endorsements → verified experience.
 
 // ----- Post and project state -----
@@ -66,12 +66,12 @@ function openApply(postId) {
   const fit = projectFit(post, memberView('me'));
   const owner = person(post.author);
   openSheet(
-    '<form class="relative p-5 sm:p-7 space-y-4" onsubmit="submitApplication(event, \'' + post.id + '\')">' + sheetClose() +
+    '<form class="relative p-5 sm:p-7 space-y-4" data-on-submit="submitApplication(event, \'' + post.id + '\')">' + sheetClose() +
       '<div class="pr-10"><p class="text-footnote text-label-2">Apply to ' + esc(owner.first) + '\'s project</p><h2 id="sheet-title" class="text-title3 font-bold">' + esc(post.title) + '</h2></div>' +
       fitBox(fit) +
       '<div><label for="apply-note" class="pf-label">Note to ' + esc(owner.first) + ' (optional)</label>' +
       '<textarea id="apply-note" rows="4" maxlength="500" class="pf-input resize-y" placeholder="Why you\'re a good fit, what you want to learn, and when you can start."></textarea></div>' +
-      '<div class="flex justify-end gap-2"><button type="button" class="btn btn-gray btn-sm" onclick="closeSheet()">Cancel</button><button type="submit" class="btn btn-primary btn-sm">Send application</button></div>' +
+      '<div class="flex justify-end gap-2"><button type="button" class="btn btn-gray btn-sm" data-on-click="closeSheet()">Cancel</button><button type="submit" class="btn btn-primary btn-sm">Send application</button></div>' +
     '</form>', '');
   $('apply-note').focus();
 }
@@ -187,7 +187,7 @@ function openManage(postId, { keepFocus = false } = {}) {
   const invited = projectState(post).invited || [];
   const suggestions = suggestTeam(post).filter(s => !invited.includes(s.person.id));
   const personRow = (id, right, sub) => '<li class="flex items-center gap-3 py-2">' +
-    '<button type="button" class="tap rounded-full" onclick="openPerson(\'' + id + '\')" aria-label="View ' + esc(memberName(id, true)) + '">' + memberAvatar(id, 'w-10 h-10 text-subhead') + '</button>' +
+    '<button type="button" class="tap rounded-full" data-on-click="openPerson(\'' + id + '\')" aria-label="View ' + esc(memberName(id, true)) + '">' + memberAvatar(id, 'w-10 h-10 text-subhead') + '</button>' +
     '<div class="min-w-0 flex-1"><p class="font-semibold text-subhead">' + esc(memberName(id, true)) + (id === 'me' ? ' <span class="text-label-2 font-normal">(you)</span>' : '') + '</p>' + (sub || '') + '</div>' + (right || '') + '</li>';
   const fitLine = id => { const f = projectFit(post, memberView(id)); return '<p class="text-footnote text-label-2"><span class="text-greenText font-semibold">' + f.score + '% fit</span> · ' + esc(f.reasons[0] || shortTrack(memberTrack(id))) + '</p>'; };
 
@@ -197,16 +197,16 @@ function openManage(postId, { keepFocus = false } = {}) {
       team.map(id => personRow(id, '', '<p class="text-footnote text-label-2">' + (id === post.author ? 'Project lead' : shortTrack(memberTrack(id))) + '</p>')).join('') + '</ul></section>' +
     (status !== 'completed' ? '<section class="space-y-1"><h3 class="font-semibold text-body">Applicants' + (applicants.length ? ' (' + applicants.length + ')' : '') + '</h3>' +
       (applicants.length ? '<ul class="divide-y divide-[var(--hairline)]">' + applicants.map(a => personRow(a.id,
-        '<div class="flex gap-1.5 shrink-0"><button type="button" class="btn btn-gray btn-sm" onclick="respondToApplicant(\'' + post.id + '\', \'' + a.id + '\', false)">Decline</button><button type="button" class="btn btn-primary btn-sm" onclick="respondToApplicant(\'' + post.id + '\', \'' + a.id + '\', true)">Accept</button></div>',
+        '<div class="flex gap-1.5 shrink-0"><button type="button" class="btn btn-gray btn-sm" data-on-click="respondToApplicant(\'' + post.id + '\', \'' + a.id + '\', false)">Decline</button><button type="button" class="btn btn-primary btn-sm" data-on-click="respondToApplicant(\'' + post.id + '\', \'' + a.id + '\', true)">Accept</button></div>',
         fitLine(a.id) + (a.note ? '<p class="text-footnote text-label mt-1">"' + esc(a.note) + '"</p>' : ''))).join('') + '</ul>'
         : '<p class="text-footnote text-label-2">No applicants yet. Matching members are notified about new projects.</p>') + '</section>' : '') +
     (status !== 'completed' && (suggestions.length || invited.length) ? '<section class="space-y-1"><h3 class="font-semibold text-body">Suggested team</h3><p class="text-footnote text-label-2">Picked to cover every open role with the strongest fit for each.</p><ul class="divide-y divide-[var(--hairline)]">' +
-      suggestions.map(s => personRow(s.person.id, '<button type="button" class="btn btn-secondary btn-sm shrink-0" onclick="inviteMember(\'' + post.id + '\', \'' + s.person.id + '\')">Invite</button>',
+      suggestions.map(s => personRow(s.person.id, '<button type="button" class="btn btn-secondary btn-sm shrink-0" data-on-click="inviteMember(\'' + post.id + '\', \'' + s.person.id + '\')">Invite</button>',
         '<p class="text-footnote text-label-2">For the ' + esc(shortTrack(s.role.track)) + ' role · <span class="text-greenText font-semibold">' + s.fit.score + '% fit</span></p>')).join('') +
       invited.map(id => personRow(id, '<span class="text-footnote text-label-2 shrink-0">Invited</span>', '')).join('') + '</ul></section>' : '') +
     '<div class="flex flex-wrap justify-end gap-2 pt-1">' +
-      (status === 'open' ? '<button type="button" class="btn btn-primary btn-sm"' + (team.length < 2 ? ' disabled aria-disabled="true" title="Add at least one teammate first"' : '') + ' onclick="startProject(\'' + post.id + '\')">Start project</button>' : '') +
-      (status === 'in-progress' ? '<button type="button" class="btn btn-gray btn-sm" onclick="closeSheet(); goToChat(\'' + (post.chatId || projectState(post).chatId) + '\')">Open project chat</button><button type="button" class="btn btn-primary btn-sm" onclick="openComplete(\'' + post.id + '\')">Mark complete</button>' : '') +
+      (status === 'open' ? '<button type="button" class="btn btn-primary btn-sm"' + (team.length < 2 ? ' disabled aria-disabled="true" title="Add at least one teammate first"' : '') + ' data-on-click="startProject(\'' + post.id + '\')">Start project</button>' : '') +
+      (status === 'in-progress' ? '<button type="button" class="btn btn-gray btn-sm" data-on-click="closeSheet(); goToChat(\'' + (post.chatId || projectState(post).chatId) + '\')">Open project chat</button><button type="button" class="btn btn-primary btn-sm" data-on-click="openComplete(\'' + post.id + '\')">Mark complete</button>' : '') +
     '</div></div>';
   openSheet(html, 'manage:' + post.id);
   if (!keepFocus) $('sheet-close').focus();
@@ -227,17 +227,17 @@ function openComplete(postId) {
         [1, 2, 3, 4, 5].map(n => '<label class="cursor-pointer"><input type="radio" class="sr-only peer" name="rate-' + id + '" value="' + n + '"' + (n === 5 ? ' checked' : '') + '>' +
           '<span class="star text-title2 leading-none px-0.5" aria-label="' + n + ' star' + (n > 1 ? 's' : '') + '">★</span></label>').join('') + '</div></fieldset>' +
       '<fieldset><legend class="pf-label">Endorse up to 3 skills</legend><div class="flex flex-wrap gap-1.5">' +
-        skills.map((s, i) => '<label class="cursor-pointer"><input type="checkbox" class="peer sr-only" name="endorse-' + id + '" value="' + esc(s) + '"' + (i === 0 ? ' checked' : '') + ' onchange="limitEndorse(this)"><span class="chip !min-h-[28px] !text-footnote">' + esc(s) + '</span></label>').join('') +
+        skills.map((s, i) => '<label class="cursor-pointer"><input type="checkbox" class="peer sr-only" name="endorse-' + id + '" value="' + esc(s) + '"' + (i === 0 ? ' checked' : '') + ' data-on-change="limitEndorse(this)"><span class="chip !min-h-[28px] !text-footnote">' + esc(s) + '</span></label>').join('') +
       '</div></fieldset></li>';
   }).join('');
   openSheet(
-    '<form class="relative p-5 sm:p-7 space-y-4" onsubmit="completeProject(event, \'' + post.id + '\')">' + sheetClose() +
+    '<form class="relative p-5 sm:p-7 space-y-4" data-on-submit="completeProject(event, \'' + post.id + '\')">' + sheetClose() +
       '<div class="pr-10"><p class="text-footnote text-label-2">Mark complete</p><h2 id="sheet-title" class="text-title3 font-bold">' + esc(post.title) + '</h2>' +
       '<p class="text-footnote text-label-2 mt-1">Deliverable: ' + esc(post.deliverable) + '</p></div>' +
       '<p class="text-subhead">Rate your teammates and endorse what they did well. Everyone on the team gets this project as <strong>verified experience</strong> on their profile.</p>' +
       '<ul class="space-y-3">' + rows + '</ul>' +
       '<div><label for="complete-note" class="pf-label">What did you deliver? (optional)</label><textarea id="complete-note" rows="3" maxlength="400" class="pf-input resize-y" placeholder="e.g. Shipped the booking page; 3 restaurants live, no-shows down 40%."></textarea></div>' +
-      '<div class="flex justify-end gap-2"><button type="button" class="btn btn-gray btn-sm" onclick="closeSheet()">Cancel</button><button type="submit" class="btn btn-primary btn-sm">Complete project</button></div>' +
+      '<div class="flex justify-end gap-2"><button type="button" class="btn btn-gray btn-sm" data-on-click="closeSheet()">Cancel</button><button type="submit" class="btn btn-primary btn-sm">Complete project</button></div>' +
     '</form>', '');
   $('sheet-close').focus();
 }
@@ -309,5 +309,5 @@ function renderVerified() {
       '<ul class="space-y-3">' + items.map(v => verifiedEntryHtml(v, id => memberName(id))).join('') + '</ul>'
     : '<div class="entry text-center space-y-2 !py-6"><p class="font-semibold text-subhead">No verified experience yet</p>' +
       '<p class="text-footnote text-label-2">Join a project from the Feed or Connect. When it\'s done, your teammates\' ratings and endorsements appear here.</p>' +
-      '<button type="button" class="btn btn-secondary btn-sm" onclick="showProjectMatches()">Find a project</button></div>';
+      '<button type="button" class="btn btn-secondary btn-sm" data-on-click="showProjectMatches()">Find a project</button></div>';
 }
