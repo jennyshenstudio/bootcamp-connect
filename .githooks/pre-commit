@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# Foundation pre-commit check. Blocks a commit if a secret is staged or the tests fail.
+# Foundation pre-commit check. Makes secrets and failing tests much harder to commit.
+# It catches known key formats, not every password, and it can be skipped, so GitHub
+# push protection and CI are the next layers.
 #
 # Install in a project:
 #   mkdir -p .githooks && cp ../Foundation/hooks/pre-commit .githooks/pre-commit
 #   git config core.hooksPath .githooks
 #
 # Tests: runs .githooks/test if it exists, otherwise `npm test` when package.json
-# has a test script, otherwise pytest when pyproject.toml exists.
+# has a real test script, otherwise pytest when pyproject.toml exists.
+# Tests are skipped when every staged file is Markdown (.md).
 
 set -u
 
@@ -15,7 +18,7 @@ block() {
   exit 1
 }
 
-# 1. Secrets
+# 1. Secrets (staged changes only)
 GITLEAKS="$(command -v gitleaks || true)"
 if [ -z "$GITLEAKS" ] && [ -x "$HOME/.local/bin/gitleaks" ]; then
   GITLEAKS="$HOME/.local/bin/gitleaks"
@@ -23,18 +26,35 @@ fi
 [ -n "$GITLEAKS" ] || block "the secret scanner (gitleaks) isn't installed." \
   "Install it (see Foundation's README), then commit again."
 
-if ! "$GITLEAKS" git --pre-commit --staged --redact --no-banner --log-level error -v; then
-  block "a password, API key or token seems to be in the staged changes." \
-    "Remove it and keep it in .env instead. If it was ever pushed or shared, revoke it and make a new one."
-fi
+"$GITLEAKS" git --pre-commit --staged --redact --no-banner --log-level error --exit-code 99 -v
+case $? in
+  0) ;;
+  99) block "a password, API key or token seems to be in the staged changes." \
+    "Remove it and keep it in .env instead. If it was ever pushed or shared, revoke it and make a new one." ;;
+  *) block "the secret scanner couldn't run." "Check gitleaks works (gitleaks version), then commit again." ;;
+esac
 
 # 2. Tests
+staged="$(git diff --cached --name-only --diff-filter=ACMRD)"
+if [ -n "$staged" ] && ! printf '%s\n' "$staged" | grep -qv '\.md$'; then
+  printf 'Note: only Markdown files changed, so the tests were skipped.\n' >&2
+  exit 0
+fi
+
+if ! git diff --quiet; then
+  printf 'Note: some changes aren'"'"'t staged, so the tests ran on files that differ from this commit.\n' >&2
+fi
+
+fail_tests() {
+  block "the tests failed." "Fix the cause, then commit again. Don't weaken or delete a test to make it pass."
+}
+
 if [ -x .githooks/test ]; then
-  .githooks/test || block "the tests failed." "Fix the cause, then commit again. Don't weaken or delete a test to make it pass."
-elif [ -f package.json ] && grep -q '"test"[[:space:]]*:' package.json; then
-  npm test --silent || block "the tests failed." "Fix the cause, then commit again. Don't weaken or delete a test to make it pass."
+  .githooks/test || fail_tests
+elif [ -f package.json ] && grep -q '"test"[[:space:]]*:' package.json && ! grep -q 'no test specified' package.json; then
+  npm test --silent || fail_tests
 elif [ -f pyproject.toml ]; then
-  python3 -m pytest -q || block "the tests failed." "Fix the cause, then commit again. Don't weaken or delete a test to make it pass."
+  python3 -m pytest -q || fail_tests
 else
   printf 'Note: no tests found, so only the secret scan ran.\n' >&2
 fi

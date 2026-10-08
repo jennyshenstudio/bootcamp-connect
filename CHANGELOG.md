@@ -19,13 +19,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 
 ### Security
 - A pre-commit check (`.githooks/pre-commit`) blocks commits containing passwords, API keys or tokens (gitleaks), or with failing tests.
-- `.env` files are ignored by git, and Claude Code is stopped from reading them (`.claude/settings.json`).
+- `.env` files are ignored by git, and Claude Code is stopped from reading or editing them (`.claude/settings.json`). Skipping the pre-commit check needs the owner's approval.
+- GitHub secret scanning, push protection and Dependabot security alerts are on (D035), and CI scans the whole history for secrets (D036).
+- The pre-commit check skips the tests when only Markdown files change, and warns when changes aren't staged (D036).
 
 ### Fixed
 - **Tests:** the profile suite sometimes failed on CI. After a blocked save, the app smooth-scrolls to the error for up to a second, and the next click could land while the page was still moving. Tests now wait for scrolling to stop (`waitForScrollToStop` in `tests/helpers.js`).
 
 ### Tested
-- New `setup` suite checks the Foundation import, tier, `.gitignore`, Claude Code settings and the pre-commit check.
+- New `setup` suite checks the Foundation import, stage, `.gitignore`, Claude Code settings, the pre-commit check, and that the check matches Foundation's copy.
 
 ## 0.11.0 – 2026-10-08
 

@@ -4,7 +4,7 @@
 
 This project follows Foundation's software rules (imported above), adopted in D030 in [docs/decisions.md](docs/decisions.md). The rules below are specific to Bootcamp Connect, and win where they're more specific.
 
-- **Tier:** prototype. Commits go straight to `main`.
+- **Stage:** alpha (made-up data only, D036). **Client work:** no. Commits go straight to `main`. Moving to beta needs the personal data, online safety, running a service and expert review triggers met first (D034).
 - **Specs:** [specs/](specs/), one numbered file per feature, with **Acceptance Criteria**.
 - **Decisions:** [docs/decisions.md](docs/decisions.md). **Handover:** [docs/handover.md](docs/handover.md).
 - **Personal data:** the live site will store real people's data (D034). Follow [docs/personal-data.md](docs/personal-data.md), and update it and the privacy notice before collecting anything new.

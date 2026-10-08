@@ -43,6 +43,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D033 | Sign-in on the live site: Google only for now; email and password later | Accepted (not built yet) | Auth |
 | D034 | Real members in steps: private profiles first, sharing later with reporting tools | Accepted (not built yet) | Everything shared, personal data |
 | D035 | GitHub secret scanning, push protection and Dependabot security alerts switched on | Accepted (built) | Security, release |
+| D036 | Stage: alpha (GOV.UK phases); CI secret scan; stronger Claude settings and pre-commit check | Accepted (built) | How we work, security |
 
 ## Entries
 
@@ -262,3 +263,11 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **First results:** no secrets found. Three alerts in test tools only (`extract-zip` and `basic-ftp`, brought in by `puppeteer-core`), not in the app members use. GitHub dismissed the `basic-ftp` one itself as low risk. `extract-zip` has no fix yet. Dependabot will offer one when it exists.
 - **Reviewed:** 2026-10-08, independent review of Foundation; confirmed.
 - **Affects:** Security, release.
+
+### D036 Stage alpha, and stronger safety checks
+- **Date:** 2026-10-08 · **Status:** Accepted (built)
+- **Context:** Foundation replaced its tiers (prototype, client, production) with the GOV.UK phases (alpha, beta, live), and tightened its safety checks after an independent review.
+- **Decision:** the project's stage is **alpha**: made-up data only, and not client work. Moving to beta, when the real members in D034 arrive, is a separate decision that needs the personal data, online safety, running a service and expert review rules written first. CI gets a job that scans the whole git history for secrets with a pinned, checksum-checked gitleaks. `.claude/settings.json` stops Claude reading or editing any `.env` file, and asks the owner before the pre-commit check is skipped. The pre-commit check is updated from Foundation: tests are skipped for Markdown-only commits, and it warns when changes aren't staged.
+- **Options considered:** call the project beta now (rejected: no real members yet, and the beta rules aren't written); rely on GitHub push protection alone (rejected: it only knows key formats from partner services, while gitleaks also checks generic patterns).
+- **Reviewed:** 2026-10-08, independent review of Foundation.
+- **Affects:** How we work, security.

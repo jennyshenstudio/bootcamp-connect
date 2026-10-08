@@ -1,15 +1,28 @@
 {
   "permissions": {
     "deny": [
-      "Read(./.env)",
-      "Read(./.env.local)",
-      "Read(./.env.development)",
-      "Read(./.env.production)",
-      "Read(./**/*.pem)",
-      "Read(./**/*.key)",
-      "Bash(cat .env:*)",
-      "Bash(git commit --no-verify:*)",
-      "Bash(git commit -n:*)"
+      "Read(.env)",
+      "Read(.env.local)",
+      "Read(.env.*.local)",
+      "Read(.env.development)",
+      "Read(.env.test)",
+      "Read(.env.staging)",
+      "Read(.env.production)",
+      "Read(**/*.pem)",
+      "Edit(.env)",
+      "Edit(.env.local)",
+      "Edit(.env.*.local)",
+      "Edit(.env.development)",
+      "Edit(.env.test)",
+      "Edit(.env.staging)",
+      "Edit(.env.production)",
+      "Edit(.gitleaksignore)"
+    ],
+    "ask": [
+      "Bash(git commit *--no-verify*)",
+      "Bash(git commit -n*)",
+      "Bash(git push *--no-verify*)",
+      "Bash(git *core.hooksPath*)"
     ]
   }
 }

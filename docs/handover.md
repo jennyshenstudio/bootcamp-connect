@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-08 (Foundation review fixes)
+- **What changed:** stage set to alpha (D036). CI now scans the whole history for secrets. Claude can't read or edit `.env` files, and skipping the pre-commit check needs the owner's approval. The pre-commit check skips tests for Markdown-only commits.
+- **What's next:** decide when to move to beta, and write the beta rules first (personal data, online safety, backups, expert review).
+- **Open questions:** none new.
+- **Worth learning:** "alpha, beta, live" comes from the GOV.UK Service Manual. Each stage is about who uses the service, not how finished the code is.
+
 ## 2026-10-08 (GitHub security)
 - **What changed:** GitHub secret scanning, push protection and Dependabot security alerts and updates switched on (D035). No secrets found.
 - **What's next:** keep an eye on the `extract-zip` alert (test tools only, no fix yet).
