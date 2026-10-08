@@ -70,3 +70,7 @@ npm test             # browser tests (npm run test:dist tests the built site)
 ## How we work
 
 The project follows Foundation, the owner's shared software rules, kept in a separate repo that is private for now (decision D030), plus its own rules in `CLAUDE.md`. Before every commit, a check scans for passwords or keys and runs `npm test`. After cloning, switch it on with `git config core.hooksPath .githooks`. It needs [gitleaks](https://gitleaks.io/) installed.
+
+## Licence
+
+All rights reserved (decision D031). The code is public to read, but you may not copy or reuse it without permission. See [LICENSE](LICENSE). Third-party code in `vendor/` keeps its own licence.

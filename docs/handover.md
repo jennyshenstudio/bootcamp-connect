@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-08 (licence)
+- **What changed:** added an "all rights reserved" licence (D031). The code stays public to read, but nobody may copy or reuse it without permission. Also noted in the README, `package.json` and the change log.
+- **What's next:** the owner wants to make this a public app. That meets several Foundation triggers: real people's data (UK GDPR), users seeing each other's posts (Online Safety Act) and running a live service (production tier). Plan those before launch.
+- **Open questions:** make the repo private? (GitHub Pages from a private repo may need a paid plan; check current pricing.) A legal check before launch.
+- **Worth learning:** code with no licence is "all rights reserved" by default. A licence file doesn't add protection; it makes the owner's intent clear.
+
 ## 2026-10-08 (later)
 - **What changed:** fixed the flaky profile test. The cause was a click landing while the page was still smooth-scrolling to an error message. Tests now wait for scrolling to stop first. Only test files changed, not the app.
 - **What's next:** keep an eye on CI. If the profile suite fails again, the scroll timing wasn't the only cause.

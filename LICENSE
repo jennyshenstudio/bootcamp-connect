@@ -1,0 +1,9 @@
+Copyright (c) 2026 Jenny Shen. All rights reserved.
+
+This repository is public so its code can be read, but no licence is granted.
+You may not copy, modify, distribute, publish, or use this code or any part of
+it, including to run your own version of the app, without written permission
+from the copyright holder.
+
+Third-party code in this repository (such as pdf.js in vendor/ and the files in
+.claude/skills/) keeps its own licence, given in or next to those files.

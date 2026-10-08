@@ -10,6 +10,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 
 ## Unreleased
 
+### Added
+- **Licence:** `LICENSE` makes the code "all rights reserved" (D031). It can be read on GitHub but not copied or reused without permission.
+
 ### Changed
 - **How we work:** the project now follows Foundation's shared software rules (D030). `CLAUDE.md` imports them; each session ends with a note in `docs/handover.md`.
 

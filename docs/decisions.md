@@ -38,6 +38,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D028 | Installable web app (PWA) with a `dist/` build, CSP, offline support, CI, and GitHub Pages deploy (off until the owner turns it on) | Accepted (built) | Release, sharing, mobile |
 | D029 | Native App Store and Google Play apps by wrapping the web app (Capacitor) | Proposed | Release, mobile |
 | D030 | Adopt Foundation: shared software rules, pre-commit check, secrets protection | Accepted (built) | How we work, release |
+| D031 | Licence: all rights reserved, no open-source licence | Accepted (built) | Release, sharing |
 
 ## Entries
 
@@ -209,3 +210,11 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Decision:** `CLAUDE.md` imports Foundation's software rules (`@../Foundation/software.md`): session workflow, handover note (`docs/handover.md`), review checklist, secrets rules and the trigger table. Tier: prototype. The project's own standards stay as they were: WCAG 2.2 AA, GOV.UK content style, Apple HIG (D009), no inline code (D027), this decisions log, a test with every change, tests passing before committing, `CHANGELOG.md`, commits straight to `main`, and republishing the prototype after app changes. A pre-commit check (`.githooks/pre-commit`, copied from Foundation) blocks any commit containing a secret or with failing tests. `.claude/settings.json` stops Claude reading `.env` files, and `.gitignore` excludes them. No files are moved.
 - **Supersedes:** D025.
 - **Affects:** How we work, release.
+
+### D031 Licence: all rights reserved
+- **Date:** 2026-10-08 · **Status:** Accepted (built)
+- **Context:** The repo is public (D004) but had no licence. The owner plans to make Bootcamp Connect a public app.
+- **Decision:** Keep the code as "all rights reserved". `LICENSE` says the code may be read but not copied, changed or reused without written permission. `package.json` says `"license": "UNLICENSED"`, npm's term for code that isn't open source. Third-party code keeps its own licence.
+- **Rejected:** MIT and other open-source licences, because they would let anyone legally launch a copy of the app.
+- **Open questions:** whether to make the repo private (GitHub Pages from a private repo may need a paid plan); a legal check before launch.
+- **Affects:** Release, sharing.
