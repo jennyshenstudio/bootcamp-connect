@@ -1,5 +1,5 @@
 // Spec 02: one-page profile setup.
-const { openApp, signUp, visible, sleep, fixture, noHorizontalScroll } = require('./helpers');
+const { openApp, signUp, waitForScrollToStop, visible, sleep, fixture, noHorizontalScroll } = require('./helpers');
 
 module.exports = async (browser, t) => {
   const page = await openApp(browser, t);
@@ -9,6 +9,7 @@ module.exports = async (browser, t) => {
 
   await page.click('#profile-form button[type=submit]'); await sleep(200);
   t.ok('saving without a headline shows an error', await visible(page, 'pf-headline-error'));
+  await waitForScrollToStop(page);
 
   await page.type('#pf-headline', 'Full-stack developer · ex-teacher · building edtech');
   await page.type('#pf-location', 'Leeds');
@@ -36,6 +37,7 @@ module.exports = async (browser, t) => {
   await page.type('#pf-website', 'not a url');
   await page.click('#profile-form button[type=submit]'); await sleep(200);
   t.ok('an invalid link blocks saving', await visible(page, 'pf-website-error'));
+  await waitForScrollToStop(page);
   await page.$eval('#pf-website', e => { e.value = ''; e.dispatchEvent(new Event('input', { bubbles: true })); });
   await page.click('#profile-form button[type=submit]'); await sleep(300);
   t.ok('profile saves and the banner hides', (await page.$eval('#toast', e => e.textContent)) === 'Profile saved' && !(await visible(page, 'profile-banner')));

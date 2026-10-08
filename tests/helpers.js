@@ -55,6 +55,19 @@ async function signUp(page, { first = 'Maya', last = 'Okafor', email = 'maya@exa
   await sleep(1000);
 }
 
+// The app smooth-scrolls to the first error, which takes up to a second. Clicking mid-scroll
+// can miss the target (puppeteer aims at where the element was), so wait for scrollY to settle.
+async function waitForScrollToStop(page, timeout = 3000) {
+  const end = Date.now() + timeout;
+  let last = null, still = 0;
+  while (Date.now() < end && still < 3) {
+    const y = await page.evaluate(() => scrollY);
+    still = y === last ? still + 1 : 0;
+    last = y;
+    await sleep(50);
+  }
+}
+
 const visible = (page, id) => page.$eval('#' + id, e => !e.classList.contains('hidden'));
 const noHorizontalScroll = page => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
 const pageFits = page => page.evaluate(() => document.documentElement.scrollHeight <= innerHeight);
@@ -64,4 +77,4 @@ async function screenshot(page, name) {
   await page.screenshot({ path: path.join(OUTPUT, name + '.png') });
 }
 
-module.exports = { ROOT, SOURCE_URL, appUrl, setAppUrl, FIXTURES, OUTPUT, sleep, fixture, launch, openApp, signUp, visible, noHorizontalScroll, pageFits, screenshot };
+module.exports = { ROOT, SOURCE_URL, appUrl, setAppUrl, FIXTURES, OUTPUT, sleep, fixture, launch, openApp, signUp, waitForScrollToStop, visible, noHorizontalScroll, pageFits, screenshot };
