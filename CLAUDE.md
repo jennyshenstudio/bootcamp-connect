@@ -7,6 +7,7 @@ This project follows Foundation's software rules (imported above), adopted in D0
 - **Tier:** prototype. Commits go straight to `main`.
 - **Specs:** [specs/](specs/), one numbered file per feature, with **Acceptance Criteria**.
 - **Decisions:** [docs/decisions.md](docs/decisions.md). **Handover:** [docs/handover.md](docs/handover.md).
+- **Personal data:** the live site will store real people's data (D034). Follow [docs/personal-data.md](docs/personal-data.md), and update it and the privacy notice before collecting anything new.
 
 ## Standards every change follows
 - **Accessibility: WCAG 2.2 AA.** Labelled controls, keyboard access with visible focus, 4.5:1 text contrast in light and dark mode, 44px touch targets, no information by colour alone, works at 320px wide with no sideways scroll.

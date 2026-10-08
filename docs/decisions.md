@@ -10,7 +10,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | --- | --- | --- | --- |
 | D001 | Purpose: experience first; the app bridges skill gaps | Accepted (built) | Everything |
 | D002 | UK app: British English, pounds sterling, UK standards preferred | Accepted (built) | Copy, pay, standards |
-| D003 | Prototype: static web app, no backend; data stays in each browser | Accepted (built) | Storage, sharing |
+| D003 | Prototype: static web app, no backend; data stays in each browser | Accepted (built); accounts and profiles on the live site superseded by D032 | Storage, sharing |
 | D004 | Sharing: public GitHub repo + private claude.ai artifact link | Accepted (built) | Release |
 | D005 | Sign-up and log in: Google (simulated) + email, track required, terms required, no LinkedIn | Accepted (built) | Auth |
 | D006 | Two tracks: Software Developer and Business Developer | Accepted (built) | Profile, matching |
@@ -33,12 +33,15 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D023 | Skills model: three layers (roles, capabilities, tools) from UK standards | Accepted (not built yet) | Profile, matching, AI, library |
 | D024 | Community library: resources attached to gap items and capabilities | Accepted (not built yet) | Library, AI |
 | D025 | Decisions log, production process standards, and CLAUDE.md | Superseded by D030 | How we work |
-| D026 | Backend: Supabase (London) for data, sign-in, files, and live chat; Vercel for hosting | Parked | Storage, auth, sharing, release |
+| D026 | Backend: Supabase (London) for data, sign-in, files, and live chat; Vercel for hosting | Superseded by D032 | Storage, auth, sharing, release |
 | D027 | Code fully separated: `index.html` (markup), `css/` (styles + compiled Tailwind), `js/` (scripts, no inline handlers) | Accepted (built) | Codebase, release |
 | D028 | Installable web app (PWA) with a `dist/` build, CSP, offline support, CI, and GitHub Pages deploy (off until the owner turns it on) | Accepted (built) | Release, sharing, mobile |
 | D029 | Native App Store and Google Play apps by wrapping the web app (Capacitor) | Proposed | Release, mobile |
 | D030 | Adopt Foundation: shared software rules, pre-commit check, secrets protection | Accepted (built) | How we work, release |
 | D031 | Licence: all rights reserved, no open-source licence | Accepted (built) | Release, sharing |
+| D032 | Live site: Supabase free plan (London) for accounts and profiles, hosted on GitHub Pages; the demo stays as it is | Accepted (not built yet) | Storage, auth, release |
+| D033 | Sign-in on the live site: Google only for now; email and password later | Accepted (not built yet) | Auth |
+| D034 | Real members in steps: private profiles first, sharing later with reporting tools | Accepted (not built yet) | Everything shared, personal data |
 
 ## Entries
 
@@ -54,7 +57,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Affects:** Copy, pay, standards choices.
 
 ### D003 Prototype without a backend
-- **Date:** 2026-10-06
+- **Date:** 2026-10-06 · **Status:** Accepted (built). On the live site, accounts and profiles are superseded by D032; the demo still works this way.
 - **Decision:** A static web app. Accounts, profiles, posts, chats, and uploads are stored in each viewer's browser (localStorage and IndexedDB). Passwords are never stored. The sign-in page says so.
 - **Consequence:** Members can't see each other's real data yet; shared features use sample data. A real backend is a later decision.
 - **Affects:** Storage, sharing, every data feature.
@@ -161,7 +164,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Affects:** How we work.
 
 ### D026 Backend: Supabase, hosted on Vercel
-- **Date:** 2026-10-08 · **Status:** Parked (recommended; on hold at the owner's request, 2026-10-08)
+- **Date:** 2026-10-08 · **Status:** Superseded by D032 (was parked at the owner's request, 2026-10-08)
 - **Context:** D003 keeps all data in each browser, so testers can't see each other's posts, messages, or projects.
 - **Decision:** Supabase in its London region (UK GDPR) for the Postgres database, real sign-in (email and Google), file storage for attachments, and realtime updates for Messages, with row-level security on every table. The app is hosted on Vercel, because the claude.ai artifact link is not expected to reach an outside database. The artifact stays as a demo with sample data.
 - **Rejected:** Vercel's own storage, which is third-party add-ons (Neon, Upstash) and would still need separate sign-in, file storage, and realtime.
@@ -218,3 +221,35 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Rejected:** MIT and other open-source licences, because they would let anyone legally launch a copy of the app.
 - **Open questions:** whether to make the repo private (GitHub Pages from a private repo may need a paid plan); a legal check before launch.
 - **Affects:** Release, sharing.
+
+### D032 Live site: Supabase free plan for accounts and profiles, hosted on GitHub Pages
+- **Date:** 2026-10-08 · **Status:** Accepted (not built yet) · **Spec:** `specs/09-real-accounts.md`
+- **Context:** The owner wants real people to use the app, built with free services unless something costs money because it's essential. D026 (Supabase and Vercel) was parked. Prices checked on 2026-10-08 from each provider's own pricing pages.
+- **Decision:**
+  - **Two versions from the same code.** The **live site** has real accounts and profiles stored in Supabase. The **demo** (claude.ai artifact, `index.html` from disk, `npm start`) works as now, with data in the browser and sample members. The app picks the live version only when Supabase settings are present.
+  - **Supabase free plan, London region (`eu-west-2`)** for sign-in and the profiles table, with row-level security on every table. The free plan includes 50,000 monthly active users, a 500 MB database and 1 GB of files. Free projects pause after a week with no use.
+  - **Hosting on GitHub Pages**, already set up in D028. It's free while the repo is public.
+  - **Settings:** the Supabase project address and publishable key are supplied when the site is built: from `.env` locally, and from GitHub Actions variables in CI. Supabase says the publishable key is safe to publish, because row-level security decides what it can reach. The secret key is never used by the app and never stored in the repo.
+  - **supabase-js is self-hosted** in `vendor/`, like pdf.js, so it works under the Content Security Policy.
+- **Rejected:** Fly.io (no free plan for new accounts, managed Postgres from $38 a month, no built-in sign-in); Vercel Hobby (free, but for non-commercial use only).
+- **Supersedes:** D026, and D003 for accounts and profiles on the live site.
+- **Affects:** Storage, auth, release.
+
+### D033 Sign-in on the live site: Google only for now
+- **Date:** 2026-10-08 · **Status:** Accepted (not built yet) · **Spec:** `specs/09-real-accounts.md`
+- **Context:** Email and password sign-in needs an email service for confirmations and password resets. Supabase's built-in email is for testing only (2 emails an hour, only to the project's own team). A free email service would most likely need the owner's own domain, which costs money.
+- **Decision:** The live site offers **Continue with Google** only. Track choice and terms agreement are still required (D005). The email and password fields are hidden on the live site, with a line saying email sign-in is coming. The demo keeps both.
+- **Later:** add email sign-in once there's a domain and a free email service (such as Resend).
+- **Amends:** D005, on the live site only.
+- **Affects:** Auth.
+
+### D034 Real members in steps
+- **Date:** 2026-10-08 · **Status:** Accepted (not built yet)
+- **Context:** Storing real people's data meets the personal data trigger (UK GDPR). Letting members see each other's content meets the online safety trigger (Online Safety Act 2023). Doing both at once means a lot of legal and safety work before anyone can use the app.
+- **Decision:**
+  - **Step 1:** real members sign in and save their own profile. Nobody else can see it. Feed, Connect and Messages keep using sample members, and anything a member posts stays on their device.
+  - **Step 2:** profiles and posts become visible to other members, together with ways to report, block and remove content.
+  - The rules and risks for personal data are written in `docs/personal-data.md` before step 1 is built, and reviewed before each step.
+- **Open questions:** Foundation's prototype tier means made-up data only, so real members need the owner to choose a higher tier, with the rules that come with it.
+- **Affects:** Everything shared, personal data.
+

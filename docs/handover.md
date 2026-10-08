@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-08 (plans for real members)
+- **What changed:** planned real sign-in and profiles for real people. New decisions: Supabase free plan in London, hosted on GitHub Pages (D032); Google sign-in only for now (D033); real members in steps, private profiles first (D034). New spec 09, personal data rules (`docs/personal-data.md`) and a draft privacy notice. Nothing built yet.
+- **What's next:** the owner reviews the spec, rules and privacy notice. Then the owner creates the Supabase and Google Cloud accounts (Claude to give step-by-step instructions), and Claude builds spec 09.
+- **Open questions:** the tier for real members (prototype means made-up data only); terms of service still to write; a non-personal contact email; minimum age (18?); backups on the free plan; the ICO fee self-assessment.
+- **Worth learning:** "free" plans often have catches that matter more than the price. Vercel's free plan bans commercial use, Fly.io has no free plan for new accounts any more, and Supabase's built-in email can only send 2 emails an hour.
+
 ## 2026-10-08 (licence)
 - **What changed:** added an "all rights reserved" licence (D031). The code stays public to read, but nobody may copy or reuse it without permission. Also noted in the README, `package.json` and the change log.
 - **What's next:** the owner wants to make this a public app. That meets several Foundation triggers: real people's data (UK GDPR), users seeing each other's posts (Online Safety Act) and running a live service (production tier). Plan those before launch.
