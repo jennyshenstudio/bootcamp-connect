@@ -21,11 +21,11 @@ Ready to deploy as a web app and as an installable phone app. Decisions D027 and
 - **Works offline.** `sw.js` service worker keeps the app's files, so the installed app opens without a connection. New versions are picked up the next time it's opened online.
 - **Production build.** `npm run build` creates `dist/`, a static site for any host, with a Content Security Policy and the service worker turned on. `npm run preview` serves it locally.
 - **Local server.** `npm start` serves the source at http://localhost:8080 (`scripts/serve.mjs`, no dependencies).
-- **Continuous integration.** `.github/workflows/ci.yml` runs every test on each push and pull request, against the source and against the built site.
+- **Continuous integration.** `.github/workflows/ci.yml` runs every test on each push and pull request, against the source and against the built site, and fails if the committed `css/tailwind.css` is missing or has extra classes compared with a fresh build (`scripts/check-css.mjs`).
 - **GitHub Pages deployment.** `.github/workflows/deploy-pages.yml` publishes `dist/` after CI passes on `main`. Off until the owner turns it on; see [docs/deployment.md](docs/deployment.md).
 - **Docs.** This changelog, [docs/deployment.md](docs/deployment.md), [specs/08-installable-app.md](specs/08-installable-app.md), [vendor/README.md](vendor/README.md), decisions D027 to D029.
 - **Tests.** `tests/structure.test.js` (21 checks: no inline code, every class on screen has CSS, handler behaviour, sign-up fits one screen with non-Apple fonts), `tests/pwa.test.js` (20 checks: build, manifest, icons, service worker, CSP, offline), `tests/legacy.test.js` (9 checks). `npm run test:dist` runs the whole suite against the built site.
-- `.editorconfig` and `.nvmrc` (Node 20) so editors and CI use the same settings.
+- `.editorconfig` and `.nvmrc` (Node 24, the current LTS) so editors and CI use the same settings.
 
 ### Changed
 - **`prototype.html` is now `index.html`**, so web hosts serve it at the site's address. It holds markup only.
@@ -51,7 +51,8 @@ Ready to deploy as a web app and as an installable phone app. Decisions D027 and
 
 ### Test results
 - Source (`npm test`) and built site (`npm run test:dist`): 146 passed in each. Before these changes, 88 of 95 passed in the same environment.
-- 4 checks fail only in the offline build environment used for this release, and are expected to pass with normal internet access and standard fonts (CI):
+- GitHub Actions CI (Ubuntu, Chrome, normal internet access): every check passes, against both the source and the built site.
+- In the offline environment where this release was built, 4 checks failed for reasons outside the app:
   - Word CV import needs Mammoth from cdnjs, which that environment blocks (the app shows "Couldn't load the file reader. Check your internet connection and try again."). This stops the rest of the import suite; run with the Word step skipped, the other 12 import checks pass.
   - Sign-up at 390×844: that environment swaps in the wider Inter font for Helvetica Neue. It fits with Arial-metric fonts, which `structure.test.js` checks.
 - Visual check: 8 screens (sign-up, Profile, Feed, Messages; desktop and phone) are pixel-identical to the Tailwind CDN version.

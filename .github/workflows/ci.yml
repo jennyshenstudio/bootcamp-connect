@@ -1,5 +1,5 @@
 # Runs on every push and pull request: the browser tests against the source (file://) and against
-# the built site (http, CSP, service worker), then a check that the committed CSS is current.
+# the built site (http, CSP, service worker), then a check that the committed CSS defines the same classes as a fresh build.
 name: CI
 
 on:
@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -33,11 +33,11 @@ jobs:
       - name: Test the built site
         run: npm run test:dist
 
-      - name: Warn if the committed Tailwind CSS differs from a fresh build
+      # test:dist rebuilt css/tailwind.css; the committed one must define the same classes
+      - name: Check the committed Tailwind CSS is up to date
         run: |
           npm run build:legacy-css
-          git diff --quiet -- css/tailwind.css legacy/prototype-v1/css/tailwind.css \
-            || echo "::warning::css/tailwind.css differs from a fresh build. Run 'npm run build:css' (and 'npm run build:legacy-css') and commit the result."
+          node scripts/check-css.mjs
 
       - name: Keep screenshots if something failed
         if: failure()

@@ -177,7 +177,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
   - The archived `prototype-v1.html` moves to `legacy/prototype-v1/` with its own CSS, JS and compiled Tailwind.
   - Page language is `en-GB` (D002).
 - **Checked by:** `tests/structure.test.js` (no inline code; every class on screen has CSS) and a pixel comparison of 8 screens against the CDN-era layout, which matched.
-- **Consequence:** class names must be written in full in `index.html` or `js/` (never built from pieces), and `npm run build:css` must be run after adding new classes. CI warns if the committed CSS is out of date.
+- **Consequence:** class names must be written in full in `index.html` or `js/` (never built from pieces), and `npm run build:css` must be run after adding new classes. CI fails if the committed CSS is missing classes (`scripts/check-css.mjs`).
 - **Fixed alongside:** the desktop sign-up brand panel overflowed short laptop screens (1280×650) when the Apple system font wasn't available (Windows, Linux). On screens 700px tall or less its padding and headline now shrink.
 - **Affects:** Codebase, release.
 

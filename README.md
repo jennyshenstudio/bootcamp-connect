@@ -12,7 +12,7 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 | `manifest.webmanifest`, `sw.js`, `assets/icons/` | Installable app: name, icons, and the service worker for offline use. |
 | `vendor/` | Self-hosted third-party libraries (pdf.js). See `vendor/README.md`. |
 | `tailwind.config.js`, `src/styles/` | Tailwind theme and input. |
-| `scripts/` | `build.mjs` (writes `dist/`), `build-css.mjs`, `serve.mjs` (local server), `build_artifact.py` (claude.ai artifact). |
+| `scripts/` | `build.mjs` (writes `dist/`), `build-css.mjs`, `check-css.mjs`, `serve.mjs` (local server), `build_artifact.py` (claude.ai artifact). |
 | `.github/workflows/` | CI (tests on every push) and GitHub Pages deployment (off until turned on). |
 | `legacy/prototype-v1/` | Earlier design with fuller Matchmaker, Messages, and Profile tabs. |
 | `CLAUDE.md` | How we work: standards, tests, and release steps for every change. |

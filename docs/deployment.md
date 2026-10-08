@@ -15,7 +15,7 @@ How Bootcamp Connect goes from this repository to a web address and onto phones.
 | `npm run test:dist` | Builds, then all browser tests against `dist/` over http. |
 | `npm run build:artifact` | Builds the copy for the claude.ai artifact link (`build/artifact/`). |
 
-You need Node 18 or later (`.nvmrc` says 20) and Google Chrome for the tests. Opening `index.html` straight from disk still works for a quick look.
+You need Node 18 or later (`.nvmrc` says 24) and Google Chrome for the tests. Opening `index.html` straight from disk still works for a quick look.
 
 ## How the code fits together
 
@@ -40,7 +40,7 @@ legacy/prototype-v1/     archived first design
 ### Rules that keep it working
 - **No inline JavaScript.** Write `data-on-click="openPerson('p1')"`, not `onclick="…"`. Arguments can be quoted strings, numbers, `true`, `false`, `null`, or `this…`/`event…` paths. Need more than a call? Write a named function in the feature's `js/` file and call that. The live site's Content Security Policy blocks inline script, and `tests/structure.test.js` fails if any appears.
 - **Write class names in full.** `'bg-appleBlue/10'` is fine; `'bg-' + colour` is not, because the Tailwind build can't see it and the class will have no CSS. The structure test checks every class on screen.
-- **Rebuild the CSS** with `npm run build:css` after adding classes, and commit `css/tailwind.css`. CI warns if you forget.
+- **Rebuild the CSS** with `npm run build:css` after adding classes, and commit `css/tailwind.css`. CI fails if you forget (`scripts/check-css.mjs` compares class names, so harmless byte differences between machines don't count).
 
 ## Deploying the web app
 
