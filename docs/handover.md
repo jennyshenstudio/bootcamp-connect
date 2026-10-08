@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-08 (GitHub security)
+- **What changed:** GitHub secret scanning, push protection and Dependabot security alerts and updates switched on (D035). No secrets found.
+- **What's next:** keep an eye on the `extract-zip` alert (test tools only, no fix yet).
+- **Open questions:** none.
+- **Worth learning:** "development" dependencies are only used to build and test the app, not shipped to users, so a weakness in one is usually lower risk.
+
 ## 2026-10-08 (plans for real members)
 - **What changed:** planned real sign-in and profiles for real people. New decisions: Supabase free plan in London, hosted on GitHub Pages (D032); Google sign-in only for now (D033); real members in steps, private profiles first (D034). New spec 09, personal data rules (`docs/personal-data.md`) and a draft privacy notice. Nothing built yet.
 - **What's next:** the owner reviews the spec, rules and privacy notice. Then the owner creates the Supabase and Google Cloud accounts (Claude to give step-by-step instructions), and Claude builds spec 09.

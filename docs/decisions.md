@@ -42,6 +42,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D032 | Live site: Supabase free plan (London) for accounts and profiles, hosted on GitHub Pages; the demo stays as it is | Accepted (not built yet) | Storage, auth, release |
 | D033 | Sign-in on the live site: Google only for now; email and password later | Accepted (not built yet) | Auth |
 | D034 | Real members in steps: private profiles first, sharing later with reporting tools | Accepted (not built yet) | Everything shared, personal data |
+| D035 | GitHub secret scanning, push protection and Dependabot security alerts switched on | Accepted (built) | Security, release |
 
 ## Entries
 
@@ -253,3 +254,11 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Open questions:** Foundation's prototype tier means made-up data only, so real members need the owner to choose a higher tier, with the rules that come with it.
 - **Affects:** Everything shared, personal data.
 
+### D035 GitHub security features on
+- **Date:** 2026-10-08 · **Status:** Accepted (built)
+- **Context:** the repo is public, and the only secret check was the local pre-commit check (D030), which can be skipped or missing on a new computer.
+- **Decision:** switch on GitHub's free secret scanning, push protection (GitHub refuses a push containing a known type of key), Dependabot security alerts and Dependabot security updates.
+- **Options considered:** do nothing (rejected: one skipped local check could publish a key); a gitleaks scan in CI as well (worth adding later, since it also catches generic passwords).
+- **First results:** no secrets found. Three alerts in test tools only (`extract-zip` and `basic-ftp`, brought in by `puppeteer-core`), not in the app members use. GitHub dismissed the `basic-ftp` one itself as low risk. `extract-zip` has no fix yet. Dependabot will offer one when it exists.
+- **Reviewed:** 2026-10-08, independent review of Foundation; confirmed.
+- **Affects:** Security, release.
