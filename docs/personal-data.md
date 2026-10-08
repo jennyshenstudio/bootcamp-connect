@@ -9,7 +9,7 @@ This is a working document, not legal advice. Get a legal check before launch.
 | Data | Where it comes from | Why we need it | Kept until |
 |---|---|---|---|
 | Name, email address and Google account ID | Google, at sign-in | To sign the member in and recognise them next time | They delete their account |
-| Profile photo link from Google | Google, at sign-in (Supabase stores it automatically) | Not used by the app | They delete their account |
+| Profile photo from Google | Google, at sign-in | Copied once as the member's starting profile photo, which they can change or remove | They delete their account, or change the photo |
 | Track and when they agreed to the terms | The sign-up screen | To set up the right profile, and to show they agreed | They delete their account |
 | Profile: headline, location, about, links, experience, skills, projects, what they're looking for, photo | The member | To show and use their own profile | They delete their account |
 | Sign-in records (time, IP address, browser) | Supabase, automatically | Security | As long as Supabase keeps them (to check) |
@@ -31,12 +31,12 @@ Feed posts, messages and connections are not stored on the server in step 1. The
 
 | What could go wrong | Who or what causes it | What we do about it |
 |---|---|---|
-| A member reads or changes someone else's profile | A member calling Supabase directly with their own session | Row-level security; acceptance criteria 6 and 7 in spec 09 |
+| A member reads or changes someone else's profile | A member calling Supabase directly with their own session | Row-level security; acceptance criteria 7 and 8 in spec 09 |
 | The secret key leaks | Committed or pasted by mistake | The app never uses it; pre-commit secret scan; make a new key first if it leaks |
 | A harmful script steals a member's session | Malicious content shown on the page (cross-site scripting) | Content Security Policy with no inline scripts; text is escaped before display; libraries are self-hosted |
 | Data is lost | A mistake, or a problem at Supabase; the free plan may have no automatic backups | The owner exports the data regularly; review before more members join |
 | Members can't sign in | Supabase pauses free projects after a week with no use | The owner restores the project; check it weekly at first |
 | A member writes sensitive details (health, religion and so on) in their profile | The member | The privacy notice asks them not to; delete on request |
-| Under-18s sign up | Anyone with a Google account | The terms say members must be 18 or over (owner to confirm) |
+| Under-18s sign up | Anyone with a Google account | The terms say members must be 18 or over |
 | Fake or abusive accounts | Anyone with a Google account | Low impact in step 1, because nobody else can see a profile. Step 2 adds reporting and blocking |
 | Supabase or Google misuse the data | Companies we rely on (data processors) | Supabase's data processing agreement; both are named in the privacy notice |

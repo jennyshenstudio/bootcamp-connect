@@ -11,7 +11,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 ## Unreleased
 
 ### Added
-- **Plans for real members** (not built yet): decisions D032 to D034, spec 09 (real accounts and profiles), personal data rules and risks (`docs/personal-data.md`), and a draft privacy notice (`docs/privacy-notice.md`). D026 is superseded.
+- **Plans for real members** (not built yet): decisions D032 to D034, spec 09 (real accounts and profiles), personal data rules and risks (`docs/personal-data.md`), a draft privacy notice (`docs/privacy-notice.md`) and draft terms of service (`docs/terms-of-service.md`). Members must be 18 or over, and the Google photo becomes their starting profile photo. D026 is superseded.
 - **Licence:** `LICENSE` makes the code "all rights reserved" (D031). It can be read on GitHub but not copied or reused without permission.
 
 ### Changed
