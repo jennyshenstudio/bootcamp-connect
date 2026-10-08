@@ -44,6 +44,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D034 | Real members in steps: private profiles first, sharing later with reporting tools | Accepted (not built yet) | Everything shared, personal data |
 | D035 | GitHub secret scanning, push protection and Dependabot security alerts switched on | Accepted (built) | Security, release |
 | D036 | Stage: alpha (GOV.UK phases); CI secret scan; stronger Claude settings and pre-commit check | Accepted (built) | How we work, security |
+| D037 | Project folder moves to `~/code/bootcamp-connect`, next to `~/code/foundation` (Foundation F015) | Accepted (built) | How we work |
 
 ## Entries
 
@@ -271,3 +272,11 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Options considered:** call the project beta now (rejected: no real members yet, and the beta rules aren't written); rely on GitHub push protection alone (rejected: it only knows key formats from partner services, while gitleaks also checks generic patterns).
 - **Reviewed:** 2026-10-08, independent review of Foundation.
 - **Affects:** How we work, security.
+
+### D037 Project folder moves to `~/code`
+- **Date:** 2026-10-09 · **Status:** Accepted (built)
+- **Context:** Foundation's F015 says projects live in `~/code`, out of folders a sync service watches, in folders named after their repo. This project was in `~/Documents/Shen-1/Bootcamp Connect`.
+- **Decision:** the project now lives in `~/code/bootcamp-connect`, a fresh copy from GitHub, with Foundation at `~/code/foundation`. `CLAUDE.md` imports `@../foundation/software.md`, and the setup test checks the pre-commit check against `../foundation`. The old folder stays until the new one has been used for a week and Time Machine has a backup.
+- **Options considered:** stay in `~/Documents` (rejected: see F015).
+- **Reviewed:** 2026-10-08, fresh subagent review of F015; approved by the owner 2026-10-09.
+- **Affects:** How we work.

@@ -4,7 +4,7 @@
 # push protection and CI are the next layers.
 #
 # Install in a project:
-#   mkdir -p .githooks && cp ../Foundation/hooks/pre-commit .githooks/pre-commit
+#   mkdir -p .githooks && cp ../foundation/hooks/pre-commit .githooks/pre-commit
 #   git config core.hooksPath .githooks
 #
 # Tests: runs .githooks/test if it exists, otherwise `npm test` when package.json

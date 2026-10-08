@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-09 (move to ~/code)
+- **What changed:** the project now lives in `~/code/bootcamp-connect`, a fresh copy from GitHub (D037, Foundation F015). `CLAUDE.md` and the setup test point at `../foundation`.
+- **What's next:** work from the new folder. After a week, and once Time Machine has a backup, delete `~/Documents/Shen-1/Bootcamp Connect`.
+- **Open questions:** none new.
+- **Worth learning:** a fresh copy from GitHub is also a restore test: if anything were missing from GitHub, the new copy would show it.
+
 ## 2026-10-08 (Foundation review fixes)
 - **What changed:** stage set to alpha (D036). CI now scans the whole history for secrets. Claude can't read or edit `.env` files, and skipping the pre-commit check needs the owner's approval. The pre-commit check skips tests for Markdown-only commits.
 - **What's next:** decide when to move to beta, and write the beta rules first (personal data, online safety, backups, expert review).

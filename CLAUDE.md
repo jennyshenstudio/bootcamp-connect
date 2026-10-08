@@ -1,4 +1,4 @@
-@../Foundation/software.md
+@../foundation/software.md
 
 # Bootcamp Connect: project rules
 
