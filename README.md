@@ -9,6 +9,9 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 | `prototype.html` | Current interactive prototype (Tailwind via CDN). Open it in a browser. |
 | `css/`, `js/` | Styles and scripts for the prototype, one file per feature (load order is set in `prototype.html`). |
 | `prototype-v1.html` | Earlier design with fuller Matchmaker, Messages, and Profile tabs. |
+| `CLAUDE.md` | How we work: standards, tests, and release steps for every change. |
+| `docs/decisions.md` | Every product, design, and technical decision. |
+| `tests/` | Browser tests (`npm install`, then `npm test`). Needs Google Chrome. |
 | `test-data/` | Sample CV for a made-up member (Maya Okafor) as PDF, Word, and HTML, for testing the profile import. |
 | `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. `05-feed.md`, `06-matching.md`, `07-project-loop.md`: experience-first platform. |
 

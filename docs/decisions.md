@@ -32,7 +32,8 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D022 | Skills evaluation: evidence-based, UK government skill levels, level + confidence | Accepted (not built yet) | Profile, matching, AI |
 | D023 | Skills model: three layers (roles, capabilities, tools) from UK standards | Accepted (not built yet) | Profile, matching, AI, library |
 | D024 | Community library: resources attached to gap items and capabilities | Accepted (not built yet) | Library, AI |
-| D025 | Decisions log, production process standards, and CLAUDE.md | Proposed | How we work |
+| D025 | Decisions log, production process standards, and CLAUDE.md | Accepted (built) | How we work |
+| D026 | Backend: Supabase (London) for data, sign-in, files, and live chat; Vercel for hosting | Proposed | Storage, auth, sharing, release |
 
 ## Entries
 
@@ -149,5 +150,15 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Decision:** Members share their best resources (videos, documents, links). Each is tagged with D023 capabilities and tools so it appears on the matching gap-map items, credited to its creator with a link. Summaries and links only; no copies of paid content.
 
 ### D025 Decisions log, production process, CLAUDE.md
+- **Date:** 2026-10-08 · **Status:** Accepted (built)
+- **Decision:** Every session follows `CLAUDE.md`. Standards: WCAG 2.2 AA (accessibility), GOV.UK content style (wording), Apple HIG (design, D009), and this log for every decision. Every change comes with a browser test, and `npm test` must pass before committing. Changes go straight to `main` and the shared prototype is republished.
+- **Follow-up:** audit the current prototype against WCAG 2.2 AA and GOV.UK content style; adopting a standard doesn't mean the app already meets it.
+- **Affects:** How we work.
+
+### D026 Backend: Supabase, hosted on Vercel
 - **Date:** 2026-10-08 · **Status:** Proposed
-- **Decision:** Keep this log; follow named production standards so nothing is skipped; add a `CLAUDE.md` so every working session follows the same process. Standards are being chosen with the owner.
+- **Context:** D003 keeps all data in each browser, so testers can't see each other's posts, messages, or projects.
+- **Decision:** Supabase in its London region (UK GDPR) for the Postgres database, real sign-in (email and Google), file storage for attachments, and realtime updates for Messages, with row-level security on every table. The app is hosted on Vercel, because the claude.ai artifact link is not expected to reach an outside database. The artifact stays as a demo with sample data.
+- **Rejected:** Vercel's own storage, which is third-party add-ons (Neon, Upstash) and would still need separate sign-in, file storage, and realtime.
+- **Supersedes when accepted:** D003.
+- **Affects:** Storage, auth, sharing, release.
