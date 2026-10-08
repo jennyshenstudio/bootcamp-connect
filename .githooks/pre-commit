@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Foundation pre-commit check. Blocks a commit if a secret is staged or the tests fail.
+#
+# Install in a project:
+#   mkdir -p .githooks && cp ../Foundation/hooks/pre-commit .githooks/pre-commit
+#   git config core.hooksPath .githooks
+#
+# Tests: runs .githooks/test if it exists, otherwise `npm test` when package.json
+# has a test script, otherwise pytest when pyproject.toml exists.
+
+set -u
+
+block() {
+  printf '\nCommit blocked: %s\n%s\n\n' "$1" "$2" >&2
+  exit 1
+}
+
+# 1. Secrets
+GITLEAKS="$(command -v gitleaks || true)"
+if [ -z "$GITLEAKS" ] && [ -x "$HOME/.local/bin/gitleaks" ]; then
+  GITLEAKS="$HOME/.local/bin/gitleaks"
+fi
+[ -n "$GITLEAKS" ] || block "the secret scanner (gitleaks) isn't installed." \
+  "Install it (see Foundation's README), then commit again."
+
+if ! "$GITLEAKS" git --pre-commit --staged --redact --no-banner --log-level error -v; then
+  block "a password, API key or token seems to be in the staged changes." \
+    "Remove it and keep it in .env instead. If it was ever pushed or shared, revoke it and make a new one."
+fi
+
+# 2. Tests
+if [ -x .githooks/test ]; then
+  .githooks/test || block "the tests failed." "Fix the cause, then commit again. Don't weaken or delete a test to make it pass."
+elif [ -f package.json ] && grep -q '"test"[[:space:]]*:' package.json; then
+  npm test --silent || block "the tests failed." "Fix the cause, then commit again. Don't weaken or delete a test to make it pass."
+elif [ -f pyproject.toml ]; then
+  python3 -m pytest -q || block "the tests failed." "Fix the cause, then commit again. Don't weaken or delete a test to make it pass."
+else
+  printf 'Note: no tests found, so only the secret scan ran.\n' >&2
+fi
+
+exit 0

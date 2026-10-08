@@ -66,3 +66,7 @@ npm test             # browser tests (npm run test:dist tests the built site)
 ```
 
 `dist/` is a static site for any https host. GitHub Pages deployment is set up in `.github/workflows/` but off until the owner turns it on. Steps, hosting options, and how members install the app on iPhone, Android, and desktop: [docs/deployment.md](docs/deployment.md).
+
+## How we work
+
+The project follows Foundation, the owner's shared software rules, kept in a separate repo that is private for now (decision D030), plus its own rules in `CLAUDE.md`. Before every commit, a check scans for passwords or keys and runs `npm test`. After cloning, switch it on with `git config core.hooksPath .githooks`. It needs [gitleaks](https://gitleaks.io/) installed.

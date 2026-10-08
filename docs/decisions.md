@@ -32,11 +32,12 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D022 | Skills evaluation: evidence-based, UK government skill levels, level + confidence | Accepted (not built yet) | Profile, matching, AI |
 | D023 | Skills model: three layers (roles, capabilities, tools) from UK standards | Accepted (not built yet) | Profile, matching, AI, library |
 | D024 | Community library: resources attached to gap items and capabilities | Accepted (not built yet) | Library, AI |
-| D025 | Decisions log, production process standards, and CLAUDE.md | Accepted (built) | How we work |
+| D025 | Decisions log, production process standards, and CLAUDE.md | Superseded by D030 | How we work |
 | D026 | Backend: Supabase (London) for data, sign-in, files, and live chat; Vercel for hosting | Parked | Storage, auth, sharing, release |
 | D027 | Code fully separated: `index.html` (markup), `css/` (styles + compiled Tailwind), `js/` (scripts, no inline handlers) | Accepted (built) | Codebase, release |
 | D028 | Installable web app (PWA) with a `dist/` build, CSP, offline support, CI, and GitHub Pages deploy (off until the owner turns it on) | Accepted (built) | Release, sharing, mobile |
 | D029 | Native App Store and Google Play apps by wrapping the web app (Capacitor) | Proposed | Release, mobile |
+| D030 | Adopt Foundation: shared software rules, pre-commit check, secrets protection | Accepted (built) | How we work, release |
 
 ## Entries
 
@@ -153,7 +154,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Decision:** Members share their best resources (videos, documents, links). Each is tagged with D023 capabilities and tools so it appears on the matching gap-map items, credited to its creator with a link. Summaries and links only; no copies of paid content.
 
 ### D025 Decisions log, production process, CLAUDE.md
-- **Date:** 2026-10-08 · **Status:** Accepted (built)
+- **Date:** 2026-10-08 · **Status:** Superseded by D030
 - **Decision:** Every session follows `CLAUDE.md`. Standards: WCAG 2.2 AA (accessibility), GOV.UK content style (wording), Apple HIG (design, D009), and this log for every decision. Every change comes with a browser test, and `npm test` must pass before committing. Changes go straight to `main` and the shared prototype is republished.
 - **Follow-up:** audit the current prototype against WCAG 2.2 AA and GOV.UK content style; adopting a standard doesn't mean the app already meets it.
 - **Affects:** How we work.
@@ -201,3 +202,10 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Context:** The installable web app (D028) covers phones without the App Store or Google Play. Store listings need native wrappers, paid developer accounts (Apple charges yearly, Google once) and store review.
 - **Proposal:** When store presence is needed, wrap `dist/` with Capacitor (iOS and Android projects in the repo, built from the same web code). Do this after D026, because a store app with data only on one device would disappoint members.
 - **Affects:** Release, mobile.
+
+### D030 Adopt Foundation
+- **Date:** 2026-10-08 · **Status:** Accepted (built)
+- **Context:** D025 set this project's way of working inside its own `CLAUDE.md`. The owner has since written Foundation, a shared way of working for all their software projects, kept in its own repo next to this one. Bootcamp Connect is its first pilot.
+- **Decision:** `CLAUDE.md` imports Foundation's software rules (`@../Foundation/software.md`): session workflow, handover note (`docs/handover.md`), review checklist, secrets rules and the trigger table. Tier: prototype. The project's own standards stay as they were: WCAG 2.2 AA, GOV.UK content style, Apple HIG (D009), no inline code (D027), this decisions log, a test with every change, tests passing before committing, `CHANGELOG.md`, commits straight to `main`, and republishing the prototype after app changes. A pre-commit check (`.githooks/pre-commit`, copied from Foundation) blocks any commit containing a secret or with failing tests. `.claude/settings.json` stops Claude reading `.env` files, and `.gitignore` excludes them. No files are moved.
+- **Supersedes:** D025.
+- **Affects:** How we work, release.

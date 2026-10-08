@@ -10,7 +10,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 
 ## Unreleased
 
-Nothing yet.
+### Changed
+- **How we work:** the project now follows Foundation's shared software rules (D030). `CLAUDE.md` imports them; each session ends with a note in `docs/handover.md`.
+
+### Security
+- A pre-commit check (`.githooks/pre-commit`) blocks commits containing passwords, API keys or tokens (gitleaks), or with failing tests.
+- `.env` files are ignored by git, and Claude Code is stopped from reading them (`.claude/settings.json`).
+
+### Tested
+- New `setup` suite checks the Foundation import, tier, `.gitignore`, Claude Code settings and the pre-commit check.
 
 ## 0.11.0 – 2026-10-08
 

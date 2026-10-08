@@ -7,3 +7,7 @@ dist/
 # Dependencies (also matches a symlinked node_modules)
 node_modules
 tests/output/
+# Secrets: never committed (D030)
+.env
+.env.*
+!.env.example
