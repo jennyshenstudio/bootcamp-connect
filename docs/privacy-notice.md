@@ -42,7 +42,7 @@ We use these companies to run the service:
 These companies are based outside the UK, so their staff may sometimes access your information from abroad, for example to fix a problem. When they do, the law requires them to protect it to UK standards. [Owner to check the details in Supabase's and Google's data processing agreements.]
 
 ## How long we keep it
-Until you delete your account. [Accounts with no sign-in for 2 years are deleted: owner to confirm. Only keep this if there's a way to do it, such as a yearly check. Otherwise remove it.]
+Until you delete your account.
 
 ## Your rights
 You can:
