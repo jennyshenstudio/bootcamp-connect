@@ -5,7 +5,7 @@ Newest entry first. Each session adds an entry: what changed, what's next, open 
 ## 2026-10-09 (log in screen)
 - **What changed:** the owner found the log-in view sparse, so I drew 3 variations at their real window size (about 1470×760) on the design canvas. They chose "Log in 1": a larger title, a 60px Google button, an "or" line and a full-width Log in with email button, with the demo note at the bottom of the panel. Built, with tests; sign-up unchanged. Shared prototype republished.
 - **What's next:** profile setup.
-- **Open questions:** should the sign-up screen match the log-in screen's larger title (48px against 34px) and the demo note at the bottom? Not changed without the owner's say.
+- **Open questions:** the owner compared a matched version (canvas row "Sign up and log in, matched") and chose to leave sign-up as it is for now. **Might change later:** give sign-up the log-in screen's 48px title, 19px subtitle, 60px Google button and the demo note at the bottom of the panel, so the two screens match.
 - **Worth learning:** a browser can keep showing an old copy of a page after an update. Cmd+Shift+R reloads everything.
 
 ## 2026-10-09 (sign-up layout A)
