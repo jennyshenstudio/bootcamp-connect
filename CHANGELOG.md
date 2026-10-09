@@ -16,6 +16,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Licence:** `LICENSE` makes the code "all rights reserved" (D031). It can be read on GitHub but not copied or reused without permission.
 
 ### Changed
+- **Spec 01** rewritten to describe the sign-up and log-in screen as built: layout, Google first, email behind a link in the demo, terms wording, log in and log out.
 - **Log in screen** (design "Log in 1", chosen by the owner): larger title and buttons, Continue with Google, an "or" line, then a full-width Log in with email button. The demo note sits at the bottom of the panel. The sign-up screen is unchanged.
 - **Sign-up screen layout** (design option A, chosen by the owner): on desktop the brand panel and the form are two full-height rounded panels side by side, so the form no longer floats in empty space. Larger title and Google button, and big square track tiles with an icon on top. The Sign up and Log in tabs are now a link ("Already a member? Log in"). The demo looks the same: its email sign-up and log in are behind a "Sign up with email instead" link under the Google button. The screen no longer shrinks on short windows (tiles, subtitle and spacing stay the same at every height).
 - **Sign-up screen:** the Google button uses Google's official "G" and button colours, in light and dark mode (Google's sign-in branding guidelines). The terms checkbox now reads "I agree to the Terms of Service and have read the Privacy notice", and both links open the draft documents on GitHub until they become pages in the app. Wording follows GOV.UK style: "Create account", "Agree to the Terms of Service to continue" and a shorter demo note.
@@ -31,6 +32,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - Updated to Foundation 1.0 (Foundation F017): the pre-commit check blocks changes to the secret scanner's settings files (`.gitleaks.toml`, `.gitleaksignore`), renaming code to `.md` no longer skips the tests, and more `.env` file names are blocked.
 
 ### Fixed
+- **Accessibility:** switching between Sign up and Log in (including from links in error messages) moved keyboard focus to the top of the page, because the pressed button disappears. Focus now moves to the screen's title (WCAG 2.2, 2.4.3).
 - **Tests:** the profile suite sometimes failed on CI. After a blocked save, the app smooth-scrolls to the error for up to a second, and the next click could land while the page was still moving. Tests now wait for scrolling to stop (`waitForScrollToStop` in `tests/helpers.js`).
 
 ### Tested

@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-09 (end of session: sign-up and log-in screens done)
+- **What changed:** reviewed the sign-up, log-in and log-out screens for anything non-cosmetic. Fixed keyboard focus when switching between Sign up and Log in (it jumped to the top of the page; it now moves to the title). Rewrote spec 01 to describe the screen as built. Shared prototype republished.
+- **What's next:** the owner's next session starts on the **Connect** part of the app (specs 04 and 06), not profile setup. Still to do for sign-in, all in spec 09 and needing the owner's Supabase and Google Cloud accounts: real Google sign-in, clearing browser data on log out and account deletion on the live site, terms and privacy pages in the app. Cosmetic, later: phone layout (Google button at the bottom) and possibly matching sign-up to log in.
+- **Open questions:** none new.
+- **Worth learning:** a button that hides itself when pressed takes keyboard focus with it. Always move focus somewhere sensible, such as the new screen's title.
+
 ## 2026-10-09 (log in screen)
 - **What changed:** the owner found the log-in view sparse, so I drew 3 variations at their real window size (about 1470×760) on the design canvas. They chose "Log in 1": a larger title, a 60px Google button, an "or" line and a full-width Log in with email button, with the demo note at the bottom of the panel. Built, with tests; sign-up unchanged. Shared prototype republished.
 - **What's next:** profile setup.
