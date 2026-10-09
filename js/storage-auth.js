@@ -55,6 +55,13 @@ function setAuthMode(mode) {
   clearError('terms');
 }
 
+// Sign up / Log in switch, from a click. The button pressed disappears, so move focus to the new
+// screen's title rather than losing it (WCAG 2.2, 2.4.3 Focus order).
+function switchAuthMode(mode) {
+  setAuthMode(mode);
+  document.getElementById('auth-title').focus();
+}
+
 function getSelectedTrack() {
   const checked = document.querySelector('input[name="track"]:checked');
   return checked ? checked.value : null;
@@ -99,7 +106,7 @@ function handleGoogle() {
 
   if (authMode === 'login') {
     if (googleAccount) return enterDashboard(googleAccount);
-    showFormError('No Google account is linked yet. <button type="button" class="underline font-semibold" data-on-click="setAuthMode(\'signup\')">Sign up</button>, pick your track, then choose Continue with Google.');
+    showFormError('No Google account is linked yet. <button type="button" class="underline font-semibold" data-on-click="switchAuthMode(\'signup\')">Sign up</button>, pick your track, then choose Continue with Google.');
     return;
   }
 
@@ -123,7 +130,7 @@ function handleAuthSubmit(e) {
     if (!form.reportValidity()) return;
     const account = getAccounts()[email];
     if (!account) {
-      showFormError('No account found for <strong>' + escapeHtml(email) + '</strong>. Check the spelling or <button type="button" class="underline font-semibold" data-on-click="setAuthMode(\'signup\')">create an account</button>.');
+      showFormError('No account found for <strong>' + escapeHtml(email) + '</strong>. Check the spelling or <button type="button" class="underline font-semibold" data-on-click="switchAuthMode(\'signup\')">create an account</button>.');
       return;
     }
     return enterDashboard(account);
@@ -132,7 +139,7 @@ function handleAuthSubmit(e) {
   const trackAndTermsOk = validateTrackAndTerms();
   if (!form.reportValidity() || !trackAndTermsOk) return;
   if (getAccounts()[email]) {
-    showFormError('An account with this email already exists. <button type="button" class="underline font-semibold" data-on-click="setAuthMode(\'login\')">Log in instead</button>.');
+    showFormError('An account with this email already exists. <button type="button" class="underline font-semibold" data-on-click="switchAuthMode(\'login\')">Log in instead</button>.');
     return;
   }
   const account = {

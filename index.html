@@ -72,8 +72,8 @@
         <!-- Sign up / Log in switch -->
         <p class="ml-auto text-subhead text-label-2">
           <span id="mode-prompt" class="hidden sm:inline">Already a member?</span>
-          <button type="button" id="mode-login" data-on-click="setAuthMode('login')" class="font-semibold text-blueText hover:underline min-h-[44px]">Log in</button>
-          <button type="button" id="mode-signup" data-on-click="setAuthMode('signup')" class="hidden font-semibold text-blueText hover:underline min-h-[44px]">Sign up</button>
+          <button type="button" id="mode-login" data-on-click="switchAuthMode('login')" class="font-semibold text-blueText hover:underline min-h-[44px]">Log in</button>
+          <button type="button" id="mode-signup" data-on-click="switchAuthMode('signup')" class="hidden font-semibold text-blueText hover:underline min-h-[44px]">Sign up</button>
         </p>
       </div>
 
@@ -81,7 +81,7 @@
       <div class="w-full max-w-[440px] space-y-6">
 
         <div class="space-y-2">
-          <h2 id="auth-title" class="text-[30px] sm:text-[34px] leading-[1.15] font-bold tracking-[-0.02em]">Create your account</h2>
+          <h2 id="auth-title" tabindex="-1" class="focus:outline-none text-[30px] sm:text-[34px] leading-[1.15] font-bold tracking-[-0.02em]">Create your account</h2>
           <p id="auth-subtitle" class="text-body text-label-2">Join to collaborate on projects, find co-founders, and share ideas.</p>
         </div>
 

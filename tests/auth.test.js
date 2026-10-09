@@ -85,6 +85,16 @@ module.exports = async (browser, t) => {
   t.ok('Log in with email shows the email form and hides "or"', await shown(page, '#email') && !(await shown(page, '#login-or')));
   await page.close();
 
+  // Keyboard: switching between Sign up and Log in keeps focus on the screen (WCAG 2.4.3)
+  page = await openApp(browser, t);
+  await page.focus('#mode-login'); await page.keyboard.press('Enter');
+  t.ok('pressing Log in with the keyboard moves focus to the Welcome back title',
+    await page.evaluate(() => document.activeElement.id === 'auth-title' && document.activeElement.textContent === 'Welcome back'));
+  await page.focus('#mode-signup'); await page.keyboard.press('Enter');
+  t.ok('pressing Sign up with the keyboard moves focus to the Create your account title',
+    await page.evaluate(() => document.activeElement.id === 'auth-title' && document.activeElement.textContent === 'Create your account'));
+  await page.close();
+
   // Short windows (a browser inside claude.ai is about 700px tall) keep the same design, not a squashed one
   page = await openApp(browser, t, { width: 1470, height: 695 });
   t.ok('on a short window the track tiles stay large and the subtitle shows',
