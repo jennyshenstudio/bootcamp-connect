@@ -399,7 +399,7 @@ function renderImportReview(method, fileName) {
   }
 
   if (r.projects.length) {
-    blocks.push('<div><p class="pf-label">Projects</p>' + r.projects.map((p, i) =>
+    blocks.push('<div><p class="pf-label">Projects (added to Work to show)</p>' + r.projects.map((p, i) =>
       reviewRow('imp-proj-' + i, true, '<span class="font-medium text-label">' + esc(p.title) + '</span>' + (p.desc ? '<span class="block pf-hint">' + esc(p.desc) + '</span>' : ''))
     ).join('') + '</div>');
   }
@@ -451,20 +451,19 @@ function applyImport() {
   newSkills.slice(0, room).forEach(s => { if (!skills.some(x => x.toLowerCase() === s.toLowerCase())) skills.push(s); });
   const skipped = Math.max(0, newSkills.length - room);
 
-  const projs = r.projects.filter((_, i) => isChecked('imp-proj-' + i));
-  if (projs.length) {
-    document.querySelectorAll('#proj-list [data-proj]').forEach(entry => {
-      if (![...entry.querySelectorAll('[data-field]')].some(f => f.value.trim())) entry.remove();
-    });
-    $('proj-list').insertAdjacentHTML('beforeend', projs.map(projHtml).join(''));
-  }
+  // Projects on the CV become draft pieces of work to show (spec 11), for the member to finish
+  const have = readWork().map(w => w.title.toLowerCase());
+  const projs = r.projects.filter((p, i) => isChecked('imp-proj-' + i) && !have.includes((p.title || '').toLowerCase()));
+  const workRoom = MAX_WORK - document.querySelectorAll('[data-work]').length;
+  projs.slice(0, Math.max(0, workRoom)).forEach(p => addWork({ ...emptyWork(), title: p.title, link: p.link || '', role: p.role || '', did: p.desc || '' }));
+  const skippedWork = Math.max(0, projs.length - Math.max(0, workRoom));
 
   renderSkills();
   updateCounters();
   updatePreview();
   resetImport();
   $('pf-section-basics').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  showToast(skipped
-    ? 'Added to your form. ' + skipped + ' skill' + (skipped > 1 ? 's' : '') + ' didn\'t fit the 10-skill limit. Review, then save.'
-    : 'Added to your form. Review the details, then save your profile.');
+  const notes = [skipped && skipped + ' skill' + (skipped > 1 ? 's' : '') + ' didn\'t fit the 10-skill limit',
+    skippedWork && skippedWork + ' project' + (skippedWork > 1 ? 's' : '') + ' didn\'t fit the limit of ' + MAX_WORK + ' pieces of work'].filter(Boolean);
+  showToast(notes.length ? 'Added to your form. ' + notes.join('; ') + '. Review, then save.' : 'Added to your form. Review the details, then save your profile.');
 }

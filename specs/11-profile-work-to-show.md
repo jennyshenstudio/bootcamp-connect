@@ -1,6 +1,6 @@
 # Feature spec 11: profile and work to show
 
-**Status:** version 1, approved 2026-10-09, not built yet. Tweaks go in version 2. Decision: D039. Where this spec differs from spec 02, this spec wins. Networking, stage and suggestions: [spec 10](10-networking.md).
+**Status:** version 1, approved and built 2026-10-09 (demo only). Tweaks go in version 2. Decision: D039. Where this spec differs from spec 02, this spec wins. Networking, stage and suggestions: [spec 10](10-networking.md).
 
 ## Purpose
 A list of skills says what someone claims to know, not what they've done or at what level. The profile is built around **work to show**: real projects broken down into the problem, the member's role, what they did and what happened, with facts that show the level and evidence that backs it up. AI helps members write it up, and the member approves every word.
@@ -72,7 +72,7 @@ On the published claude.ai page, after the viewer allows it:
 
 **Elsewhere** (the demo outside claude.ai, and tests): the same questions as a plain form, with no suggestions.
 
-**To check before building:** whether the published page can read a GitHub repository. If it can't, the member pastes the README or dependency list instead, and Claude works from that.
+**Still to check on the published page:** whether it can read a GitHub repository. The app tries, and if it can't (or the repository is private), it asks the member to paste the README or dependency list instead, and Claude works from that. Screenshots are resized to at most 960px wide before saving.
 
 **No AI badge** on people or write-ups (D039). AI drafting is open to everyone, can't be detected reliably, and a badge would penalise members who rely on it for good reasons, such as dyslexia or writing in a second language. Built with and the app-wide note cover openness.
 

@@ -45,8 +45,8 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D035 | GitHub secret scanning, push protection and Dependabot security alerts switched on | Accepted (built) | Security, release |
 | D036 | Stage: alpha (GOV.UK phases); CI secret scan; stronger Claude settings and pre-commit check | Accepted (built) | How we work, security |
 | D037 | Project folder moves to `~/code/bootcamp-connect`, next to `~/code/foundation` (Foundation F015) | Accepted (built) | How we work |
-| D038 | Connect is a networking app: LinkedIn-style requests, all members visible, no match percentage, suggestions from mutual connections and shared context, stage scale | Accepted (not built yet) | Connect, matching, demo content |
-| D039 | Profile built around work to show: guided case studies, facts line, skills proven by work, teammates confirm, AI helper, "Built with" instead of an AI badge, JSON Resume shape | Accepted (not built yet) | Profile, AI, matching, demo content |
+| D038 | Connect is a networking app: LinkedIn-style requests, all members visible, no match percentage, suggestions from mutual connections and shared context, stage scale | Accepted (built) | Connect, matching, demo content |
+| D039 | Profile built around work to show: guided case studies, facts line, skills proven by work, teammates confirm, AI helper, "Built with" instead of an AI badge, JSON Resume shape | Accepted (built) | Profile, AI, matching, demo content |
 
 ## Entries
 
@@ -284,7 +284,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Affects:** How we work.
 
 ### D038 Connect is a networking app
-- **Date:** 2026-10-09 · **Status:** Accepted (not built yet), approved by the owner as version 1 · **Spec:** `specs/10-networking.md`
+- **Date:** 2026-10-09 · **Status:** Accepted (built), approved by the owner as version 1 · **Spec:** `specs/10-networking.md`
 - **Context:** the owner wasn't sure how members find each other, how connecting works, or what the profile and AI do in matching. Today the People view lists 8 sample members ranked by a fixed formula that gives goals (such as co-founder) the most weight. Cohorts are about 25 people, and alumni may join later. Reviewed with the owner against LinkedIn "People you may know", YC Co-Founder Matching, CoffeeSpace, Lunchclub and Bumble Bizz (phased out in 2025).
 - **Decision:**
   - The app is for general networking and finding people to work on projects with.
@@ -301,7 +301,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Affects:** Connect, profile, matching, demo content.
 
 ### D039 Profile built around work to show
-- **Date:** 2026-10-09 · **Status:** Accepted (not built yet), approved by the owner as version 1 · **Spec:** `specs/11-profile-work-to-show.md`
+- **Date:** 2026-10-09 · **Status:** Accepted (built), approved by the owner as version 1 · **Spec:** `specs/11-profile-work-to-show.md`
 - **Context:** the owner pointed out that a list of hard skills doesn't capture real experience or its level, and that "work to show" matters most but is hard to write well. Compared with LinkedIn (Featured), Peerlist (projects with tagged teammates, checked workplaces and bootcamps), Handshake (highlights summary), Wellfound (achievements), dev.to ("Currently learning", "Available for"), GitHub (pinned work) and JSON Resume. Read.cv closed in 2025 after Perplexity bought it, a reminder that a profile alone doesn't keep a network going.
 - **Decision:**
   - Work to show is the heart of the profile: up to 6 pieces, each a short case study answering guided questions (problem, role, what I did, what happened), based on the STAR method used in Civil Service applications, worded for each track.

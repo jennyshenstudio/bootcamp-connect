@@ -25,7 +25,9 @@ module.exports = async (browser, t) => {
   t.ok('skills added by Enter, comma, and suggestion', (await page.$eval('#skill-count', e => e.textContent)) === '3/10');
   await page.type('#pf-learn-input', 'Stripe'); await page.keyboard.press('Enter');
   t.ok('skills to learn can be added', (await page.$eval('#learn-count', e => e.textContent)) === '1/5');
-  await page.type('#proj-list [data-field=title]', 'AI budgeting app');
+  await page.click('#work-add');
+  await page.type('#work-list [data-wf=title]', 'AI budgeting app');
+  await page.type('#work-list [data-wf=did]', 'Built the budgeting screens and the bank import.');
   await page.click('#pf-goals-0 + .chip'); await page.click('#pf-hours-2 + .chip');
   await page.click('#pf-open-0 + .chip');
   t.ok('Open to lists the three pay types', (await page.$$eval('#pf-open .chip', x => x.map(e => e.textContent).join('|'))) === 'Paid (fixed fee)|Unpaid / volunteer|Equity / co-founder');
@@ -51,9 +53,25 @@ module.exports = async (browser, t) => {
     (await page.$eval('#pf-headline', e => e.value)).startsWith('Full-stack') && (await page.$$eval('#exp-list .entry', x => x.length)) === 1 &&
     await page.$eval('#exp-list [data-field=end]', e => e.disabled));
 
-  await page.evaluate(() => { const a = currentAccount(); a.profile.goals = ['Paid gig']; saveAccount(a); });
+  // A profile saved in the older flat format (before spec 11) loads without losing anything
+  await page.evaluate(() => {
+    const a = currentAccount();
+    a.profile = { headline: 'Old headline', location: 'Leeds', about: 'Old about', goals: ['Paid gig'], hours: '10–20', skills: ['React', 'Financial modeling'], learn: ['SQL'],
+      experience: [{ title: 'Barista', company: 'Café', start: '2020-01', end: '2022-01', current: false, desc: 'Made coffee' }],
+      projects: [{ title: 'Old project', link: 'old.example', role: 'Built it', desc: 'A short description' }], linkedin: 'https://linkedin.com/in/old', photo: null };
+    saveAccount(a);
+  });
   await page.reload({ waitUntil: 'networkidle0' }); await sleep(300);
   t.ok('old "Paid gig" goal loads as "Paid work"', (await page.$$eval('#pf-goals input:checked', x => x.map(e => e.value).join())) === 'Paid work');
+  const old = await page.evaluate(() => { const d = collectProfile(); return { headline: d.headline, about: d.about, exp: d.experience.length, skills: d.skills.join(), learn: d.learn.join(), linkedin: d.linkedin, work: d.work.map(w => w.title + '|' + w.link + '|' + w.role + '|' + w.did) }; });
+  t.ok('an old profile loads without losing anything, and its projects become work to show',
+    old.headline === 'Old headline' && old.about === 'Old about' && old.exp === 1 && old.skills === 'React,Financial modelling' && old.learn === 'SQL' &&
+    old.linkedin === 'https://linkedin.com/in/old' && old.work.join() === 'Old project|old.example|Built it|A short description', JSON.stringify(old));
+  await page.evaluate(() => switchTab('profile')); await sleep(200);
+  await page.click('#profile-form button[type=submit]'); await sleep(300);
+  const saved = await page.evaluate(() => currentAccount().profile);
+  t.ok('saving stores the profile in the JSON Resume shape', saved.basics.label === 'Old headline' && saved.work[0].position === 'Barista' && saved.projects[0].name === 'Old project' &&
+    saved.skills[1].name === 'Financial modelling' && saved.bootcampConnect.goals[0] === 'Paid work' && saved.basics.profiles[0].network === 'LinkedIn');
 
   await page.setViewport({ width: 390, height: 844 });
   await page.evaluate(() => switchTab('profile')); await sleep(200);

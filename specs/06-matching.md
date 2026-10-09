@@ -1,6 +1,6 @@
 # Feature Spec 06: Matching v2
 
-**Changing:** spec 10 (approved, not built yet) replaces person ↔ person fit with a suggestion score. Project fit doesn't change.
+**Changing:** spec 10 (built) replaces person ↔ person fit with a suggestion score. Project fit doesn't change.
 
 ## Purpose
 Match members to projects that build their portfolio, and to people who are good for them **and** for whom they are good. Every score comes with plain-language reasons.

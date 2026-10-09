@@ -11,6 +11,11 @@ const GOALS = ['Co-founder', 'Paid work', 'Passion project', 'Hiring teammates']
 const HOURS = ['Under 10', '10–20', '20–40', '40+'];
 const IDEA_STATUS = ['I have an idea', 'I want to join an idea', 'Open to both'];
 const INDUSTRIES = ['AI', 'Fintech', 'Health', 'Edtech', 'Climate', 'Consumer', 'B2B SaaS', 'Marketplaces', 'Other'];
+const STAGES = {
+  'Software Developer': ['Learning (in bootcamp)', 'Junior (under 2 years)', 'Mid-level (2 to 5 years)', 'Senior (5 years or more)'],
+  'Business Developer': ['Exploring an idea', 'Running a business (under a year)', 'Running a business (1 to 3 years)', 'Experienced (3 years or more)'],
+};
+const MAX_EDUCATION = 3;
 const MAX_SKILLS = 10;
 // Profiles saved before the British spelling change still say "Financial modeling"
 const britishSkill = s => s === 'Financial modeling' ? 'Financial modelling' : s;
@@ -43,7 +48,62 @@ function setChecked(name, values) {
   document.querySelectorAll('input[name="' + name + '"]').forEach(i => { i.checked = values.includes(i.value); });
 }
 
-// Repeatable entries: work experience and projects
+// ---------- Saved profile shape (specs/11-profile-work-to-show.md, D039) ----------
+// Profiles are saved in the shape of JSON Resume (jsonresume.org), an open standard for CV data, with
+// the app's own fields in a clearly named `bootcampConnect` section. The rest of the app works with
+// the flat copy that profileOf() returns. Profiles saved in the older flat shape still load.
+function toResume(d, account) {
+  const links = [d.linkedin && { network: 'LinkedIn', url: d.linkedin }, d.code && { network: account.track === 'Business Developer' ? 'Portfolio' : 'GitHub', url: d.code }].filter(Boolean);
+  return {
+    basics: {
+      name: [account.first, account.last].filter(Boolean).join(' '), label: d.headline || '', image: d.photo || null,
+      summary: d.about || '', url: d.website || '', location: { city: d.location || '', countryCode: 'GB' }, profiles: links,
+    },
+    work: (d.experience || []).map(e => ({ name: e.company || '', position: e.title || '', startDate: e.start || '', ...(e.current ? {} : { endDate: e.end || '' }), summary: e.desc || '' })),
+    education: (d.education || []).map(e => ({ institution: e.school || '', area: e.course || '', startDate: e.start || '', endDate: e.end || '' })),
+    projects: (d.work || []).map(w => ({
+      name: w.title, url: w.link || '', description: w.summary || '', highlights: w.result ? [w.result] : [], keywords: w.skills || [], roles: w.facts && w.facts.role ? [w.facts.role] : [],
+      bootcampConnect: { id: w.id || '', code: w.code || '', screenshot: w.screenshot || null, problem: w.problem || '', role: w.role || '', did: w.did || '', result: w.result || '', change: w.change || '', facts: w.facts || {}, builtWith: w.builtWith || [], teammates: w.teammates || [] },
+    })),
+    skills: (d.skills || []).map(name => ({ name })),
+    interests: (d.industries || []).map(name => ({ name })),
+    bootcampConnect: {
+      stage: d.stage || '', cohort: d.cohort || null, currently: d.currently || '', setting: d.setting || '', learn: d.learn || [],
+      openTo: d.openTo || [], goals: d.goals || [], hours: d.hours || '', idea: d.idea || '', available: d.available || '',
+    },
+  };
+}
+
+const emptyWork = () => ({ id: '', title: '', link: '', code: '', screenshot: null, problem: '', role: '', did: '', result: '', change: '', summary: '', facts: {}, skills: [], builtWith: [], teammates: [] });
+
+function profileOf(account) {
+  const p = (account && account.profile) || {};
+  if (!p.basics) {
+    // Older flat shape: "projects" become pieces of work to show
+    const work = p.work || (p.projects || []).filter(x => x.title).map(x => ({ ...emptyWork(), title: x.title, link: x.link || '', role: x.role || '', did: x.desc || '' }));
+    return { education: [], ...p, work, skills: (p.skills || []).map(britishSkill), learn: (p.learn || []).map(britishSkill), goals: (p.goals || []).map(g => g === 'Paid gig' ? 'Paid work' : g) };
+  }
+  const b = p.basics, x = p.bootcampConnect || {};
+  const link = test => ((b.profiles || []).find(test) || {}).url || '';
+  return {
+    headline: b.label || '', photo: b.image || null, about: b.summary || '', website: b.url || '', location: (b.location || {}).city || '',
+    linkedin: link(l => l.network === 'LinkedIn'), code: link(l => l.network !== 'LinkedIn'),
+    experience: (p.work || []).map(w => ({ title: w.position || '', company: w.name || '', start: w.startDate || '', end: w.endDate || '', current: !('endDate' in w), desc: w.summary || '' })),
+    education: (p.education || []).map(e => ({ school: e.institution || '', course: e.area || '', start: e.startDate || '', end: e.endDate || '' })),
+    work: (p.projects || []).map(pr => ({ ...emptyWork(), title: pr.name || '', link: pr.url || '', summary: pr.description || '', skills: pr.keywords || [], ...(pr.bootcampConnect || {}) })),
+    skills: (p.skills || []).map(s => britishSkill(s.name)), industries: (p.interests || []).map(i => i.name),
+    stage: x.stage || '', cohort: x.cohort || null, currently: x.currently || '', setting: x.setting || '', learn: (x.learn || []).map(britishSkill),
+    openTo: x.openTo || [], goals: x.goals || [], hours: x.hours || '', idea: x.idea || '', available: x.available || '',
+  };
+}
+
+// Change saved profile fields without the form (used by the demo, for example when a teammate confirms)
+function updateProfile(account, patch) {
+  account.profile = toResume({ ...profileOf(account), ...patch }, account);
+  return saveAccount(account);
+}
+
+// Repeatable entries: work experience and education
 function expHtml(e = {}) {
   const id = 'exp' + (++entrySeq);
   return '<div class="entry space-y-3" data-exp>' +
@@ -60,23 +120,26 @@ function expHtml(e = {}) {
     '</div>';
 }
 
-function projHtml(p = {}) {
-  const id = 'proj' + (++entrySeq);
-  return '<div class="entry space-y-3" data-proj>' +
-    '<div class="flex items-center justify-between"><p class="text-footnote font-semibold text-label-2">Project</p>' +
+function eduHtml(e = {}) {
+  const id = 'edu' + (++entrySeq);
+  return '<div class="entry space-y-3" data-edu>' +
+    '<div class="flex items-center justify-between"><p class="text-footnote font-semibold text-label-2">Education</p>' +
     '<button type="button" data-on-click="removeEntry(this)" class="text-footnote font-medium text-label-2 hover:text-redText">Remove</button></div>' +
     '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
-      '<div><label for="' + id + '-title" class="pf-label">Title</label><input id="' + id + '-title" data-field="title" type="text" class="pf-input" placeholder="e.g. AI budgeting app" value="' + esc(p.title) + '"></div>' +
-      '<div><label for="' + id + '-role" class="pf-label">Your role</label><input id="' + id + '-role" data-field="role" type="text" class="pf-input" placeholder="e.g. Built the backend" value="' + esc(p.role) + '"></div>' +
+      '<div><label for="' + id + '-school" class="pf-label">School, college, university or bootcamp</label><input id="' + id + '-school" data-field="school" type="text" class="pf-input" placeholder="e.g. University of Leeds" value="' + esc(e.school) + '"></div>' +
+      '<div><label for="' + id + '-course" class="pf-label">Course</label><input id="' + id + '-course" data-field="course" type="text" class="pf-input" placeholder="e.g. BSc Economics" value="' + esc(e.course) + '"></div>' +
+      '<div><label for="' + id + '-start" class="pf-label">Start year</label><input id="' + id + '-start" data-field="start" type="text" inputmode="numeric" maxlength="4" class="pf-input" placeholder="e.g. 2016" value="' + esc(e.start) + '"></div>' +
+      '<div><label for="' + id + '-end" class="pf-label">End year</label><input id="' + id + '-end" data-field="end" type="text" inputmode="numeric" maxlength="4" class="pf-input" placeholder="e.g. 2019" value="' + esc(e.end) + '"></div>' +
     '</div>' +
-    '<div><label for="' + id + '-link" class="pf-label">Link</label><input id="' + id + '-link" data-field="link" type="url" inputmode="url" class="pf-input" placeholder="github.com/you/project or a demo link" value="' + esc(p.link) + '"></div>' +
-    '<div><div class="flex items-baseline justify-between"><label for="' + id + '-desc" class="pf-label">Description</label><span class="pf-hint tabular-nums" data-count-for="' + id + '-desc">0/200</span></div>' +
-    '<textarea id="' + id + '-desc" data-field="desc" rows="2" maxlength="200" class="pf-input resize-y" placeholder="One or two sentences on the problem and the result.">' + esc(p.desc) + '</textarea></div>' +
     '</div>';
+}
+function addEducation(e) {
+  if (document.querySelectorAll('[data-edu]').length >= MAX_EDUCATION) { showToast('You can add up to ' + MAX_EDUCATION + ' places you studied.'); return; }
+  $('edu-list').insertAdjacentHTML('beforeend', eduHtml(e));
+  updatePreview();
 }
 
 function addExperience(e) { $('exp-list').insertAdjacentHTML('beforeend', expHtml(e)); updatePreview(); }
-function addProject(p) { $('proj-list').insertAdjacentHTML('beforeend', projHtml(p)); updateCounters(); updatePreview(); }
 function removeEntry(btn) { btn.closest('.entry').remove(); updatePreview(); }
 
 function toggleCurrent(box) {
@@ -157,6 +220,7 @@ function renderSkills() {
   $('skill-suggestions').innerHTML = suggestions.length
     ? suggestions.map(s => '<button type="button" class="chip" data-skill="' + esc(s) + '" data-on-click="addSkill(this.dataset.skill)">＋ ' + esc(s) + '</button>').join('')
     : '<p class="pf-hint">You\'ve added all the suggestions.</p>';
+  renderAllWorkSkills();
   updatePreview();
 }
 
@@ -202,16 +266,22 @@ function onTrackChange() {
   const isDev = $('pf-track').value === 'Software Developer';
   $('pf-code-label').textContent = isDev ? 'GitHub' : 'Portfolio';
   $('pf-code').placeholder = isDev ? 'github.com/your-name' : 'Link to your portfolio, Notion, or case studies';
+  // Stages are worded for each track (spec 10)
+  const stage = $('pf-stage').value;
+  $('pf-stage').innerHTML = '<option value="">Choose your stage</option>' + STAGES[$('pf-track').value].map(s => '<option>' + esc(s) + '</option>').join('');
+  $('pf-stage').value = STAGES[$('pf-track').value].includes(stage) ? stage : '';
+  renderWorkQuestions();
   renderSkills();
   renderLearn();
 }
 
 function updateCounters() {
   $('pf-headline-count').textContent = $('pf-headline').value.length + '/80';
+  $('pf-currently-count').textContent = $('pf-currently').value.length + '/100';
   $('pf-about-count').textContent = $('pf-about').value.length + '/500';
   document.querySelectorAll('[data-count-for]').forEach(c => {
     const field = $(c.dataset.countFor);
-    if (field) c.textContent = field.value.length + '/200';
+    if (field) c.textContent = field.value.length + '/' + field.maxLength;
   });
 }
 
@@ -221,6 +291,9 @@ function collectProfile() {
     last: $('pf-last').value.trim(),
     track: $('pf-track').value,
     headline: $('pf-headline').value.trim(),
+    currently: $('pf-currently').value.trim(),
+    stage: $('pf-stage').value,
+    cohort: Number($('pf-cohort').value) || null,
     location: $('pf-location').value.trim(),
     setting: getChecked('pf-setting')[0] || '',
     about: $('pf-about').value.trim(),
@@ -228,10 +301,11 @@ function collectProfile() {
     code: $('pf-code').value.trim(),
     website: $('pf-website').value.trim(),
     experience: readEntries('[data-exp]'),
+    education: readEntries('[data-edu]'),
     skills: [...skills],
     learn: [...learn],
     openTo: getChecked('pf-open'),
-    projects: readEntries('[data-proj]'),
+    work: readWork(),
     goals: getChecked('pf-goals'),
     hours: getChecked('pf-hours')[0] || '',
     idea: getChecked('pf-idea')[0] || '',
@@ -242,11 +316,13 @@ function collectProfile() {
 }
 
 function loadProfileForm(account) {
-  const p = account.profile || {};
+  const p = profileOf(account);
   $('pf-first').value = account.first || '';
   $('pf-last').value = account.last || '';
   $('pf-track').value = account.track || 'Software Developer';
   $('pf-headline').value = p.headline || '';
+  $('pf-currently').value = p.currently || '';
+  $('pf-cohort').value = String(p.cohort || CURRENT_COHORT);
   $('pf-location').value = p.location || '';
   $('pf-about').value = p.about || '';
   $('pf-linkedin').value = p.linkedin || '';
@@ -254,21 +330,23 @@ function loadProfileForm(account) {
   $('pf-website').value = p.website || '';
   $('pf-available').value = p.available || '';
   setChecked('pf-setting', p.setting ? [p.setting] : []);
-  setChecked('pf-goals', (p.goals || []).map(g => g === 'Paid gig' ? 'Paid work' : g));
+  setChecked('pf-goals', p.goals || []);
   setChecked('pf-hours', p.hours ? [p.hours] : []);
   setChecked('pf-idea', p.idea ? [p.idea] : []);
   setChecked('pf-industries', p.industries || []);
   setChecked('pf-open', p.openTo || []);
   $('exp-list').innerHTML = (p.experience && p.experience.length ? p.experience : [{}]).map(expHtml).join('');
-  $('proj-list').innerHTML = (p.projects && p.projects.length ? p.projects : [{}]).map(projHtml).join('');
-  skills = (p.skills || []).map(britishSkill);
-  learn = (p.learn || []).map(britishSkill);
+  $('edu-list').innerHTML = (p.education && p.education.length ? p.education : [{}]).map(eduHtml).join('');
+  skills = [...(p.skills || [])];
+  learn = [...(p.learn || [])];
+  loadWork(p.work || []);
   photoData = p.photo || null;
   document.querySelectorAll('#profile-form .pf-error').forEach(e => e.classList.add('hidden'));
   document.querySelectorAll('#profile-form .invalid').forEach(e => e.classList.remove('invalid'));
   $('pf-photo-error').classList.add('hidden');
   cancelImport();
   onTrackChange();
+  $('pf-stage').value = p.stage || '';
   updateCounters();
   updatePhotoUI();
 }
@@ -302,8 +380,8 @@ function updateStrength(d) {
     ['Write your About section', !!d.about, 10, 'basics'],
     ['Add a work experience', d.experience.some(e => e.title && e.company), 15, 'experience'],
     ['Add at least 3 skills', d.skills.length >= 3, 15, 'skills'],
-    ['Add skills you want to learn', d.learn.length > 0, 10, 'skills'],
-    ['Add a project', d.projects.some(p => p.title), 10, 'projects'],
+    ['Add skills you\'re learning', d.learn.length > 0, 10, 'skills'],
+    ['Add a piece of work to show', d.work.some(w => w.title && (w.did || w.result)), 10, 'work'],
     ['Choose your goals and hours', d.goals.length > 0 && !!d.hours, 15, 'looking'],
   ];
   const pct = checks.reduce((sum, [, done, weight]) => sum + (done ? weight : 0), 0);
@@ -351,6 +429,8 @@ function saveProfile(e) {
     }
   });
 
+  invalid.push(...validateWork());
+
   if (invalid.length) {
     invalid[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
     showToast('Fix the highlighted fields to save your profile.');
@@ -360,13 +440,15 @@ function saveProfile(e) {
   const account = getAccounts()[load(SESSION_KEY, '')];
   if (!account) return;
   const { first, last, track, ...profile } = collectProfile();
-  Object.assign(account, { first, last, track, profile });
+  Object.assign(account, { first, last, track });
+  account.profile = toResume(profile, account);
   if (!saveAccount(account)) {
-    showToast("Couldn't save. This browser's storage is full; try a smaller photo.");
+    showToast("Couldn't save because this browser's storage is full. Remove a screenshot or use a smaller photo, then save again.");
     return;
   }
   renderUser(account);
   renderPeople();
   $('profile-banner').classList.add('hidden');
   showToast('Profile saved');
+  scheduleTeammateConfirmations(profile.work);
 }

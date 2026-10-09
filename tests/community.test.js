@@ -98,18 +98,15 @@ module.exports = async (browser, t) => {
     const target = person(id);
     const before = suggestionFor(id);
     const acc = currentAccount();
-    acc.profile = acc.profile || {};
-    acc.profile.goals = ['Co-founder', 'Hiring teammates']; acc.profile.stage = 'Senior (5 years or more)'; saveAccount(acc);
+    updateProfile(acc, { goals: ['Co-founder', 'Hiring teammates'], stage: 'Senior (5 years or more)' });
     const sameGoals = suggestionFor(id).score === before.score;
     const company = target.experience.find(e => e.company !== 'Self-employed' && !e.company.startsWith('Bootcamp')).company;
-    acc.profile.experience = [{ title: 'Analyst', company, start: '2020-01', end: '2022-01' }];
-    acc.profile.education = [{ school: target.education[0].school, course: 'BA', start: '2016', end: '2019' }];
-    acc.profile.cohort = 9; saveAccount(acc);
+    updateProfile(acc, { experience: [{ title: 'Analyst', company, start: '2020-01', end: '2022-01' }], education: [{ school: target.education[0].school, course: 'BA', start: '2016', end: '2019' }], cohort: 9 });
     const after = suggestionFor(id);
     const friend = DEMO_LINKS[id].find(x => !demo.connected[x]);
     demo.connected[friend] = true;
     const withFriend = suggestionFor(id);
-    delete demo.connected[friend]; acc.profile.cohort = undefined; acc.profile.experience = []; acc.profile.education = []; saveAccount(acc);
+    delete demo.connected[friend]; updateProfile(acc, { cohort: null, experience: [], education: [] });
     return { sameGoals, rise: after.score - before.score, reasons: after.reasons, mutualRise: withFriend.mutual.length - after.mutual.length, mutualReason: withFriend.reasons[0] };
   });
   t.ok('changing goals or stage doesn\'t change the score', score.sameGoals);
@@ -120,7 +117,7 @@ module.exports = async (browser, t) => {
   const sheet = await page.$eval('#sheet-panel', e => e.innerText);
   const why = await page.$eval('#sheet-panel .entry', e => e.innerText);
   t.ok('profile sheet shows reasons without a percentage, the stage evidence line, verified experience and skills to learn',
-    why.includes('Why you might connect') && !why.includes('%') && sheet.includes('Available from 1 Nov') && sheet.includes('Exploring an idea · ') && sheet.includes('Cohort 12') && sheet.includes('Verified experience') && sheet.includes('Wants to learn'), sheet.slice(0, 400));
+    why.includes('Why you might connect') && !why.includes('%') && sheet.includes('Available from 1 Nov') && sheet.includes('Exploring an idea · ') && sheet.includes('Cohort 12') && sheet.includes('Verified experience') && sheet.includes('Currently learning'), sheet.slice(0, 400));
   await page.keyboard.press('Escape');
   t.ok('Escape closes the sheet', await page.$eval('#sheet', e => e.classList.contains('hidden')));
 

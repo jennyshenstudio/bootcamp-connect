@@ -4,10 +4,6 @@
 // ----- Connect › People (specs/10-networking.md) -----
 const PEOPLE_PAGE = 24;
 let peopleShown = PEOPLE_PAGE;
-const STAGES = {
-  'Software Developer': ['Learning (in bootcamp)', 'Junior (under 2 years)', 'Mid-level (2 to 5 years)', 'Senior (5 years or more)'],
-  'Business Developer': ['Exploring an idea', 'Running a business (under a year)', 'Running a business (1 to 3 years)', 'Experienced (3 years or more)'],
-};
 const cohortLabel = p => p.cohort === CURRENT_COHORT ? 'Cohort ' + p.cohort : 'Cohort ' + p.cohort + ' alumni';
 const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
 const invitedBy = id => (demo.invites || []).find(i => i.from === id);
@@ -256,12 +252,29 @@ function sheetClose() {
   return '<button type="button" id="sheet-close" class="btn btn-gray !min-h-0 !w-9 !h-9 !p-0 absolute top-3 right-3 z-10" data-on-click="closeSheet()" aria-label="Close"><svg class="icon w-4 h-4"><use href="#i-close"/></svg></button>';
 }
 
+// Everything a profile shows, for a sample member or for you (your profile uses what's in the form,
+// so the preview shows unsaved changes too)
+function profileView(id) {
+  if (id !== 'me') return person(id);
+  const d = collectProfile();
+  return {
+    ...d, id: 'me', colors: ['#0A84FF', '#BF5AF2'], cohort: d.cohort || CURRENT_COHORT,
+    verified: (demo && demo.verified) || [], endorsements: (demo && demo.endorsements) || {},
+  };
+}
+
+// The profile sheet, in the order of spec 11
 function openPerson(id, { keepFocus = false } = {}) {
-  const p = person(id);
-  const m = suggestionFor(id);
-  const groups = DEMO_CHATS.filter(c => c.type === 'group' && c.members.includes(id));
+  const p = profileView(id);
+  const mine = id === 'me';
+  const m = mine ? null : suggestionFor(id);
+  const work = workFor(p);
+  const groups = mine ? [] : DEMO_CHATS.filter(c => c.type === 'group' && c.members.includes(id));
   const dates = e => [fmtMonth(e.start), e.current ? 'Present' : fmtMonth(e.end)].filter(Boolean).join(' – ');
   const section = (title, body) => '<section class="space-y-2"><h3 class="font-semibold text-body">' + title + '</h3>' + body + '</section>';
+  const link = (label, url) => url ? '<li><a href="' + esc(hrefOf(url)) + '" target="_blank" rel="noopener" class="text-subhead font-semibold text-blueText hover:underline">' + label + '<span class="sr-only"> (opens in new tab)</span></a></li>' : '';
+  const links = link('LinkedIn', p.linkedin) + link(p.track === 'Business Developer' ? 'Portfolio' : 'GitHub', p.code) + link('Website', p.website);
+  const available = p.available ? new Date(p.available + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
   const html =
     '<div class="relative">' +
       '<div class="h-24 sm:h-28 rounded-t-[inherit]" style="background:linear-gradient(135deg,' + p.colors[0] + ',' + p.colors[1] + ')"></div>' +
@@ -270,45 +283,51 @@ function openPerson(id, { keepFocus = false } = {}) {
     '</div>' +
     '<div class="relative px-5 sm:px-7 pb-7 -mt-12 space-y-5">' +
       '<div class="space-y-3">' +
-        personAvatar(p, 'w-24 h-24 text-title1 ring-4 ring-[var(--surface)]') +
+        (mine ? myAvatar('w-24 h-24 text-title1 ring-4 ring-[var(--surface)]') : personAvatar(p, 'w-24 h-24 text-title1 ring-4 ring-[var(--surface)]')) +
         '<div>' +
-          '<h2 id="sheet-title" class="text-title2 font-bold tracking-[-0.01em]">' + esc(fullName(p)) + '</h2>' +
+          '<h2 id="sheet-title" class="text-title2 font-bold tracking-[-0.01em]">' + esc(fullName(p).trim() || 'Your name') + '</h2>' +
           '<p class="text-subhead text-label-2">' + esc(p.headline) + '</p>' +
+          (p.currently ? '<p class="text-subhead mt-1"><span class="font-semibold">Currently working on:</span> ' + esc(p.currently) + '</p>' : '') +
         '</div>' +
         '<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">' + trackBadge(p.track) +
-          '<span class="text-footnote text-label-2 inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-pin"/></svg>' + esc(p.location) + ' · ' + esc(p.setting) + '</span>' +
-          '<span class="text-footnote text-label-2">Available from ' + esc(new Date(p.available + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })) + '</span>' +
+          (p.location ? '<span class="text-footnote text-label-2 inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-pin"/></svg>' + esc([p.location, p.setting].filter(Boolean).join(' · ')) + '</span>' : '') +
+          (available ? '<span class="text-footnote text-label-2">Available from ' + esc(available) + '</span>' : '') +
         '</div>' +
-        '<div class="flex flex-wrap gap-2">' + connectButton(p, '') + '</div>' +
+        '<p class="text-footnote text-label-2">' + esc(stageEvidence(p)) + '</p>' +
+        '<div class="flex flex-wrap gap-2">' + (mine ? '<button type="button" class="btn btn-secondary btn-sm" data-on-click="editMyProfile()">Edit your profile</button>' : connectButton(p, '')) + '</div>' +
       '</div>' +
-      '<p class="text-footnote text-label-2">' + esc(stageEvidence(p)) + '</p>' +
-      (m.reasons.length ? '<div class="entry !bg-appleGreen/10 space-y-1.5">' +
+      (m && m.reasons.length ? '<div class="entry !bg-appleGreen/10 space-y-1.5">' +
         '<p class="font-semibold text-subhead">Why you might connect</p>' +
-        '<ul class="space-y-1">' + m.reasons.slice(0, 4).map(r => '<li class="flex items-start gap-2 text-footnote text-label-2"><svg class="icon w-4 h-4 text-greenText mt-px shrink-0"><use href="#i-check"/></svg>' + esc(r) + '</li>').join('') + '</ul>' +
+        '<ul class="space-y-1">' + m.reasons.slice(0, 3).map(r => '<li class="flex items-start gap-2 text-footnote text-label-2"><svg class="icon w-4 h-4 text-greenText mt-px shrink-0"><use href="#i-check"/></svg>' + esc(r) + '</li>').join('') + '</ul>' +
       '</div>' : '') +
-      section('About', '<p class="text-subhead text-label-2">' + esc(p.about) + '</p>') +
-      section('Experience', '<ul class="space-y-3">' + p.experience.map(e =>
-        '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(e.title) + '</p><p class="text-footnote text-label-2">' + esc(e.company) + ' · ' + esc(dates(e)) + '</p>' +
-        (e.desc ? '<p class="text-footnote text-label-2 mt-1">' + esc(e.desc) + '</p>' : '') + '</li>').join('') + '</ul>') +
+      workSectionHtml(p, work) +
+      (p.about ? section('About', '<p class="text-subhead text-label-2">' + esc(p.about) + '</p>') : '') +
+      ((p.skills || []).length || (p.learn || []).length ? skillsSectionHtml(p, work) : '') +
+      ((p.experience || []).length ? section('Experience', '<ul class="space-y-3">' + p.experience.map(e =>
+        '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(e.title) + '</p><p class="text-footnote text-label-2">' + esc([e.company, dates(e)].filter(Boolean).join(' · ')) + '</p>' +
+        (e.desc ? '<p class="text-footnote text-label-2 mt-1">' + esc(e.desc) + '</p>' : '') + '</li>').join('') + '</ul>') : '') +
+      ((p.education || []).length ? section('Education', '<ul class="space-y-2">' + p.education.map(e =>
+        '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(e.school) + '</p><p class="text-footnote text-label-2">' + esc([e.course, [e.start, e.end].filter(Boolean).join(' – ')].filter(Boolean).join(' · ')) + '</p></li>').join('') + '</ul>') : '') +
       (p.verified.length ? section('Verified experience', '<ul class="space-y-3">' + p.verified.map(v => verifiedEntryHtml({ ...v, start: '', with: v.with }, wid => wid === 'me' ? memberName('me') : person(wid).first)).join('') + '</ul>') : '') +
-      section('Skills', '<div class="flex flex-wrap gap-1.5">' + p.skills.map(s => '<span class="chip !cursor-default !min-h-[28px] !text-footnote">' + esc(s) + (p.endorsements[s] ? ' <span class="text-greenText font-semibold ml-1">' + p.endorsements[s] + '</span>' : '') + '</span>').join('') + '</div>' +
-        '<p class="pf-label !mt-3">Wants to learn</p><div class="flex flex-wrap gap-1.5">' + p.learn.map(s => '<span class="px-2.5 py-1 rounded-full bg-applePurple/10 text-purpleText text-footnote font-semibold">' + esc(s) + '</span>').join('') + '</div>') +
-      section('Projects', '<ul class="space-y-3">' + p.projects.map(pr =>
-        '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(pr.title) + '</p><p class="text-footnote text-label-2">' + esc(pr.role) + '</p><p class="text-footnote text-label-2 mt-1">' + esc(pr.desc) + '</p></li>').join('') + '</ul>') +
-      section('Looking for',
-        '<div class="flex flex-wrap gap-1.5">' + p.goals.map(g => '<span class="px-2.5 py-1 rounded-full bg-appleBlue/10 text-blueText text-footnote font-semibold">' + esc(g) + '</span>').join('') + '</div>' +
+      section('Available for',
+        ((p.goals || []).length ? '<div class="flex flex-wrap gap-1.5">' + p.goals.map(g => '<span class="px-2.5 py-1 rounded-full bg-appleBlue/10 text-blueText text-footnote font-semibold">' + esc(g) + '</span>').join('') + '</div>' : '') +
         '<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-footnote">' +
-          '<dt class="text-label-2">Hours per week</dt><dd>' + esc(p.hours) + '</dd>' +
-          '<dt class="text-label-2">Idea status</dt><dd>' + esc(p.idea) + '</dd>' +
-          '<dt class="text-label-2">Open to</dt><dd>' + esc(p.openTo.map(k => PAY_TYPES[k].label).join(', ')) + '</dd>' +
-          '<dt class="text-label-2">Industries</dt><dd>' + esc(p.industries.join(', ')) + '</dd>' +
+          (p.openTo && p.openTo.length ? '<dt class="text-label-2">Open to</dt><dd>' + esc(p.openTo.map(k => PAY_TYPES[k].label).join(', ')) + '</dd>' : '') +
+          (p.hours ? '<dt class="text-label-2">Hours per week</dt><dd>' + esc(p.hours) + '</dd>' : '') +
+          (p.idea ? '<dt class="text-label-2">Idea status</dt><dd>' + esc(p.idea) + '</dd>' : '') +
+          ((p.industries || []).length ? '<dt class="text-label-2">Industries</dt><dd>' + esc(p.industries.join(', ')) + '</dd>' : '') +
         '</dl>') +
+      (links ? section('Links', '<ul class="space-y-1">' + links + '</ul>') : '') +
       (groups.length ? section('Group chats together', '<div class="flex flex-wrap gap-2">' + groups.map(g =>
-        '<button type="button" class="chip !text-footnote gap-1.5" data-on-click="closeSheet(); goToChat(\'' + g.id + '\')"><svg class="icon w-4 h-4"><use href="#i-users"/></svg>' + esc(g.name) + '</button>').join('') + '</div>') : '') +
+        '<button type="button" class="chip !text-footnote gap-1.5" data-on-click="openChatFromSheet(\'' + g.id + '\')"><svg class="icon w-4 h-4"><use href="#i-users"/></svg>' + esc(g.name) + '</button>').join('') + '</div>') : '') +
+      '<p class="text-footnote text-label-2 pt-2 border-t border-hairline">Members can use AI to help write their profiles.</p>' +
     '</div>';
   openSheet(html, id);
   if (!keepFocus) $('sheet-close').focus();
 }
+
+function editMyProfile() { closeSheet(); switchTab('profile'); }
+function openChatFromSheet(chatId) { closeSheet(); goToChat(chatId); }
 
 function openMembers(chatId) {
   const chat = allChats().find(c => c.id === chatId);
@@ -333,6 +352,6 @@ function openMembers(chatId) {
 
 function myAvatar(cls) {
   const me = currentAccount() || {};
-  const photo = me.profile && me.profile.photo;
+  const photo = profileOf(me).photo;
   return '<div class="avatar ' + cls + '"' + (photo ? ' style="background-image:url(&quot;' + photo + '&quot;)"' : '') + ' aria-hidden="true">' + (photo ? '' : esc(initials(me.first, me.last))) + '</div>';
 }

@@ -8,7 +8,7 @@ async function upload(page, file) {
   await sleep(200);
 }
 const reviewText = page => page.$eval('#import-review-body', e => e.innerText);
-const form = page => page.evaluate(() => { const d = collectProfile(); return { first: d.first, last: d.last, headline: d.headline, location: d.location, website: d.website, exps: d.experience.map(e => e.title + '@' + e.company), skills: d.skills, projects: d.projects.map(p => p.title + '|' + p.link) }; });
+const form = page => page.evaluate(() => { const d = collectProfile(); return { first: d.first, last: d.last, headline: d.headline, location: d.location, website: d.website, exps: d.experience.map(e => e.title + '@' + e.company), skills: d.skills, projects: d.work.map(p => p.title + '|' + p.link) }; });
 
 module.exports = async (browser, t) => {
   // Built-in reader (no Claude) with a LinkedIn-style PDF

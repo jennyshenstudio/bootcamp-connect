@@ -33,10 +33,10 @@ module.exports = async (browser, t) => {
   t.ok('pay-type filter blocks equity when not open to it', f.blocked && f.blockers[0].includes('equity'));
   f = await fit('p-footprint-landing');
   t.ok('track filter blocks a Business-only project for a developer', f.blocked && f.blockers[0].includes('Business Dev only'));
-  await page.evaluate(() => { const a = currentAccount(); a.profile.hours = 'Under 10'; saveAccount(a); });
+  await page.evaluate(() => updateProfile(currentAccount(), { hours: 'Under 10' }));
   f = await fit('p-tableturn');
   t.ok('hours filter blocks a 10–20 hrs project for someone with under 10', f.blocked && f.blockers.some(b => b.includes('Needs 10–20')));
-  await page.evaluate(() => { const a = currentAccount(); a.profile.hours = '10–20'; saveAccount(a); });
+  await page.evaluate(() => updateProfile(currentAccount(), { hours: '10–20' }));
   // People suggestions replaced two-way person fit (spec 10); their tests are in community.test.js
   const people = await page.evaluate(() => ['elena', 'marcus', 'diego'].map(id => suggestionFor(id)));
   t.ok('people suggestions include two-way skill reasons', people.some(p => p.reasons.some(r => r.startsWith('Can help you learn') || r.startsWith('You can help them'))));

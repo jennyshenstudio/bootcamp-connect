@@ -16,13 +16,13 @@ const sumValues = o => Object.values(o || {}).reduce((x, y) => x + y, 0);
 function memberView(id) {
   if (id === 'me') {
     const acc = currentAccount() || {};
-    const p = acc.profile || {};
+    const p = profileOf(acc);
     return {
       id: 'me', first: acc.first || 'You', track: acc.track || '',
       cohort: p.cohort || CURRENT_COHORT, experience: p.experience || [], education: p.education || [],
-      skills: (p.skills || []).map(britishSkill), learn: (p.learn || []).map(britishSkill), openTo: p.openTo || [],
+      skills: p.skills || [], learn: p.learn || [], openTo: p.openTo || [],
       hours: p.hours || '', setting: p.setting || '', industries: p.industries || [],
-      goals: (p.goals || []).map(g => g === 'Paid gig' ? 'Paid work' : g),
+      goals: p.goals || [], stage: p.stage || '', work: p.work || [],
       verified: (demo && demo.verified) || [], endorsements: (demo && demo.endorsements) || {},
       connections: demo ? Object.values(demo.connected).filter(Boolean).length : 0,
       profileDone: !!p.headline,

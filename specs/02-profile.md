@@ -1,6 +1,6 @@
 # Feature Spec 02: One-Page Profile Setup
 
-**Changing:** spec 11 (approved, not built yet) rebuilds the profile around "work to show" and adds cohort and education. Spec 10 adds stage.
+**Changing:** spec 11 (built) rebuilds the profile around "work to show" and adds cohort and education. Spec 10 adds stage.
 
 ## Core Requirements
 - A single scrolling page (the "Scorecard Profile" tab) where members create and edit their profile. Fields are modeled on LinkedIn, Handshake, Wellfound, and YC Co-Founder Matching.

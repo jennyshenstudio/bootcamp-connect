@@ -1,6 +1,6 @@
 # Feature spec 10: networking, finding and connecting with members
 
-**Status:** version 1, approved 2026-10-09, not built yet. Tweaks go in version 2. Decision: D038. Profile changes: spec 11. Where this spec differs from specs 02, 04 and 06, this spec wins.
+**Status:** version 1, approved and built 2026-10-09 (demo only). Tweaks go in version 2. Decision: D038. Profile changes: spec 11. Where this spec differs from specs 02, 04 and 06, this spec wins.
 
 ## Purpose
 Bootcamp Connect is a networking app. Members connect for general networking and to find people to work on projects with. They find each other through mutual connections, shared context (cohort, past companies, schools) and what's in their profiles. Each member can see what stage someone is at before getting in touch.

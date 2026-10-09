@@ -168,7 +168,7 @@ function renderUser(account) {
     pill.textContent = 'Software Dev Track';
   }
   const avatar = document.getElementById('user-avatar');
-  setAvatar(avatar, account.profile && account.profile.photo, initials(account.first, account.last));
+  setAvatar(avatar, profileOf(account).photo, initials(account.first, account.last));
   avatar.title = account.first + ' ' + account.last + ' · ' + account.email;
 }
 

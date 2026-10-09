@@ -8,6 +8,8 @@ const { ROOT, openApp, signUp, sleep, noHorizontalScroll, pageFits } = require('
 // They intentionally have no CSS rule of their own.
 const HOOK_CLASSES = new Set([
   'group', 'peer', 'upvote-count', 'auth-brand-body',
+  // Named groups, so nested open/closed sections don't affect each other
+  'group/work', 'group/tech', 'group/more',
 ]);
 
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
