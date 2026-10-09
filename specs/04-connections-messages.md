@@ -1,5 +1,7 @@
 # Feature Spec 04: Demo Connections, Profiles & Messages
 
+**Changing:** spec 10 (approved, not built yet) grows the community to about 100 members and changes how people connect.
+
 ## Purpose
 Make the prototype feel like the real app for demos: a populated community with complete profiles, connection requests, and active group chats and direct messages.
 
