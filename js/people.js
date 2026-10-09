@@ -1,58 +1,197 @@
 // Bootcamp Connect prototype: Matchmaker, profile and members sheets
 // Plain script (shared globals); load order is set in index.html.
 
-// ----- Matchmaker -----
-function setPeopleFilter(f) {
-  peopleFilter = f;
-  document.querySelectorAll('#people-filter [data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
-  renderPeople();
+// ----- Connect › People (specs/10-networking.md) -----
+const PEOPLE_PAGE = 24;
+let peopleShown = PEOPLE_PAGE;
+const STAGES = {
+  'Software Developer': ['Learning (in bootcamp)', 'Junior (under 2 years)', 'Mid-level (2 to 5 years)', 'Senior (5 years or more)'],
+  'Business Developer': ['Exploring an idea', 'Running a business (under a year)', 'Running a business (1 to 3 years)', 'Experienced (3 years or more)'],
+};
+const cohortLabel = p => p.cohort === CURRENT_COHORT ? 'Cohort ' + p.cohort : 'Cohort ' + p.cohort + ' alumni';
+const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
+const invitedBy = id => (demo.invites || []).find(i => i.from === id);
+
+// Years of work experience, not counting the bootcamp, for the stage evidence line
+function yearsOfExperience(p) {
+  const months = s => { const [y, m] = s.split('-').map(Number); return y * 12 + m; };
+  const now = new Date(), today = now.getFullYear() * 12 + now.getMonth() + 1;
+  const total = (p.experience || []).filter(e => e.start && !(e.company || '').startsWith('Bootcamp Connect Cohort'))
+    .reduce((n, e) => n + Math.max(0, (e.current || !e.end ? today : months(e.end)) - months(e.start)), 0);
+  const years = Math.floor(total / 12);
+  if (years < 1) return 'under a year\'s experience';
+  return years === 1 ? '1 year\'s experience' : years + ' years\' experience';
+}
+function stageEvidence(p) {
+  const done = (p.verified || []).length;
+  return [p.stage, yearsOfExperience(p), cohortLabel(p), done ? plural(done, 'finished project') : '']
+    .filter(Boolean).join(' · ');
+}
+
+function peopleFilters() {
+  return {
+    q: $('people-q').value.trim().toLowerCase(), track: $('people-track').value, stage: $('people-stage').value,
+    cohort: $('people-cohort').value, conn: $('people-conn').value,
+  };
+}
+function peopleMatch(p, f) {
+  if (f.track && p.track !== f.track) return false;
+  if (f.stage && p.stage !== f.stage) return false;
+  if (f.cohort === 'current' && p.cohort !== CURRENT_COHORT) return false;
+  if (f.cohort === 'alumni' && p.cohort === CURRENT_COHORT) return false;
+  if (/^\d+$/.test(f.cohort) && p.cohort !== Number(f.cohort)) return false;
+  if (f.conn === 'connected' && !demo.connected[p.id]) return false;
+  if (f.conn === 'not' && demo.connected[p.id]) return false;
+  if (!f.q) return true;
+  const text = [fullName(p), p.headline, ...p.skills, ...companiesOf(p), ...schoolsOf(p)].join(' ').toLowerCase();
+  return f.q.split(/\s+/).every(word => text.includes(word));
+}
+function filterPeople() { peopleShown = PEOPLE_PAGE; renderPeopleGrid(); }
+function clearPeopleFilters() {
+  ['people-q', 'people-track', 'people-stage', 'people-cohort', 'people-conn'].forEach(id => { $(id).value = ''; });
+  filterPeople();
+  $('people-q').focus();
+}
+function showMorePeople() {
+  const first = peopleShown;
+  peopleShown += PEOPLE_PAGE;
+  renderPeopleGrid();
+  const next = document.querySelectorAll('#people-grid article')[first];
+  if (next) next.querySelector('button').focus();
 }
 
 function connectButton(p, extra) {
   if (demo.connected[p.id]) return '<button type="button" class="btn btn-secondary btn-sm ' + extra + '" data-on-click="messagePerson(\'' + p.id + '\')"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Message</button>';
-  if (demo.requested[p.id]) return '<button type="button" class="btn btn-gray btn-sm ' + extra + '" disabled aria-disabled="true">Requested</button>';
-  return '<button type="button" class="btn btn-primary btn-sm ' + extra + '" data-on-click="connectPerson(\'' + p.id + '\')"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Connect</button>';
+  if (demo.requested[p.id]) return '<button type="button" class="btn btn-gray btn-sm ' + extra + '" data-on-click="withdrawRequest(\'' + p.id + '\')" aria-label="Withdraw your request to ' + esc(p.first) + '">Withdraw request</button>';
+  if (invitedBy(p.id)) return '<button type="button" class="btn btn-primary btn-sm ' + extra + '" data-on-click="acceptInvite(\'' + p.id + '\')"><svg class="icon w-4 h-4"><use href="#i-check"/></svg>Accept</button>';
+  return '<button type="button" class="btn btn-primary btn-sm ' + extra + '" data-on-click="openConnect(\'' + p.id + '\')" aria-label="Connect with ' + esc(fullName(p)) + '"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Connect</button>';
+}
+function connectionStatus(p) {
+  if (demo.connected[p.id]) return '<span class="text-footnote text-greenText font-semibold inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-check"/></svg>Connected</span>';
+  if (demo.requested[p.id]) return '<span class="text-footnote text-label-2 font-semibold">Request sent</span>';
+  if (invitedBy(p.id)) return '<span class="text-footnote text-blueText font-semibold">Wants to connect</span>';
+  return '';
+}
+
+// One member card. `reasons` is how many reasons to list (the mutual connections line is shown separately).
+function personCard(p, s, reasons) {
+  const listed = s.reasons.filter(r => !/mutual connection/.test(r)).slice(0, reasons);
+  return '<article class="card p-5 flex flex-col gap-3" data-person="' + p.id + '">' +
+    '<div class="flex items-start gap-3">' +
+      '<button type="button" class="tap rounded-full" data-on-click="openPerson(\'' + p.id + '\')" aria-label="View ' + esc(fullName(p)) + '\'s profile">' + personAvatar(p, 'w-14 h-14 text-title3') + '</button>' +
+      '<div class="min-w-0 flex-1">' +
+        '<button type="button" class="font-semibold text-body text-left hover:underline" data-on-click="openPerson(\'' + p.id + '\')">' + esc(fullName(p)) + '</button>' +
+        '<p class="text-footnote text-label-2 line-clamp-2">' + esc(p.headline) + '</p>' +
+      '</div>' +
+    '</div>' +
+    '<div class="flex flex-wrap items-center gap-x-2 gap-y-1.5">' + trackBadge(p.track) +
+      '<span class="text-footnote text-label-2">' + esc([p.stage, cohortLabel(p)].filter(Boolean).join(' · ')) + '</span>' +
+    '</div>' +
+    '<p class="text-footnote text-label-2 inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-users"/></svg>' + plural(s.mutual.length, 'mutual connection') + ' · ' + esc(p.location.replace(/, UK$/, '')) + '</p>' +
+    (listed.length ? '<ul class="space-y-1">' + listed.map(r => '<li class="flex items-start gap-1.5 text-footnote text-label-2"><svg class="icon w-4 h-4 text-greenText mt-px shrink-0"><use href="#i-check"/></svg>' + esc(r) + '</li>').join('') + '</ul>' : '') +
+    '<div class="flex flex-wrap gap-1">' + p.skills.slice(0, 4).map(sk => '<span class="bg-fill text-label-2 text-caption px-2 py-0.5 rounded-md">' + esc(sk) + '</span>').join('') + '</div>' +
+    connectionStatus(p) +
+    '<div class="mt-auto pt-1 flex gap-2">' +
+      '<button type="button" class="btn btn-gray btn-sm flex-1" data-on-click="openPerson(\'' + p.id + '\')">View profile</button>' +
+      connectButton(p, 'flex-1') +
+    '</div>' +
+  '</article>';
 }
 
 function renderPeople() {
-  if (!demo) return;
-  const list = DEMO_PEOPLE
-    .map(p => ({ p, m: matchFor(p) }))
-    .filter(({ p }) => peopleFilter === 'all' || (peopleFilter === 'connected') === !!demo.connected[p.id])
-    .sort((a, b) => b.m.score - a.m.score);
-  $('people-grid').innerHTML = list.length ? list.map(({ p, m }) =>
-    '<article class="card p-5 flex flex-col gap-3">' +
-      '<div class="flex items-start gap-3">' +
-        '<button type="button" class="tap rounded-full" data-on-click="openPerson(\'' + p.id + '\')" aria-label="View ' + esc(fullName(p)) + '\'s profile">' + personAvatar(p, 'w-14 h-14 text-title3') + '</button>' +
-        '<div class="min-w-0 flex-1">' +
-          '<div class="flex items-start justify-between gap-2">' +
-            '<button type="button" class="font-semibold text-body text-left hover:underline" data-on-click="openPerson(\'' + p.id + '\')">' + esc(fullName(p)) + '</button>' +
-            '<span class="shrink-0 bg-appleGreen/15 text-greenText text-footnote font-semibold px-2.5 py-0.5 rounded-full tabular-nums">' + m.score + '%</span>' +
-          '</div>' +
-          '<p class="text-footnote text-label-2 line-clamp-2">' + esc(p.headline) + '</p>' +
-        '</div>' +
-      '</div>' +
-      '<div class="flex flex-wrap items-center gap-1.5">' + trackBadge(p.track) +
-        '<span class="text-footnote text-label-2 inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-pin"/></svg>' + esc(p.location) + '</span>' +
-        (demo.connected[p.id] ? '<span class="text-footnote text-greenText font-semibold inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-check"/></svg>Connected</span>' : '') +
-      '</div>' +
-      '<div class="flex flex-wrap gap-1">' + p.skills.slice(0, 4).map(s => '<span class="bg-fill text-label-2 text-caption px-2 py-0.5 rounded-md">' + esc(s) + '</span>').join('') + '</div>' +
-      '<p class="text-footnote text-label-2"><span class="text-label font-medium">Looking for:</span> ' + esc(p.goals.join(', ')) + ' · ' + esc(p.hours) + ' hrs/week</p>' +
-      '<div class="mt-auto pt-1 flex gap-2">' +
-        '<button type="button" class="btn btn-gray btn-sm flex-1" data-on-click="openPerson(\'' + p.id + '\')">View profile</button>' +
-        connectButton(p, 'flex-1') +
-      '</div>' +
-    '</article>'
-  ).join('') : '<p class="text-subhead text-label-2 md:col-span-2 xl:col-span-3">No one here yet. Connect with people from the Suggested list.</p>';
+  if (!demo || !$('people-grid')) return;
+  renderInvites();
+  renderSuggested();
+  renderPeopleGrid();
 }
 
-function connectPerson(id) {
+function renderInvites() {
+  const list = (demo.invites || []).filter(i => person(i.from) && !demo.connected[i.from]);
+  $('people-invites').classList.toggle('hidden', !list.length);
+  $('people-invites').innerHTML = list.length ? '<h3 id="people-invites-title" class="text-title3 font-bold" tabindex="-1">Invitations (' + list.length + ')</h3>' +
+    '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">' + list.map(i => {
+      const p = person(i.from);
+      return '<article class="card p-5 flex flex-col gap-3" data-invite="' + p.id + '">' +
+        '<div class="flex items-start gap-3">' +
+          '<button type="button" class="tap rounded-full" data-on-click="openPerson(\'' + p.id + '\')" aria-label="View ' + esc(fullName(p)) + '\'s profile">' + personAvatar(p, 'w-12 h-12 text-subhead') + '</button>' +
+          '<div class="min-w-0 flex-1">' +
+            '<button type="button" class="font-semibold text-body text-left hover:underline" data-on-click="openPerson(\'' + p.id + '\')">' + esc(fullName(p)) + '</button>' +
+            '<p class="text-footnote text-label-2">' + esc(p.headline) + '</p>' +
+            '<p class="text-footnote text-label-2">' + esc([p.stage, cohortLabel(p)].filter(Boolean).join(' · ')) + '</p>' +
+          '</div>' +
+        '</div>' +
+        (i.note ? '<blockquote class="entry !p-3 text-subhead">' + esc(i.note) + '</blockquote>' : '') +
+        '<div class="flex gap-2 justify-end">' +
+          '<button type="button" class="btn btn-gray btn-sm" data-on-click="ignoreInvite(\'' + p.id + '\')" aria-label="Ignore invitation from ' + esc(fullName(p)) + '">Ignore</button>' +
+          '<button type="button" class="btn btn-primary btn-sm" data-on-click="acceptInvite(\'' + p.id + '\')" aria-label="Accept invitation from ' + esc(fullName(p)) + '">Accept</button>' +
+        '</div>' +
+      '</article>';
+    }).join('') + '</div>' : '';
+}
+
+function rankedPeople() {
+  return DEMO_PEOPLE.map(p => ({ p, s: suggestionFor(p.id) }))
+    .sort((a, b) => b.s.score - a.s.score || fullName(a.p).localeCompare(fullName(b.p)));
+}
+
+function renderSuggested() {
+  const list = rankedPeople().filter(({ p }) => !demo.connected[p.id] && !demo.requested[p.id] && !invitedBy(p.id)).slice(0, 5);
+  $('people-suggested').innerHTML = '<div><h3 id="people-suggested-title" class="text-title3 font-bold">Suggested for you</h3>' +
+    '<p class="text-subhead text-label-2">Based on mutual connections, your cohort, where people have worked and studied, and skills.</p></div>' +
+    (list.length ? '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">' + list.map(({ p, s }) => personCard(p, s, 2)).join('') + '</div>'
+      : '<p class="text-subhead text-label-2">You\'re connected with everyone we\'d suggest. Search all members below.</p>');
+}
+
+function renderPeopleGrid() {
+  const f = peopleFilters();
+  const list = rankedPeople().filter(({ p }) => peopleMatch(p, f));
+  const filtered = Object.values(f).some(Boolean);
+  $('people-clear').classList.toggle('hidden', !filtered);
+  $('people-count').textContent = list.length ? 'Showing ' + Math.min(peopleShown, list.length) + ' of ' + plural(list.length, 'member') : 'No members found';
+  $('people-grid').innerHTML = list.length ? list.slice(0, peopleShown).map(({ p, s }) => personCard(p, s, 1)).join('')
+    : '<p class="text-subhead text-label-2 md:col-span-2 xl:col-span-3">No members match. Try a different search or clear the filters.</p>';
+  $('people-more').classList.toggle('hidden', list.length <= peopleShown);
+}
+
+// ----- Connecting (LinkedIn model: view the profile, send a request with an optional note) -----
+const NOTE_MAX = 300;
+function openConnect(id) {
   const p = person(id);
-  demo.requested[id] = true;
+  openSheet(sheetClose() +
+    '<div class="p-6 sm:p-7 space-y-4">' +
+      '<div class="flex items-center gap-3 pr-10">' + personAvatar(p, 'w-12 h-12 text-subhead') +
+        '<div><h2 id="sheet-title" class="text-title3 font-bold">Connect with ' + esc(fullName(p)) + '</h2>' +
+        '<p class="text-footnote text-label-2">' + esc(p.headline) + '</p></div></div>' +
+      '<div><label for="connect-note" class="pf-label">Add a note (optional)</label>' +
+        '<p id="connect-note-hint" class="pf-hint mb-1.5">Say why you\'d like to connect, for example a project you have in common.</p>' +
+        '<textarea id="connect-note" rows="4" maxlength="' + NOTE_MAX + '" class="pf-input resize-y" aria-describedby="connect-note-hint connect-note-count" data-on-input="updateNoteCount()"></textarea>' +
+        '<p id="connect-note-count" class="pf-hint mt-1" aria-live="polite">You have ' + NOTE_MAX + ' characters remaining</p></div>' +
+      '<div class="flex gap-2 justify-end">' +
+        '<button type="button" class="btn btn-gray" data-on-click="closeSheet()">Cancel</button>' +
+        '<button type="button" class="btn btn-primary" data-on-click="sendRequest(\'' + id + '\')">Send request</button>' +
+      '</div>' +
+    '</div>', 'connect-' + id);
+  $('connect-note').focus();
+}
+function updateNoteCount() {
+  const left = NOTE_MAX - $('connect-note').value.length;
+  $('connect-note-count').textContent = 'You have ' + left + ' character' + (left === 1 ? '' : 's') + ' remaining';
+}
+
+// Demo: most members accept after a moment; a few leave the request waiting. Senders are never told
+// about a decline, as on LinkedIn.
+const leavesWaiting = id => id.includes('-') && [...id].reduce((n, c) => n + c.charCodeAt(0), 0) % 4 === 0;
+
+function sendRequest(id) {
+  const p = person(id);
+  demo.requested[id] = { note: $('connect-note').value.trim(), at: Date.now() };
   saveDemo();
+  closeSheet();
   refreshPersonViews(id);
-  // Demo: requests are accepted after a moment
+  showToast('Request sent to ' + p.first);
+  if (leavesWaiting(id)) return;
   setTimeout(() => {
+    if (!demo.requested[id]) return;
     delete demo.requested[id];
     demo.connected[id] = true;
     saveDemo();
@@ -60,10 +199,35 @@ function connectPerson(id) {
     showToast(p.first + ' accepted your connection request');
   }, 1500);
 }
+function withdrawRequest(id) {
+  delete demo.requested[id];
+  saveDemo();
+  refreshPersonViews(id);
+  showToast('Request to ' + person(id).first + ' withdrawn');
+}
+function acceptInvite(id) {
+  demo.invites = demo.invites.filter(i => i.from !== id);
+  demo.connected[id] = true;
+  saveDemo();
+  refreshPersonViews(id);
+  showToast('You\'re now connected with ' + person(id).first);
+}
+function ignoreInvite(id) {
+  demo.invites = demo.invites.filter(i => i.from !== id);
+  saveDemo();
+  refreshPersonViews(id);
+  showToast('Invitation ignored');
+}
 
+// Re-render after a change, keeping keyboard focus on the same member's card where possible
 function refreshPersonViews(id) {
+  const hadFocus = document.activeElement && document.activeElement.closest && document.activeElement.closest('#people-view');
   renderPeople();
   if (!$('sheet').classList.contains('hidden') && $('sheet').dataset.person === id) openPerson(id, { keepFocus: true });
+  if (!hadFocus) return;
+  const card = document.querySelector('#people-view [data-invite="' + id + '"], #people-grid [data-person="' + id + '"], #people-suggested [data-person="' + id + '"]');
+  const target = card ? card.querySelector('.mt-auto button:last-child, .justify-end button:last-child') : ($('people-invites-title') || $('people-suggested-title'));
+  if (target) { if (!target.matches('button')) target.setAttribute('tabindex', '-1'); target.focus(); }
 }
 
 // ----- Profile viewer (sheet) -----
@@ -94,7 +258,7 @@ function sheetClose() {
 
 function openPerson(id, { keepFocus = false } = {}) {
   const p = person(id);
-  const m = matchFor(p);
+  const m = suggestionFor(id);
   const groups = DEMO_CHATS.filter(c => c.type === 'group' && c.members.includes(id));
   const dates = e => [fmtMonth(e.start), e.current ? 'Present' : fmtMonth(e.end)].filter(Boolean).join(' – ');
   const section = (title, body) => '<section class="space-y-2"><h3 class="font-semibold text-body">' + title + '</h3>' + body + '</section>';
@@ -113,14 +277,15 @@ function openPerson(id, { keepFocus = false } = {}) {
         '</div>' +
         '<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">' + trackBadge(p.track) +
           '<span class="text-footnote text-label-2 inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-pin"/></svg>' + esc(p.location) + ' · ' + esc(p.setting) + '</span>' +
-          '<span class="text-footnote text-label-2">Available from ' + esc(new Date(p.available + 'T00:00').toLocaleDateString('en', { month: 'short', day: 'numeric' })) + '</span>' +
+          '<span class="text-footnote text-label-2">Available from ' + esc(new Date(p.available + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })) + '</span>' +
         '</div>' +
         '<div class="flex flex-wrap gap-2">' + connectButton(p, '') + '</div>' +
       '</div>' +
-      '<div class="entry !bg-appleGreen/10 space-y-1.5">' +
-        '<p class="font-semibold text-subhead"><span class="text-greenText tabular-nums">' + m.score + '% match</span> with you</p>' +
-        '<ul class="space-y-1">' + m.reasons.map(r => '<li class="flex items-start gap-2 text-footnote text-label-2"><svg class="icon w-4 h-4 text-greenText mt-px"><use href="#i-check"/></svg>' + esc(r) + '</li>').join('') + '</ul>' +
-      '</div>' +
+      '<p class="text-footnote text-label-2">' + esc(stageEvidence(p)) + '</p>' +
+      (m.reasons.length ? '<div class="entry !bg-appleGreen/10 space-y-1.5">' +
+        '<p class="font-semibold text-subhead">Why you might connect</p>' +
+        '<ul class="space-y-1">' + m.reasons.slice(0, 4).map(r => '<li class="flex items-start gap-2 text-footnote text-label-2"><svg class="icon w-4 h-4 text-greenText mt-px shrink-0"><use href="#i-check"/></svg>' + esc(r) + '</li>').join('') + '</ul>' +
+      '</div>' : '') +
       section('About', '<p class="text-subhead text-label-2">' + esc(p.about) + '</p>') +
       section('Experience', '<ul class="space-y-3">' + p.experience.map(e =>
         '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(e.title) + '</p><p class="text-footnote text-label-2">' + esc(e.company) + ' · ' + esc(dates(e)) + '</p>' +

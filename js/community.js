@@ -3,7 +3,8 @@
 
 let demo = null;              // per-user demo state, saved in this browser
 let openChatId = null;
-let peopleFilter = 'all';
+// The current cohort. The demo account joins it until the profile has a cohort field (spec 11).
+const CURRENT_COHORT = 12;
 const typing = {};
 const replyTimers = {};
 let sheetReturnFocus = null;
@@ -20,7 +21,7 @@ function loadDemo() {
     unread: Object.fromEntries(DEMO_CHATS.map(c => [c.id, c.unread])),
   };
   // Fields added in later versions of the prototype
-  const defaults = { posts: [], postState: {}, applications: {}, projects: {}, projectChats: [], verified: [], endorsements: {} };
+  const defaults = { posts: [], postState: {}, applications: {}, projects: {}, projectChats: [], verified: [], endorsements: {}, invites: DEMO_INVITES.map(i => ({ ...i })) };
   for (const k in defaults) if (!(k in demo)) demo[k] = defaults[k];
 }
 function saveDemo() { return save(demoKey(), demo); }

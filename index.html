@@ -251,22 +251,51 @@
         <div class="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Connect</h2>
-            <p class="text-subhead text-label-2">Projects and people ranked by how well they fit you, with the reasons. Members and projects are samples for the demo.</p>
+            <p class="text-subhead text-label-2">Find projects that fit you and people to connect with, with the reasons. Members and projects are made-up samples for the demo.</p>
           </div>
           <div class="flex flex-wrap gap-2">
           <div id="mm-view" class="segmented" role="tablist" aria-label="Show">
             <button type="button" class="segmented-btn active" data-view="projects" data-on-click="setMatchmakerView('projects')">Projects</button>
             <button type="button" class="segmented-btn" data-view="people" data-on-click="setMatchmakerView('people')">People</button>
           </div>
-          <div id="people-filter" class="segmented hidden" role="tablist" aria-label="Filter people">
-            <button type="button" class="segmented-btn active" data-filter="all" data-on-click="setPeopleFilter('all')">All</button>
-            <button type="button" class="segmented-btn" data-filter="connected" data-on-click="setPeopleFilter('connected')">Connections</button>
-            <button type="button" class="segmented-btn" data-filter="suggested" data-on-click="setPeopleFilter('suggested')">Suggested</button>
-          </div>
           </div>
         </div>
         <div id="projects-view" class="space-y-4"></div>
-        <div id="people-view" class="hidden"><div id="people-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div></div>
+        <div id="people-view" class="hidden space-y-8">
+          <section id="people-invites" class="hidden space-y-3" aria-labelledby="people-invites-title"></section>
+          <section id="people-suggested" class="space-y-3" aria-labelledby="people-suggested-title"></section>
+          <section class="space-y-3" aria-labelledby="people-all-title">
+            <h3 id="people-all-title" class="text-title3 font-bold">All members</h3>
+            <div class="card p-4 grid grid-cols-2 lg:grid-cols-4 gap-3" role="search" aria-label="Search and filter members">
+              <div class="col-span-2 lg:col-span-4">
+                <label for="people-q" class="pf-label">Search members</label>
+                <input id="people-q" type="search" class="pf-input" placeholder="Name, skill, company or school" autocomplete="off" data-on-input="filterPeople()">
+              </div>
+              <div>
+                <label for="people-track" class="pf-label">Track</label>
+                <select id="people-track" class="pf-input" data-on-change="filterPeople()"><option value="">Any track</option><option>Software Developer</option><option>Business Developer</option></select>
+              </div>
+              <div>
+                <label for="people-stage" class="pf-label">Stage</label>
+                <select id="people-stage" class="pf-input" data-on-change="filterPeople()"><option value="">Any stage</option><optgroup label="Software Developer"><option>Learning (in bootcamp)</option><option>Junior (under 2 years)</option><option>Mid-level (2 to 5 years)</option><option>Senior (5 years or more)</option></optgroup><optgroup label="Business Developer"><option>Exploring an idea</option><option>Running a business (under a year)</option><option>Running a business (1 to 3 years)</option><option>Experienced (3 years or more)</option></optgroup></select>
+              </div>
+              <div>
+                <label for="people-cohort" class="pf-label">Cohort</label>
+                <select id="people-cohort" class="pf-input" data-on-change="filterPeople()"><option value="">Any cohort</option><option value="current">Current cohort</option><option value="alumni">Alumni</option><option value="12">Cohort 12</option><option value="11">Cohort 11 alumni</option><option value="10">Cohort 10 alumni</option><option value="9">Cohort 9 alumni</option></select>
+              </div>
+              <div>
+                <label for="people-conn" class="pf-label">Connection</label>
+                <select id="people-conn" class="pf-input" data-on-change="filterPeople()"><option value="">Everyone</option><option value="connected">Connected</option><option value="not">Not connected</option></select>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p id="people-count" class="text-footnote text-label-2" aria-live="polite"></p>
+              <button type="button" id="people-clear" class="btn btn-plain btn-sm hidden" data-on-click="clearPeopleFilters()">Clear filters</button>
+            </div>
+            <div id="people-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+            <div class="flex justify-center"><button type="button" id="people-more" class="btn btn-gray hidden" data-on-click="showMorePeople()">Show more members</button></div>
+          </section>
+        </div>
       </section>
 
       <!-- TAB 3: MESSAGES (specs/04-connections-messages.md) -->

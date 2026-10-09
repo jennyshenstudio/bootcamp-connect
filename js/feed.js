@@ -243,7 +243,6 @@ function showProjectMatches() { switchTab('matching'); setMatchmakerView('projec
 function renderMatchmaker() {
   if (!demo || !$('mm-view')) return;
   document.querySelectorAll('#mm-view [data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === mmView));
-  $('people-filter').classList.toggle('hidden', mmView !== 'people');
   $('people-view').classList.toggle('hidden', mmView !== 'people');
   $('projects-view').classList.toggle('hidden', mmView !== 'projects');
   if (mmView === 'people') return renderPeople();

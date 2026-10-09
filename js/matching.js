@@ -1,9 +1,9 @@
-// Bootcamp Connect prototype: matching v2 (specs/06-matching.md).
+// Bootcamp Connect prototype: matching v2 (specs/06-matching.md) and people suggestions (specs/10-networking.md).
 // Plain script (shared globals); load order is set in index.html.
 //
 // Three questions, each with plain-language reasons:
 //   projectFit(post, member)  how well a project fits a member (hard filters + weighted fit)
-//   personFit(id)             how well two people fit each other, scored in both directions
+//   suggestionFor(id)         who to suggest connecting with, and why (spec 10)
 //   suggestTeam(post)         a balanced team for a project owner (CATME-style)
 
 const HOURS_VALUE = { 'Under 10': 0, '10–20': 1, '20–40': 2, '40+': 3 };
@@ -19,6 +19,7 @@ function memberView(id) {
     const p = acc.profile || {};
     return {
       id: 'me', first: acc.first || 'You', track: acc.track || '',
+      cohort: p.cohort || CURRENT_COHORT, experience: p.experience || [], education: p.education || [],
       skills: (p.skills || []).map(britishSkill), learn: (p.learn || []).map(britishSkill), openTo: p.openTo || [],
       hours: p.hours || '', setting: p.setting || '', industries: p.industries || [],
       goals: (p.goals || []).map(g => g === 'Paid gig' ? 'Paid work' : g),
@@ -67,47 +68,39 @@ function projectFit(post, m) {
   return { score, blocked: blockers.length > 0, blockers, reasons, role, has, learn };
 }
 
-// ----- Person ↔ person (reciprocal) -----
-// How much `b` offers `a`, 0–100
-function oneWayFit(a, b) {
-  const complement = a.track && b.track && a.track !== b.track ? 1 : 0.35;
-  const teach = a.learn.length ? overlap(a.learn, b.skills).length / a.learn.length : 0;
-  const goals = overlap(a.goals, b.goals).length ? 1 : 0;
-  const hd = a.hours && b.hours ? Math.abs(HOURS_VALUE[a.hours] - HOURS_VALUE[b.hours]) : 1;
-  const hours = hd === 0 ? 1 : hd === 1 ? 0.5 : 0;
-  const industry = overlap(a.industries, b.industries).length ? 1 : 0;
-  const reliability = Math.min(1, (b.verified.length * 2 + sumValues(b.endorsements) / 3) / 6);
-  return 30 * complement + 25 * teach + 15 * goals + 10 * hours + 10 * industry + 10 * reliability;
-}
+// ----- People suggestions (spec 10, D038) -----
+// Points (sum to 100): mutual connections 30 (5 or more gets full points), same cohort 15, same
+// company 10, same school 5, other track 10, they have skills you want to learn 10, you have skills
+// they want to learn 10, fewer than 8 connections 10. Goals and stage don't count, so newer members
+// aren't pushed down. The score only sets the order; members see the reasons, never the number.
+const companiesOf = m => (m.experience || []).map(e => e.company).filter(c => c && c !== 'Self-employed' && !c.startsWith('Bootcamp Connect Cohort'));
+const schoolsOf = m => (m.education || []).map(e => e.school).filter(Boolean);
+const mutualConnections = id => (DEMO_LINKS[id] || []).filter(x => demo && demo.connected[x]);
 
-function personFit(id) {
+function suggestionFor(id) {
   const me = memberView('me'), them = memberView(id);
-  const forMe = oneWayFit(me, them), forThem = oneWayFit(them, me);
-  const mutual = Math.sqrt(forMe * forThem);          // high only when both sides benefit
-  const boost = them.connections < 8 ? 4 : 0;          // fairness: surface members with fewer connections
-  const score = Math.min(98, Math.round(30 + 0.7 * mutual + boost));
+  const mutual = mutualConnections(id);
+  const cohort = me.cohort === them.cohort;
+  const company = overlap(companiesOf(me), companiesOf(them))[0];
+  const school = overlap(schoolsOf(me), schoolsOf(them))[0];
+  const otherTrack = !!me.track && them.track !== me.track;
+  const theyTeach = overlap(me.learn, them.skills);
+  const iTeach = overlap(them.learn, me.skills);
+  const newer = them.connections < 8;
+  const score = 30 * Math.min(mutual.length, 5) / 5 + (cohort ? 15 : 0) + (company ? 10 : 0) + (school ? 5 : 0) +
+    (otherTrack ? 10 : 0) + (theyTeach.length ? 10 : 0) + (iTeach.length ? 10 : 0) + (newer ? 10 : 0);
 
   const reasons = [];
-  if (me.track && them.track !== me.track) reasons.push(them.track === 'Business Developer' ? 'Business skills that complement your development skills' : 'Development skills that complement your business skills');
-  else reasons.push('Same track: a good peer for pairing and side projects');
-  const theyTeach = overlap(me.learn, them.skills);
+  if (mutual.length) reasons.push(mutual.length + ' mutual connection' + (mutual.length > 1 ? 's' : ''));
+  if (cohort) reasons.push('Both in Cohort ' + them.cohort);
+  if (company) reasons.push('Both worked at ' + company);
+  if (school) reasons.push('Both studied at ' + school);
   if (theyTeach.length) reasons.push('Can help you learn ' + theyTeach.join(', '));
-  const iTeach = overlap(them.learn, me.skills);
-  if (iTeach.length) reasons.push('You can help them with ' + iTeach.join(', ') + ', which they want to learn');
-  const goals = overlap(me.goals, them.goals);
-  if (goals.includes('Co-founder')) reasons.push('Both looking for a co-founder');
-  else if (goals.length) reasons.push('Both open to ' + goals[0].toLowerCase());
-  if (me.hours && me.hours === them.hours) reasons.push('Same weekly commitment (' + them.hours + ' hrs)');
-  const industries = overlap(me.industries, them.industries);
-  if (industries.length) reasons.push('Shared interest in ' + industries.join(' and '));
-  if (them.verified.length) reasons.push('Completed ' + them.verified.length + ' project' + (them.verified.length > 1 ? 's' : '') + ' · ' + sumValues(them.endorsements) + ' skill endorsements');
-  if (boost) reasons.push('Newer to the community, with fewer connections so far');
-  if (!me.profileDone) reasons.push('Finish your profile for sharper matches');
-  return { score, reasons, forMe: Math.round(forMe), forThem: Math.round(forThem) };
+  if (iTeach.length) reasons.push('You can help them with ' + iTeach.join(', '));
+  if (otherTrack) reasons.push(them.track === 'Business Developer' ? 'Business skills that complement your development skills' : 'Development skills that complement your business skills');
+  if (newer) reasons.push('Newer to the community');
+  return { score: Math.round(score), reasons, mutual };
 }
-
-// Used by the Matchmaker People view
-function matchFor(p) { return personFit(p.id); }
 
 // ----- Team suggestions for a project owner (CATME-style) -----
 // Fill open role slots, scarcest role first, so no slot is left with a weak fit (max-min).

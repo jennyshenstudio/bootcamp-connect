@@ -37,9 +37,9 @@ module.exports = async (browser, t) => {
   f = await fit('p-tableturn');
   t.ok('hours filter blocks a 10–20 hrs project for someone with under 10', f.blocked && f.blockers.some(b => b.includes('Needs 10–20')));
   await page.evaluate(() => { const a = currentAccount(); a.profile.hours = '10–20'; saveAccount(a); });
-  const people = await page.evaluate(() => ['elena', 'marcus', 'diego'].map(id => personFit(id)));
-  t.ok('person fit is scored both ways', people.every(p => typeof p.forMe === 'number' && typeof p.forThem === 'number'));
-  t.ok('two-way reasons appear', people.some(p => p.reasons.some(r => r.startsWith('Can help you learn') || r.startsWith('You can help them'))));
+  // People suggestions replaced two-way person fit (spec 10); their tests are in community.test.js
+  const people = await page.evaluate(() => ['elena', 'marcus', 'diego'].map(id => suggestionFor(id)));
+  t.ok('people suggestions include two-way skill reasons', people.some(p => p.reasons.some(r => r.startsWith('Can help you learn') || r.startsWith('You can help them'))));
   const team = await page.evaluate(() => suggestTeam(postById('p-refill')).map(x => x.role.track));
   t.ok('team suggestions cover every open role', team.length === 2 && team.includes('Software Developer') && team.includes('Business Developer'));
 
