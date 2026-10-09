@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-09 (live sign-up screen)
+- **What changed:** the sign-up and log-in screen has a live-site layout (spec 09, D033): Continue with Google only, track and terms first, and a note on what Google shares. It shows when `isLiveSite()` in the new `js/backend.js` finds Supabase settings, so the demo is unchanged. The Google button now follows Google's branding guidelines (official "G", set colours in light and dark mode). The terms checkbox uses spec 09's wording, and its links open the draft documents on GitHub for now. Shared prototype republished (version 13).
+- **What's next:** profile setup, the owner's next priority. Later in spec 09: connect real Google sign-in through Supabase (needs the owner's Supabase and Google Cloud accounts), and turn the terms and privacy notice into pages in the app.
+- **Open questions:** linking the terms to GitHub is a stopgap; the drafts' "[owner to…]" notes are visible there. The live layout can only be seen in tests or screenshots until Supabase settings exist.
+- **Worth learning:** a longer label can push a carefully fitted screen past the bottom. Tests that check "fits one screen" caught it, and a shorter note fixed it without shrinking text.
+
 ## 2026-10-09 (spec 09 review)
 - **What changed:** reviewed spec 09 with the owner and updated it, the draft privacy notice and the personal data rules. Launching to real members now needs a move to beta first (backups with a tested restore, an incident plan, DPIA screening, expert review). Log out and Delete my account must clear the browser copy. The Content Security Policy allows Google's photo address. The privacy notice mentions data handled outside the UK and the rights to limit use and to take your data elsewhere. Documents only; no app changes.
 - **What's next:** the owner answers the decisions below. Then the owner creates the Supabase and Google Cloud accounts (Claude to give step-by-step instructions), and Claude builds spec 09 in alpha, with made-up test accounts.
