@@ -16,6 +16,7 @@
     "test": "node tests/run.js",
     "test:dist": "npm run build && node tests/run.js --dist",
     "test:fixtures": "node tests/make-fixtures.js",
+    "make:community": "node scripts/make-community.mjs",
     "build:artifact": "python3 scripts/build_artifact.py"
   },
   "devDependencies": {

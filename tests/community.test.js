@@ -1,16 +1,41 @@
-// Spec 04: sample community, Connect (people), profiles, messages.
-const { openApp, signUp, sleep, visible } = require('./helpers');
+// Spec 04: sample community, Connect (people), profiles, messages. Spec 10: the generated community.
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { execFileSync } = require('child_process');
+const { ROOT, openApp, signUp, sleep, visible } = require('./helpers');
 
 module.exports = async (browser, t) => {
+  // The community file is generated, never edited by hand, and the same every time
+  const fresh = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'bc-community-')), 'demo-members.js');
+  execFileSync('node', [path.join(ROOT, 'scripts', 'make-community.mjs'), fresh]);
+  t.ok('js/demo-members.js matches what the script generates', fs.readFileSync(fresh, 'utf8') === fs.readFileSync(path.join(ROOT, 'js', 'demo-members.js'), 'utf8'));
+
   let page = await openApp(browser, t);
   await signUp(page);
+  const community = await page.evaluate(() => {
+    const cohorts = {};
+    DEMO_PEOPLE.forEach(p => { cohorts[p.cohort] = (cohorts[p.cohort] || 0) + 1; });
+    return {
+      total: DEMO_PEOPLE.length, cohorts,
+      allUK: DEMO_PEOPLE.every(p => p.location.endsWith(', UK')),
+      complete: DEMO_PEOPLE.every(p => p.stage && p.cohort && p.education.length && p.skills.length),
+      linksBothWays: Object.entries(DEMO_LINKS).every(([a, list]) => list.every(b => DEMO_LINKS[b].includes(a))),
+      invites: DEMO_INVITES.every(i => person(i.from) && i.note),
+    };
+  });
+  t.ok('99 sample members: 24 in Cohort 12 (25 with you) and 25 in each of Cohorts 9 to 11', community.total === 99 && community.cohorts[12] === 24 && [9, 10, 11].every(c => community.cohorts[c] === 25), JSON.stringify(community.cohorts));
+  t.ok('every sample member lives in the UK', community.allUK);
+  t.ok('every sample member has a stage, cohort, education and skills', community.complete);
+  t.ok('connections between members go both ways', community.linksBothWays);
+  t.ok('waiting connection requests come from real sample members, with a note', community.invites);
   t.ok('Messages badge starts at 7 unread', (await page.$eval('#btn-chat [data-badge]', e => e.hidden ? '' : e.textContent)) === '7');
 
   await page.evaluate(() => { switchTab('matching'); setMatchmakerView('people'); }); await sleep(200);
   const count = () => page.$$eval('#people-grid article', x => x.length);
-  t.ok('Connect › People shows 8 members', (await count()) === 8);
+  t.ok('Connect › People shows all 99 members', (await count()) === 99);
   await page.click('#people-filter [data-filter=connected]'); t.ok('5 connections', (await count()) === 5);
-  await page.click('#people-filter [data-filter=suggested]'); t.ok('3 suggestions', (await count()) === 3);
+  await page.click('#people-filter [data-filter=suggested]'); t.ok('94 suggestions', (await count()) === 94);
 
   await page.evaluate(() => openPerson('elena')); await sleep(200);
   const sheet = await page.$eval('#sheet-panel', e => e.innerText);

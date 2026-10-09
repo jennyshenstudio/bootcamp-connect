@@ -19,7 +19,7 @@ function memberView(id) {
     const p = acc.profile || {};
     return {
       id: 'me', first: acc.first || 'You', track: acc.track || '',
-      skills: p.skills || [], learn: p.learn || [], openTo: p.openTo || [],
+      skills: (p.skills || []).map(britishSkill), learn: (p.learn || []).map(britishSkill), openTo: p.openTo || [],
       hours: p.hours || '', setting: p.setting || '', industries: p.industries || [],
       goals: (p.goals || []).map(g => g === 'Paid gig' ? 'Paid work' : g),
       verified: (demo && demo.verified) || [], endorsements: (demo && demo.endorsements) || {},

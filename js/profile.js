@@ -4,7 +4,7 @@
 // ---------- Profile setup (specs/02-profile.md) ----------
 const SKILL_SUGGESTIONS = {
   'Software Developer': ['React', 'Node.js', 'TypeScript', 'Python', 'SQL', 'Next.js', 'AWS', 'REST APIs', 'Git', 'UI/UX'],
-  'Business Developer': ['Market research', 'Financial modeling', 'Sales', 'Pitch decks', 'Growth marketing', 'Product management', 'Customer discovery', 'Fundraising', 'Partnerships', 'Copywriting'],
+  'Business Developer': ['Market research', 'Financial modelling', 'Sales', 'Pitch decks', 'Growth marketing', 'Product management', 'Customer discovery', 'Fundraising', 'Partnerships', 'Copywriting'],
 };
 const SETTINGS = ['Remote', 'Hybrid', 'In person'];
 const GOALS = ['Co-founder', 'Paid work', 'Passion project', 'Hiring teammates'];
@@ -12,6 +12,8 @@ const HOURS = ['Under 10', '10–20', '20–40', '40+'];
 const IDEA_STATUS = ['I have an idea', 'I want to join an idea', 'Open to both'];
 const INDUSTRIES = ['AI', 'Fintech', 'Health', 'Edtech', 'Climate', 'Consumer', 'B2B SaaS', 'Marketplaces', 'Other'];
 const MAX_SKILLS = 10;
+// Profiles saved before the British spelling change still say "Financial modeling"
+const britishSkill = s => s === 'Financial modeling' ? 'Financial modelling' : s;
 
 let skills = [];
 let photoData = null;
@@ -115,7 +117,7 @@ function onSkillKey(e) {
 // Skills I want to learn (drives growth fit in matching)
 const MAX_LEARN = 5;
 let learn = [];
-const LEARN_EXTRAS = ['Stripe', 'AWS', 'SQL', 'Figma', 'Python', 'React', 'Product management', 'Customer discovery', 'Pitch decks', 'Financial modeling', 'Growth marketing', 'UX research'];
+const LEARN_EXTRAS = ['Stripe', 'AWS', 'SQL', 'Figma', 'Python', 'React', 'Product management', 'Customer discovery', 'Pitch decks', 'Financial modelling', 'Growth marketing', 'UX research'];
 
 function addLearn(raw) {
   const name = (raw || '').trim().replace(/,$/, '').slice(0, 30);
@@ -259,8 +261,8 @@ function loadProfileForm(account) {
   setChecked('pf-open', p.openTo || []);
   $('exp-list').innerHTML = (p.experience && p.experience.length ? p.experience : [{}]).map(expHtml).join('');
   $('proj-list').innerHTML = (p.projects && p.projects.length ? p.projects : [{}]).map(projHtml).join('');
-  skills = [...(p.skills || [])];
-  learn = [...(p.learn || [])];
+  skills = (p.skills || []).map(britishSkill);
+  learn = (p.learn || []).map(britishSkill);
   photoData = p.photo || null;
   document.querySelectorAll('#profile-form .pf-error').forEach(e => e.classList.add('hidden'));
   document.querySelectorAll('#profile-form .invalid').forEach(e => e.classList.remove('invalid'));
