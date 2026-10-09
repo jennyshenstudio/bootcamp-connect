@@ -320,13 +320,6 @@ input[type="checkbox"], input[type="radio"] { accent-color: rgb(var(--blue)); }
 #auth-screen.is-live [data-demo-only],
 #auth-screen:not(.is-live) [data-live-only] { display: none !important; }
 
-/* The demo also has the email form, so it uses compact track tiles and spacing to fit one screen
-   (spec 08). The live site keeps the large tiles. */
-#auth-screen:not(.is-live) .track-tile { flex-direction: row; align-items: center; gap: 10px; padding: 8px 12px; }
-#auth-screen:not(.is-live) .track-icon { width: 32px; height: 32px; flex-shrink: 0; }
-#auth-screen:not(.is-live) .track-name { font-size: 15px; line-height: 20px; }
-#auth-screen:not(.is-live) :is(.auth-card, #auth-form) > :not([hidden]) ~ :not([hidden]) { margin-top: 16px; }
-
 /* Keep the full sign-up form on one screen on short laptop windows */
 @media (max-height: 820px) and (min-width: 1024px) { #auth-screen { padding: 12px; gap: 12px; } }
 @media (max-height: 700px) and (min-width: 1024px) { #auth-screen { padding: 8px; gap: 8px; } }
@@ -337,14 +330,12 @@ input[type="checkbox"], input[type="radio"] { accent-color: rgb(var(--blue)); }
   #auth-screen .track-tile { flex-direction: row; align-items: center; gap: 10px; padding: 8px 12px; }
   #auth-screen .track-icon { width: 32px; height: 32px; flex-shrink: 0; }
   #auth-screen .track-name { font-size: 15px; line-height: 20px; }
-  #auth-screen:not(.is-live) :is(.auth-card, #auth-form) > :not([hidden]) ~ :not([hidden]) { margin-top: 12px; }
 }
 @media (max-height: 700px) {
   #auth-screen .pf-input { min-height: 36px; padding: 6px 12px; font-size: 16px; }
   #auth-screen .btn { min-height: 36px; font-size: 16px; }
   #auth-screen .pf-label { margin-bottom: 3px; }
   #auth-screen #auth-title { font-size: 28px; }
-  #auth-screen:not(.is-live) :is(.auth-card, #auth-form) > :not([hidden]) ~ :not([hidden]) { margin-top: 8px; }
   #auth-screen .auth-main { padding-top: 8px !important; padding-bottom: 8px !important; }
   #auth-screen .auth-card { padding-top: 12px !important; padding-bottom: 12px !important; }
   /* The desktop brand panel must fit too, whatever system font the headline falls back to */

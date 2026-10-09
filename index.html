@@ -85,48 +85,10 @@
           <p id="auth-subtitle" class="text-body text-label-2 [@media(max-height:820px)]:hidden">Join to collaborate on projects, find co-founders, and share ideas.</p>
         </div>
 
-        <!-- Google SSO (demo: above the email form) -->
-        <button type="button" id="google-btn" data-demo-only data-on-click="handleGoogle()" class="btn btn-google w-full !gap-3">
-          <svg class="w-5 h-5" aria-hidden="true"><use href="#i-google"/></svg>
-          Continue with Google
-        </button>
-
-        <!-- Divider -->
-        <div data-demo-only class="flex items-center gap-3 text-footnote text-label-2">
-          <div class="flex-1 h-px bg-separator"></div>
-          <span id="divider-text">or sign up with email</span>
-          <div class="flex-1 h-px bg-separator"></div>
-        </div>
-
         <!-- Form-level message (e.g. account not found) -->
         <p id="auth-error" class="hidden text-subhead text-redText bg-appleRed/10 rounded-xl px-4 py-3"></p>
 
         <form id="auth-form" data-on-submit="handleAuthSubmit(event)" novalidate class="space-y-6 [@media(max-height:820px)]:space-y-3 [@media(max-height:700px)]:space-y-2">
-          <div data-signup-only data-demo-only class="grid grid-cols-2 gap-3">
-            <div>
-              <label for="first-name" class="pf-label">First name</label>
-              <input id="first-name" type="text" autocomplete="given-name" placeholder="Alex" class="pf-input">
-            </div>
-            <div>
-              <label for="last-name" class="pf-label">Last name</label>
-              <input id="last-name" type="text" autocomplete="family-name" placeholder="Chen" class="pf-input">
-            </div>
-          </div>
-
-          <div data-demo-only>
-            <label for="email" class="pf-label">Email</label>
-            <input id="email" type="email" required autocomplete="email" placeholder="you@bootcamp.edu" class="pf-input">
-          </div>
-
-          <div data-demo-only>
-            <div class="flex items-baseline justify-between">
-              <label for="password" class="pf-label">Password</label>
-              <button type="button" data-login-only data-on-click="showForgot()" class="hidden text-footnote text-blueText font-medium hover:underline">Forgot password?</button>
-            </div>
-            <input id="password" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" class="pf-input">
-            <p id="forgot-note" class="hidden pf-hint mt-1.5">Password reset emails aren't part of this prototype yet.</p>
-          </div>
-
           <!-- Track Selection (sign up only, mandatory, nothing pre-selected) -->
           <fieldset data-signup-only>
             <legend class="pf-label !text-subhead">Your bootcamp track</legend>
@@ -158,19 +120,50 @@
             <p id="terms-error" class="hidden pf-error">Agree to the Terms of Service to continue.</p>
           </div>
 
-          <button id="auth-submit" type="submit" data-demo-only class="btn btn-primary w-full">
-            Create account →
-          </button>
-
-          <!-- Google SSO (live site: the only way in, after track and terms) -->
-          <div data-live-only class="space-y-3.5">
-            <button type="button" id="google-btn-live" data-on-click="handleGoogle()" class="btn btn-google w-full !gap-3">
+          <!-- Continue with Google: the main way in, after track and terms -->
+          <div class="space-y-3.5">
+            <button type="button" id="google-btn" data-on-click="handleGoogle()" class="btn btn-google w-full !gap-3">
               <svg class="w-5 h-5" aria-hidden="true"><use href="#i-google"/></svg>
               Continue with Google
             </button>
-            <p id="live-note" class="text-footnote text-label-2 text-center">
+            <p id="live-note" data-live-only class="text-footnote text-label-2 text-center">
               Google shares your name, email address and profile photo with us. Email sign-in is coming later.
             </p>
+          </div>
+
+          <!-- Demo only: email sign-up and log in, tucked behind a link (D033: the live site is Google only) -->
+          <button type="button" id="email-toggle" data-demo-only data-on-click="showEmailForm()" class="!mt-2 block mx-auto text-subhead font-semibold text-blueText hover:underline min-h-[44px]">Sign up with email instead</button>
+          <div id="email-fields" data-demo-only class="hidden space-y-3">
+            <div class="flex items-center gap-3 text-footnote text-label-2">
+              <div class="flex-1 h-px bg-separator"></div>
+              <span id="divider-text">or sign up with email</span>
+              <div class="flex-1 h-px bg-separator"></div>
+            </div>
+            <div data-signup-only class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="first-name" class="pf-label">First name</label>
+                <input id="first-name" type="text" autocomplete="given-name" placeholder="Alex" class="pf-input">
+              </div>
+              <div>
+                <label for="last-name" class="pf-label">Last name</label>
+                <input id="last-name" type="text" autocomplete="family-name" placeholder="Chen" class="pf-input">
+              </div>
+            </div>
+            <div>
+              <label for="email" class="pf-label">Email</label>
+              <input id="email" type="email" required autocomplete="email" placeholder="you@bootcamp.edu" class="pf-input">
+            </div>
+            <div>
+              <div class="flex items-baseline justify-between">
+                <label for="password" class="pf-label">Password</label>
+                <button type="button" data-login-only data-on-click="showForgot()" class="hidden text-footnote text-blueText font-medium hover:underline">Forgot password?</button>
+              </div>
+              <input id="password" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" class="pf-input">
+              <p id="forgot-note" class="hidden pf-hint mt-1.5">Password reset emails aren't part of this prototype yet.</p>
+            </div>
+            <button id="auth-submit" type="submit" class="btn btn-primary w-full">
+              Create account →
+            </button>
           </div>
         </form>
 

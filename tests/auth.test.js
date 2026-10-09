@@ -2,7 +2,17 @@
 const { openApp, signUp, visible, sleep, noHorizontalScroll, pageFits } = require('./helpers');
 
 module.exports = async (browser, t) => {
+  const shown = (p, sel) => p.$eval(sel, e => e.getClientRects().length > 0);
   let page = await openApp(browser, t);
+
+  // Demo sign-up leads with design A: track, terms and Google; email is behind a link
+  t.ok('demo sign-up shows track, terms and Continue with Google, with the email form tucked away',
+    await shown(page, 'input[name="track"] + div') && await shown(page, '#terms') && await shown(page, '#google-btn')
+    && await shown(page, '#email-toggle') && !(await shown(page, '#email')) && !(await shown(page, '#auth-submit')));
+  t.ok('track tiles are large, with the icon above the name',
+    await page.$eval('.track-tile', e => getComputedStyle(e).flexDirection === 'column'));
+  await page.click('#email-toggle');
+  t.ok('Sign up with email instead shows the email form', await shown(page, '#email') && await shown(page, '#first-name') && !(await shown(page, '#email-toggle')));
 
   await page.click('#auth-submit');
   t.ok('sign-up without track or terms shows both errors', await visible(page, 'track-error') && await visible(page, 'terms-error'));
@@ -40,21 +50,20 @@ module.exports = async (browser, t) => {
   await page.close();
 
   // Live site (spec 09, D033): Google sign-in only, track and terms first
-  const shown = (p, sel) => p.$eval(sel, e => e.getClientRects().length > 0);
   const live = () => { window.BC_BACKEND = { url: 'https://example.supabase.co', key: 'made-up-test-key' }; };
   page = await openApp(browser, t, { beforeLoad: live });
   t.ok('live sign-up has no name, email or password fields',
     !(await shown(page, '#first-name')) && !(await shown(page, '#email')) && !(await shown(page, '#password')) && !(await shown(page, '#auth-submit')));
   t.ok('live sign-up shows track, terms and one Continue with Google button',
     await shown(page, 'input[name="track"] + div') && await shown(page, '#terms')
-    && await shown(page, '#google-btn-live') && !(await shown(page, '#google-btn')));
+    && await shown(page, '#google-btn') && !(await shown(page, '#email-toggle')));
   t.ok('live sign-up says email sign-in is coming later', await shown(page, '#live-note') && !(await shown(page, '#demo-note')));
-  await page.click('#google-btn-live');
+  await page.click('#google-btn');
   t.ok('live Google sign-up is blocked until track and terms are chosen',
     await visible(page, 'track-error') && await visible(page, 'terms-error') && !(await visible(page, 'app-dashboard')));
   await page.click('#mode-login');
   t.ok('live log in shows only Continue with Google',
-    await shown(page, '#google-btn-live') && !(await shown(page, '#terms')) && !(await shown(page, 'input[name="track"] + div')) && !(await shown(page, '#email')));
+    await shown(page, '#google-btn') && !(await shown(page, '#terms')) && !(await shown(page, 'input[name="track"] + div')) && !(await shown(page, '#email')));
   await page.close();
   for (const [width, height, scheme] of [[1280, 650, 'light'], [320, 640, 'dark']]) {
     page = await openApp(browser, t, { width, height, scheme, beforeLoad: live });

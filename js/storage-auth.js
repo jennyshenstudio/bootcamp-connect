@@ -35,9 +35,10 @@ function setAuthMode(mode) {
   document.querySelectorAll('[data-signup-only]').forEach(el => el.classList.toggle('hidden', !isSignup));
   document.querySelectorAll('[data-login-only]').forEach(el => el.classList.toggle('hidden', isSignup));
   document.getElementById('auth-title').textContent = isSignup ? 'Create your account' : 'Welcome back';
-  document.getElementById('auth-subtitle').textContent = !isSignup ? 'Log in to pick up where you left off.'
-    : isLiveSite() ? 'Choose your track, then continue with Google.'
-    : 'Join to collaborate on projects, find co-founders, and share ideas.';
+  document.getElementById('auth-subtitle').textContent = isSignup
+    ? 'Choose your track, then continue with Google.'
+    : 'Log in to pick up where you left off.';
+  document.getElementById('email-toggle').textContent = isSignup ? 'Sign up with email instead' : 'Log in with email instead';
   document.getElementById('divider-text').textContent = isSignup ? 'or sign up with email' : 'or log in with email';
   document.getElementById('auth-submit').textContent = isSignup ? 'Create account →' : 'Log in →';
   const pw = document.getElementById('password');
@@ -65,6 +66,13 @@ function showFormError(html) {
   el.classList.remove('hidden');
 }
 function hideFormError() { document.getElementById('auth-error').classList.add('hidden'); }
+
+// Demo only: the email form stays tucked away until asked for, so the screen leads with Google (D033)
+function showEmailForm() {
+  document.getElementById('email-toggle').classList.add('hidden');
+  document.getElementById('email-fields').classList.remove('hidden');
+  document.getElementById(authMode === 'signup' ? 'first-name' : 'email').focus();
+}
 
 function showForgot() { document.getElementById('forgot-note').classList.remove('hidden'); }
 
@@ -191,7 +199,10 @@ function logout() {
     dashboard.classList.add('hidden');
     document.getElementById('auth-form').reset();
     setAuthMode('login');
-    if (email && !email.startsWith('google-user')) document.getElementById('email').value = email;
+    if (email && !email.startsWith('google-user')) {
+      document.getElementById('email').value = email;
+      showEmailForm();
+    }
     auth.classList.remove('hidden');
     window.scrollTo(0, 0);
     requestAnimationFrame(() => requestAnimationFrame(() => auth.classList.remove('opacity-0', 'pointer-events-none')));

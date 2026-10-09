@@ -45,6 +45,8 @@ async function openApp(browser, t, { width = 1440, height = 900, scheme = 'light
 }
 
 async function signUp(page, { first = 'Maya', last = 'Okafor', email = 'maya@example.com', track = 'dev' } = {}) {
+  // The demo tucks the email form behind "Sign up with email instead"
+  if (await page.$eval('#email-toggle', e => e.getClientRects().length > 0)) await page.click('#email-toggle');
   if (first) await page.type('#first-name', first);
   if (last) await page.type('#last-name', last);
   await page.type('#email', email);
