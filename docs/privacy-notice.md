@@ -39,20 +39,24 @@ We use these companies to run the service:
 - **Google** signs you in.
 - **GitHub** hosts the website and may record your IP address for security.
 
+These companies are based outside the UK, so their staff may sometimes access your information from abroad, for example to fix a problem. When they do, the law requires them to protect it to UK standards. [Owner to check the details in Supabase's and Google's data processing agreements.]
+
 ## How long we keep it
-Until you delete your account. [Accounts with no sign-in for 2 years are deleted: owner to confirm.]
+Until you delete your account. [Accounts with no sign-in for 2 years are deleted: owner to confirm. Only keep this if there's a way to do it, such as a yearly check. Otherwise remove it.]
 
 ## Your rights
 You can:
 - **delete your account** at any time, on your profile page. This deletes your profile straight away
 - **see and correct your information** on your profile page
 - **ask for a copy** of your information
+- **ask us to limit** how we use it, for example while we check a correction
+- **get your information in a format** you can take to another service
 - **object** to how we use it
 
 For anything you can't do in the app, email [contact email]. We'll reply within one month.
 
 ## Information stored on your device
-The app keeps you signed in using your browser's storage. It also keeps your posts and messages on your device, because in this early version they aren't sent to our servers. We don't use advertising or tracking cookies.
+The app keeps you signed in using your browser's storage. It also keeps your posts and messages on your device, because in this early version they aren't sent to our servers. Logging out or deleting your account removes them from the device. We don't use advertising or tracking cookies.
 
 ## Age
 You must be 18 or over to use Bootcamp Connect.

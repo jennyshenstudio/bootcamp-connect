@@ -34,7 +34,8 @@ Feed posts, messages and connections are not stored on the server in step 1. The
 | A member reads or changes someone else's profile | A member calling Supabase directly with their own session | Row-level security; acceptance criteria 7 and 8 in spec 09 |
 | The secret key leaks | Committed or pasted by mistake | The app never uses it; pre-commit secret scan; make a new key first if it leaks |
 | A harmful script steals a member's session | Malicious content shown on the page (cross-site scripting) | Content Security Policy with no inline scripts; text is escaped before display; libraries are self-hosted |
-| Data is lost | A mistake, or a problem at Supabase; the free plan may have no automatic backups | The owner exports the data regularly; review before more members join |
+| Data is lost | A mistake, or a problem at Supabase; the free plan has no automatic backups | The owner exports the data regularly and tests a restore before beta, or moves to a paid plan |
+| The next person on a shared computer sees a member's profile, posts or messages | The copy the app keeps in the browser | Log out and Delete my account clear it (spec 09, acceptance criterion 10) |
 | Members can't sign in | Supabase pauses free projects after a week with no use | The owner restores the project; check it weekly at first |
 | A member writes sensitive details (health, religion and so on) in their profile | The member | The privacy notice asks them not to; delete on request |
 | Under-18s sign up | Anyone with a Google account | The terms say members must be 18 or over |

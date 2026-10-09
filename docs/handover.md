@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-09 (spec 09 review)
+- **What changed:** reviewed spec 09 with the owner and updated it, the draft privacy notice and the personal data rules. Launching to real members now needs a move to beta first (backups with a tested restore, an incident plan, DPIA screening, expert review). Log out and Delete my account must clear the browser copy. The Content Security Policy allows Google's photo address. The privacy notice mentions data handled outside the UK and the rights to limit use and to take your data elsewhere. Documents only; no app changes.
+- **What's next:** the owner answers the decisions below. Then the owner creates the Supabase and Google Cloud accounts (Claude to give step-by-step instructions), and Claude builds spec 09 in alpha, with made-up test accounts.
+- **Open questions:** a contact email that isn't personal (a separate free Gmail address would do); whose name goes in the privacy notice as the person running the service; keep or drop the 2-year deletion of unused accounts; the ICO fee (£52 a year for small organisations, checked 2026-10-09; use the ICO's fee checker before real members join); backups by hand or Supabase's paid plan (price not checked yet).
+- **Worth learning:** a Content Security Policy blocks anything it doesn't list, including features the spec relies on. Check every outside address a feature needs, such as the Google photo here.
+
 ## 2026-10-09 (Foundation 1.0)
 - **What changed:** copied Foundation 1.0's pre-commit check and `.claude/settings.json` into this project (Foundation F017). The check now blocks changes to the secret scanner's settings files, and renaming code to `.md` no longer skips the tests. More `.env` names are blocked. The changelog no longer says skipping the check needs the owner's approval, because it only asks for the usual ways.
 - **What's next:** back to building Bootcamp Connect. Foundation is paused and changes only when real work here shows a problem.
