@@ -11,6 +11,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 ## Unreleased
 
 ### Added
+- **Live site sign-up screen** (spec 09, D033): when Supabase settings are present, the sign-up and log-in screen offers Continue with Google only. Sign up asks for the track and the terms agreement first; log in is just the Google button; a note says what Google shares and that email sign-in is coming later. The demo is unchanged. Google sign-in itself isn't connected yet. New `js/backend.js` decides which version runs.
 - **Plans for real members** (not built yet): decisions D032 to D034, spec 09 (real accounts and profiles), personal data rules and risks (`docs/personal-data.md`), a draft privacy notice (`docs/privacy-notice.md`) and draft terms of service (`docs/terms-of-service.md`). Members must be 18 or over, and the Google photo becomes their starting profile photo. D026 is superseded.
 - **Licence:** `LICENSE` makes the code "all rights reserved" (D031). It can be read on GitHub but not copied or reused without permission.
 

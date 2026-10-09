@@ -32,6 +32,36 @@ module.exports = async (browser, t) => {
   t.ok('returning member logs in to the Feed', await visible(page, 'tab-feed') && !(await visible(page, 'profile-banner')));
   await page.close();
 
+  // Terms checkbox (spec 09): agree to the terms, read the privacy notice; both links open
+  page = await openApp(browser, t);
+  const termsLinks = await page.$$eval('#terms + span a', as => as.map(a => a.textContent.trim()));
+  t.ok('terms checkbox links the Terms of Service and the Privacy notice',
+    termsLinks.some(x => x.startsWith('Terms of Service')) && termsLinks.some(x => x.startsWith('Privacy notice')), termsLinks.join(' | '));
+  await page.close();
+
+  // Live site (spec 09, D033): Google sign-in only, track and terms first
+  const shown = (p, sel) => p.$eval(sel, e => e.getClientRects().length > 0);
+  const live = () => { window.BC_BACKEND = { url: 'https://example.supabase.co', key: 'made-up-test-key' }; };
+  page = await openApp(browser, t, { beforeLoad: live });
+  t.ok('live sign-up has no name, email or password fields',
+    !(await shown(page, '#first-name')) && !(await shown(page, '#email')) && !(await shown(page, '#password')) && !(await shown(page, '#auth-submit')));
+  t.ok('live sign-up shows track, terms and one Continue with Google button',
+    await shown(page, 'input[name="track"] + div') && await shown(page, '#terms')
+    && await shown(page, '#google-btn-live') && !(await shown(page, '#google-btn')));
+  t.ok('live sign-up says email sign-in is coming later', await shown(page, '#live-note') && !(await shown(page, '#demo-note')));
+  await page.click('#google-btn-live');
+  t.ok('live Google sign-up is blocked until track and terms are chosen',
+    await visible(page, 'track-error') && await visible(page, 'terms-error') && !(await visible(page, 'app-dashboard')));
+  await page.click('#mode-login');
+  t.ok('live log in shows only Continue with Google',
+    await shown(page, '#google-btn-live') && !(await shown(page, '#terms')) && !(await shown(page, 'input[name="track"] + div')) && !(await shown(page, '#email')));
+  await page.close();
+  for (const [width, height, scheme] of [[1280, 650, 'light'], [320, 640, 'dark']]) {
+    page = await openApp(browser, t, { width, height, scheme, beforeLoad: live });
+    t.ok(`live sign-up fits one screen at ${width}×${height}`, await pageFits(page) && await noHorizontalScroll(page));
+    await page.close();
+  }
+
   // The sign-up page fits one screen at common sizes
   for (const [width, height] of [[1440, 900], [1366, 768], [1280, 720], [1280, 650], [390, 844]]) {
     page = await openApp(browser, t, { width, height });

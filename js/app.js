@@ -31,6 +31,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sheet'
 
 // Restore an existing session in this browser
 (function init() {
+  // Live site: Google sign-in only (D033); CSS hides the demo's email form
+  if (isLiveSite()) $('auth-screen').classList.add('is-live');
   setAuthMode('signup');
   const email = load(SESSION_KEY, '');
   const account = email && getAccounts()[email];

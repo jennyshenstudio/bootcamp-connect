@@ -31,6 +31,8 @@
   --glass-pill: rgba(255, 255, 255, 0.92);
   --toast-bg: rgba(28, 28, 32, 0.78);
   --glass-sheet: rgba(255, 255, 255, 0.86);
+  /* Google sign-in button: colours set by Google's branding guidelines */
+  --google-fill: #FFFFFF; --google-stroke: #747775; --google-text: #1F1F1F;
   /* Ambient light behind the glass */
   --ambient-1: rgba(0, 122, 255, 0.24);
   --ambient-2: rgba(175, 82, 222, 0.2);
@@ -72,6 +74,7 @@
     --glass-pill: rgba(255, 255, 255, 0.16);
     --toast-bg: rgba(60, 60, 66, 0.78);
     --glass-sheet: rgba(30, 30, 34, 0.88);
+    --google-fill: #131314; --google-stroke: #8E918F; --google-text: #E3E3E3;
     --ambient-1: rgba(10, 132, 255, 0.3);
     --ambient-2: rgba(191, 90, 242, 0.24);
     --ambient-3: rgba(48, 209, 88, 0.1);
@@ -110,6 +113,7 @@
   --glass-pill: rgba(255, 255, 255, 0.16);
   --toast-bg: rgba(60, 60, 66, 0.78);
   --glass-sheet: rgba(30, 30, 34, 0.88);
+  --google-fill: #131314; --google-stroke: #8E918F; --google-text: #E3E3E3;
   --ambient-1: rgba(10, 132, 255, 0.3);
   --ambient-2: rgba(191, 90, 242, 0.24);
   --ambient-3: rgba(48, 209, 88, 0.1);
@@ -197,6 +201,11 @@ body::before {
   -webkit-backdrop-filter: blur(16px) saturate(170%); backdrop-filter: blur(16px) saturate(170%);
 }
 .btn-gray:hover { background: var(--glass-control-hover); }
+.btn-google {
+  color: var(--google-text); background: var(--google-fill); border: 1px solid var(--google-stroke);
+  font-weight: 600;
+}
+.btn-google:hover { filter: brightness(0.96); }
 .btn-plain { color: rgb(var(--blue-text)); padding: 0 10px; }
 .btn-plain:hover { background: rgb(var(--blue) / 0.1); }
 .btn-sm { min-height: 36px; padding: 0 14px; font-size: 15px; }
@@ -297,6 +306,10 @@ input[type="checkbox"], input[type="radio"] { accent-color: rgb(var(--blue)); }
     radial-gradient(circle at 85% 85%, rgba(175, 82, 222, 0.32), transparent 45%),
     #0B0B0F;
 }
+
+/* Demo or live sign-up (D033): the live site has Google sign-in only, no email form */
+#auth-screen.is-live [data-demo-only],
+#auth-screen:not(.is-live) [data-live-only] { display: none !important; }
 
 /* Keep the full sign-up form on one screen on short laptop windows */
 @media (max-height: 820px) {

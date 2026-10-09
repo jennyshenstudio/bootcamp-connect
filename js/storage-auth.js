@@ -40,7 +40,7 @@ function setAuthMode(mode) {
     ? 'Join to collaborate on projects, find co-founders, and share ideas.'
     : 'Log in to pick up where you left off.';
   document.getElementById('divider-text').textContent = isSignup ? 'or sign up with email' : 'or log in with email';
-  document.getElementById('auth-submit').textContent = isSignup ? 'Create account & enter dashboard →' : 'Log in →';
+  document.getElementById('auth-submit').textContent = isSignup ? 'Create account →' : 'Log in →';
   const pw = document.getElementById('password');
   pw.autocomplete = isSignup ? 'new-password' : 'current-password';
   pw.placeholder = isSignup ? 'At least 8 characters' : 'Your password';
@@ -102,6 +102,8 @@ function handleGoogle() {
 
 function handleAuthSubmit(e) {
   e.preventDefault();
+  // The live site has no email form (D033): Enter in the form means Continue with Google
+  if (isLiveSite()) return handleGoogle();
   hideFormError();
   const form = e.target;
   const email = document.getElementById('email').value.trim().toLowerCase();
