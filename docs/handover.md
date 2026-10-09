@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-09 (Foundation 1.0)
+- **What changed:** copied Foundation 1.0's pre-commit check and `.claude/settings.json` into this project (Foundation F017). The check now blocks changes to the secret scanner's settings files, and renaming code to `.md` no longer skips the tests. More `.env` names are blocked. The changelog no longer says skipping the check needs the owner's approval, because it only asks for the usual ways.
+- **What's next:** back to building Bootcamp Connect. Foundation is paused and changes only when real work here shows a problem.
+- **Open questions:** the owner doesn't use Time Machine, and archives finished work to an external drive when Claude prompts. The old `~/Documents/Shen-1` folder is already gone.
+- **Worth learning:** a project's copy of the check doesn't update itself. When Foundation's check changes, copy it into each project.
+
 ## 2026-10-09 (move to ~/code)
 - **What changed:** the project now lives in `~/code/bootcamp-connect`, a fresh copy from GitHub (D037, Foundation F015). `CLAUDE.md` and the setup test point at `../foundation`.
 - **What's next:** work from the new folder. After a week, and once Time Machine has a backup, delete `~/Documents/Shen-1/Bootcamp Connect`.

@@ -10,6 +10,7 @@
 # Tests: runs .githooks/test if it exists, otherwise `npm test` when package.json
 # has a real test script, otherwise pytest when pyproject.toml exists.
 # Tests are skipped when every staged file is Markdown (.md).
+# Changes to the scanner's own settings files are blocked, because they can switch the scan off.
 
 set -u
 
@@ -18,7 +19,14 @@ block() {
   exit 1
 }
 
-# 1. Secrets (staged changes only)
+# 1. The scanner's settings. gitleaks reads these from the working folder, staged or not,
+# and CI reads them too, so any change to them could switch the scan off without anyone noticing.
+if [ -n "$(git status --porcelain --untracked-files=all -- .gitleaks.toml .gitleaksignore)" ]; then
+  block "the secret scanner's settings (.gitleaks.toml or .gitleaksignore) have changed." \
+    "These can switch the scan off. Undo the change, or if the owner approved it, commit with --no-verify and record why in the handover."
+fi
+
+# 2. Secrets (staged changes only)
 GITLEAKS="$(command -v gitleaks || true)"
 if [ -z "$GITLEAKS" ] && [ -x "$HOME/.local/bin/gitleaks" ]; then
   GITLEAKS="$HOME/.local/bin/gitleaks"
@@ -34,8 +42,9 @@ case $? in
   *) block "the secret scanner couldn't run." "Check gitleaks works (gitleaks version), then commit again." ;;
 esac
 
-# 2. Tests
-staged="$(git diff --cached --name-only --diff-filter=ACMRD)"
+# 3. Tests. --no-renames lists a renamed file under its old name too, so renaming
+# code to .md doesn't skip the tests.
+staged="$(git diff --cached --name-only --no-renames --diff-filter=ACMD)"
 if [ -n "$staged" ] && ! printf '%s\n' "$staged" | grep -qv '\.md$'; then
   printf 'Note: only Markdown files changed, so the tests were skipped.\n' >&2
   exit 0
