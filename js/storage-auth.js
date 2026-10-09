@@ -38,7 +38,10 @@ function setAuthMode(mode) {
   document.getElementById('auth-subtitle').textContent = isSignup
     ? 'Choose your track, then continue with Google.'
     : 'Log in to pick up where you left off.';
-  document.getElementById('email-toggle').textContent = isSignup ? 'Sign up with email instead' : 'Log in with email instead';
+  document.getElementById('email-toggle-text').textContent = isSignup ? 'Sign up with email instead' : 'Log in with email';
+  document.getElementById('auth-screen').classList.toggle('is-login', !isSignup);
+  // Once the email form is open it has its own divider
+  if (!document.getElementById('email-fields').classList.contains('hidden')) document.getElementById('login-or').classList.add('hidden');
   document.getElementById('divider-text').textContent = isSignup ? 'or sign up with email' : 'or log in with email';
   document.getElementById('auth-submit').textContent = isSignup ? 'Create account →' : 'Log in →';
   const pw = document.getElementById('password');
@@ -70,6 +73,7 @@ function hideFormError() { document.getElementById('auth-error').classList.add('
 // Demo only: the email form stays tucked away until asked for, so the screen leads with Google (D033)
 function showEmailForm() {
   document.getElementById('email-toggle').classList.add('hidden');
+  document.getElementById('login-or').classList.add('hidden');
   document.getElementById('email-fields').classList.remove('hidden');
   document.getElementById(authMode === 'signup' ? 'first-name' : 'email').focus();
 }

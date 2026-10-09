@@ -71,6 +71,20 @@ module.exports = async (browser, t) => {
     await page.close();
   }
 
+  // Log in (design "Log in 1"): big title, Google, "or", a full-width email button, note at the bottom
+  page = await openApp(browser, t, { width: 1470, height: 760 });
+  await page.click('#mode-login');
+  t.ok('log in shows Google, "or" and a full-width Log in with email button',
+    await shown(page, '#google-btn') && await shown(page, '#login-or')
+    && (await page.$eval('#email-toggle', e => e.textContent.trim())) === 'Log in with email'
+    && await page.$eval('#email-toggle', e => Math.abs(e.offsetWidth - document.getElementById('google-btn').offsetWidth) < 2));
+  t.ok('log in title is larger than the sign-up title', await page.$eval('#auth-title', e => parseFloat(getComputedStyle(e).fontSize) >= 48));
+  t.ok('log in demo note sits at the bottom of the panel',
+    await page.evaluate(() => document.querySelector('.auth-main').getBoundingClientRect().bottom - document.getElementById('demo-note').getBoundingClientRect().bottom < 40));
+  await page.click('#email-toggle');
+  t.ok('Log in with email shows the email form and hides "or"', await shown(page, '#email') && !(await shown(page, '#login-or')));
+  await page.close();
+
   // Short windows (a browser inside claude.ai is about 700px tall) keep the same design, not a squashed one
   page = await openApp(browser, t, { width: 1470, height: 695 });
   t.ok('on a short window the track tiles stay large and the subtitle shows',

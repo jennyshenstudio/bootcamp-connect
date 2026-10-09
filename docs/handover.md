@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-09 (log in screen)
+- **What changed:** the owner found the log-in view sparse, so I drew 3 variations at their real window size (about 1470×760) on the design canvas. They chose "Log in 1": a larger title, a 60px Google button, an "or" line and a full-width Log in with email button, with the demo note at the bottom of the panel. Built, with tests; sign-up unchanged. Shared prototype republished.
+- **What's next:** profile setup.
+- **Open questions:** should the sign-up screen match the log-in screen's larger title (48px against 34px) and the demo note at the bottom? Not changed without the owner's say.
+- **Worth learning:** a browser can keep showing an old copy of a page after an update. Cmd+Shift+R reloads everything.
+
 ## 2026-10-09 (sign-up layout A)
 - **What changed:** explored 3 sign-up designs on a design canvas (https://claude.ai/artifact/2HhRhjhpBowxszXKbuJkQU): A glass refined, B clean minimal, C bold in two steps. The owner chose A, which keeps the Apple style (D009), so no new decision. Built it: two full-height panels on desktop, big square track tiles, larger Google button, and a "Log in" link instead of tabs. At first I squeezed the demo (which also has the email form) back into compact tiles to fit one screen, without asking; the owner rightly objected. Fixed: the demo now matches design A, with email behind a "Sign up with email instead" link. Then the owner saw it squashed: old shrinking rules for short windows (a browser inside claude.ai is about 700px tall) collapsed the tiles. Removed them, so the form looks the same at every height; a test now checks a 1470×695 window. Shared prototype republished.
 - **What's next:** profile setup. The phone layout of the sign-up screen can be polished later (content sits in the middle; the mockup puts the Google button at the bottom).

@@ -316,6 +316,19 @@ input[type="checkbox"], input[type="radio"] { accent-color: rgb(var(--blue)); }
 }
 #auth-screen .btn-google { min-height: 52px; }
 
+/* Log in (design "Log in 1"): larger title and buttons, a full-width email button,
+   and the demo note at the bottom of the panel */
+#auth-screen.is-login #auth-title { font-size: 48px; line-height: 1.05; letter-spacing: -0.03em; }
+#auth-screen.is-login #auth-subtitle { font-size: 19px; line-height: 1.4; }
+#auth-screen.is-login #auth-form { margin-top: 36px; }
+#auth-screen.is-login #google-btn { min-height: 60px; font-size: 18px; }
+#auth-screen.is-login #email-toggle {
+  width: 100%; min-height: 60px; border-radius: 9999px; font-size: 18px; color: var(--label); text-decoration: none;
+  background: var(--glass-field); border: 1px solid var(--field-rim);
+}
+#auth-screen.is-login #email-toggle:hover { background: var(--glass-control-hover); }
+#auth-screen.is-login #demo-note { position: absolute; left: 0; right: 0; bottom: 24px; border: 0; padding: 0; text-align: center; }
+
 /* Demo or live sign-up (D033): the live site has Google sign-in only, no email form */
 #auth-screen.is-live [data-demo-only],
 #auth-screen:not(.is-live) [data-live-only] { display: none !important; }

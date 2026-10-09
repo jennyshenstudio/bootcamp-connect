@@ -61,7 +61,7 @@
     </aside>
 
     <!-- Form panel: a full-height glass panel on desktop, straight on the background on phones -->
-    <main class="auth-main flex-1 min-w-0 flex flex-col px-5 sm:px-8 lg:px-10 py-6">
+    <main class="auth-main relative flex-1 min-w-0 flex flex-col px-5 sm:px-8 lg:px-10 py-6">
       <div class="flex items-center justify-between gap-3">
         <div class="lg:hidden flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-[9px] bg-gradient-to-br from-[#0A84FF] to-[#BF5AF2] flex items-center justify-center">
@@ -132,7 +132,14 @@
           </div>
 
           <!-- Demo only: email sign-up and log in, tucked behind a link (D033: the live site is Google only) -->
-          <button type="button" id="email-toggle" data-demo-only data-on-click="showEmailForm()" class="!mt-2 block mx-auto text-subhead font-semibold text-blueText hover:underline min-h-[44px]">Sign up with email instead</button>
+          <!-- Log in (demo): "or", then a full-width email button (Log in 1 design) -->
+          <div id="login-or" data-demo-only data-login-only class="hidden flex items-center gap-3.5 text-subhead text-label-2 !mt-4">
+            <div class="flex-1 h-px bg-separator"></div>or<div class="flex-1 h-px bg-separator"></div>
+          </div>
+          <button type="button" id="email-toggle" data-demo-only data-on-click="showEmailForm()" class="!mt-2 flex items-center justify-center gap-3 mx-auto text-subhead font-semibold text-blueText hover:underline min-h-[44px]">
+            <svg data-login-only class="hidden icon w-[22px] h-[22px]"><use href="#i-mail"/></svg>
+            <span id="email-toggle-text">Sign up with email instead</span>
+          </button>
           <div id="email-fields" data-demo-only class="hidden space-y-3">
             <div class="flex items-center gap-3 text-footnote text-label-2">
               <div class="flex-1 h-px bg-separator"></div>
