@@ -29,16 +29,15 @@ let authMode = 'signup';
 function setAuthMode(mode) {
   authMode = mode;
   const isSignup = mode === 'signup';
-  document.getElementById('mode-signup').classList.toggle('active', isSignup);
-  document.getElementById('mode-signup').classList.toggle('text-label-2', !isSignup);
-  document.getElementById('mode-login').classList.toggle('active', !isSignup);
-  document.getElementById('mode-login').classList.toggle('text-label-2', isSignup);
+  document.getElementById('mode-login').classList.toggle('hidden', !isSignup);
+  document.getElementById('mode-signup').classList.toggle('hidden', isSignup);
+  document.getElementById('mode-prompt').textContent = isSignup ? 'Already a member?' : 'New to Bootcamp Connect?';
   document.querySelectorAll('[data-signup-only]').forEach(el => el.classList.toggle('hidden', !isSignup));
   document.querySelectorAll('[data-login-only]').forEach(el => el.classList.toggle('hidden', isSignup));
   document.getElementById('auth-title').textContent = isSignup ? 'Create your account' : 'Welcome back';
-  document.getElementById('auth-subtitle').textContent = isSignup
-    ? 'Join to collaborate on projects, find co-founders, and share ideas.'
-    : 'Log in to pick up where you left off.';
+  document.getElementById('auth-subtitle').textContent = !isSignup ? 'Log in to pick up where you left off.'
+    : isLiveSite() ? 'Choose your track, then continue with Google.'
+    : 'Join to collaborate on projects, find co-founders, and share ideas.';
   document.getElementById('divider-text').textContent = isSignup ? 'or sign up with email' : 'or log in with email';
   document.getElementById('auth-submit').textContent = isSignup ? 'Create account →' : 'Log in →';
   const pw = document.getElementById('password');

@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-09 (sign-up layout A)
+- **What changed:** explored 3 sign-up designs on a design canvas (https://claude.ai/artifact/2HhRhjhpBowxszXKbuJkQU): A glass refined, B clean minimal, C bold in two steps. The owner chose A, which keeps the Apple style (D009), so no new decision. Built it: two full-height panels on desktop, big square track tiles, larger Google button, and a "Log in" link instead of tabs. The demo uses compact tiles and spacing to keep fitting one screen (spec 08). Shared prototype republished.
+- **What's next:** profile setup. The phone layout of the sign-up screen can be polished later (content sits in the middle; the mockup puts the Google button at the bottom).
+- **Open questions:** "Business Developer" stays for now; the owner may rename the track later. Ideas considered and not chosen: "Product & Growth", "Business & Product".
+- **Worth learning:** the same screen can have to serve two jobs. Here the demo carries more fields than the live site, so it gets a compact version of the same design rather than a different one.
+
 ## 2026-10-09 (live sign-up screen)
 - **What changed:** the sign-up and log-in screen has a live-site layout (spec 09, D033): Continue with Google only, track and terms first, and a note on what Google shares. It shows when `isLiveSite()` in the new `js/backend.js` finds Supabase settings, so the demo is unchanged. The Google button now follows Google's branding guidelines (official "G", set colours in light and dark mode). The terms checkbox uses spec 09's wording, and its links open the draft documents on GitHub for now. Shared prototype republished (version 13).
 - **What's next:** profile setup, the owner's next priority. Later in spec 09: connect real Google sign-in through Supabase (needs the owner's Supabase and Google Cloud accounts), and turn the terms and privacy notice into pages in the app.

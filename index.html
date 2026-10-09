@@ -23,75 +23,66 @@
 </head>
 <body class="h-full font-sans antialiased text-body">
 
-  <!-- ==================== AUTH: FULL-PAGE SIGN UP / LOG IN (specs/01-auth.md) ==================== -->
-  <div id="auth-screen" class="min-h-full flex transition-opacity duration-300 ease-apple">
+  <!-- ==================== AUTH: FULL-PAGE SIGN UP / LOG IN (specs/01-auth.md, 09) ==================== -->
+  <div id="auth-screen" class="min-h-full flex lg:gap-6 lg:p-6 transition-opacity duration-300 ease-apple">
 
     <!-- Brand panel (desktop) -->
-    <aside class="auth-brand hidden lg:flex lg:w-1/2 xl:w-[55%] flex-col justify-between p-12 xl:p-16 text-white">
+    <aside class="auth-brand hidden lg:flex lg:w-1/2 shrink-0 rounded-[32px] flex-col justify-between p-12 xl:p-14 text-white">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-[11px] bg-gradient-to-br from-[#0A84FF] to-[#BF5AF2] flex items-center justify-center shadow-lg shadow-black/30">
           <svg class="w-6 h-6 text-white"><use href="#i-bolt"/></svg>
         </div>
-        <div>
-          <p class="font-semibold text-body leading-none">Bootcamp Connect</p>
-          <p class="text-footnote text-white/60 mt-1">Dev &amp; Biz Collaboration Hub</p>
-        </div>
+        <p class="font-semibold text-body">Bootcamp Connect</p>
       </div>
 
-      <div class="auth-brand-body max-w-lg space-y-8">
-        <h1 class="text-[44px] xl:text-[56px] font-bold tracking-[-0.025em] leading-[1.05]">
+      <div class="auth-brand-body max-w-lg space-y-5">
+        <h1 class="text-[44px] xl:text-[52px] font-bold tracking-[-0.025em] leading-[1.06]">
           Where bootcamp coders and business builders team up.
         </h1>
         <p class="text-white/70 text-title3 font-normal leading-relaxed">
           Post an idea, pick up paid work, or find a co-founder whose skills complement yours.
         </p>
-
-        <!-- Example match card -->
-        <div class="rounded-[20px] bg-white/[0.08] border border-white/10 p-5 space-y-3">
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <div class="avatar w-11 h-11 text-subhead">ER</div>
-              <div>
-                <p class="font-semibold text-subhead">Elena Rostova</p>
-                <p class="text-footnote text-white/60">Business Dev Track · Berlin / Remote</p>
-              </div>
-            </div>
-            <span class="bg-[#30D158] text-black text-footnote font-semibold px-3 py-1 rounded-full whitespace-nowrap">94% match</span>
-          </div>
-          <p class="text-subhead text-white/70">
-            Growth marketing + your React/Node stack · Both seeking a full-time co-founder · High uncertainty comfort
-          </p>
-        </div>
       </div>
 
-      <ul class="flex flex-wrap gap-x-6 gap-y-2 text-footnote text-white/60">
-        <li class="flex items-center gap-1.5"><svg class="icon w-4 h-4"><use href="#i-feed"/></svg>Project Feed</li>
-        <li class="flex items-center gap-1.5"><svg class="icon w-4 h-4"><use href="#i-match"/></svg>Connect with people &amp; projects</li>
-        <li class="flex items-center gap-1.5"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Direct Messages</li>
-      </ul>
+      <!-- Example match card -->
+      <div class="max-w-md space-y-3">
+        <div class="rounded-[20px] bg-white/[0.08] border border-white/10 px-5 py-4 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="avatar w-11 h-11 text-subhead">ER</div>
+            <div>
+              <p class="font-semibold text-subhead">Elena Rostova</p>
+              <p class="text-footnote text-white/65">Business Developer · Berlin</p>
+            </div>
+          </div>
+          <span class="bg-[#30D158] text-black text-footnote font-semibold px-3 py-1 rounded-full whitespace-nowrap">94% match</span>
+        </div>
+        <p class="text-footnote text-white/60">Sample member from the demo</p>
+      </div>
     </aside>
 
-    <!-- Form panel -->
-    <main class="auth-main flex-1 min-w-0 flex items-center justify-center px-4 sm:px-8 py-6 [@media(max-height:820px)]:py-3">
-      <div class="card auth-card w-full max-w-[440px] p-6 sm:p-7 [@media(max-height:820px)]:py-5 space-y-4 [@media(max-height:820px)]:space-y-3 [@media(max-height:700px)]:space-y-2">
-
-        <!-- Compact brand (mobile / tablet) -->
+    <!-- Form panel: a full-height glass panel on desktop, straight on the background on phones -->
+    <main class="auth-main flex-1 min-w-0 flex flex-col px-5 sm:px-8 lg:px-10 py-6 lg:py-8 [@media(max-height:820px)]:py-3">
+      <div class="flex items-center justify-between gap-3">
         <div class="lg:hidden flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-[9px] bg-gradient-to-br from-[#0A84FF] to-[#BF5AF2] flex items-center justify-center">
             <svg class="w-5 h-5 text-white"><use href="#i-bolt"/></svg>
           </div>
           <p class="font-semibold text-body">Bootcamp Connect</p>
         </div>
-
-        <div class="space-y-1">
-          <h2 id="auth-title" class="text-title1 font-bold tracking-[-0.02em]">Create your account</h2>
-          <p id="auth-subtitle" class="text-subhead text-label-2 [@media(max-height:820px)]:hidden">Join to collaborate on projects, find co-founders, and share ideas.</p>
-        </div>
-
         <!-- Sign up / Log in switch -->
-        <div class="segmented segmented-lg" role="tablist">
-          <button type="button" id="mode-signup" data-on-click="setAuthMode('signup')" class="segmented-btn active" role="tab">Sign up</button>
-          <button type="button" id="mode-login" data-on-click="setAuthMode('login')" class="segmented-btn text-label-2" role="tab">Log in</button>
+        <p class="ml-auto text-subhead text-label-2">
+          <span id="mode-prompt" class="hidden sm:inline">Already a member?</span>
+          <button type="button" id="mode-login" data-on-click="setAuthMode('login')" class="font-semibold text-blueText hover:underline min-h-[44px]">Log in</button>
+          <button type="button" id="mode-signup" data-on-click="setAuthMode('signup')" class="hidden font-semibold text-blueText hover:underline min-h-[44px]">Sign up</button>
+        </p>
+      </div>
+
+      <div class="flex-1 flex items-center justify-center">
+      <div class="auth-card w-full max-w-[440px] space-y-6 [@media(max-height:820px)]:space-y-3 [@media(max-height:700px)]:space-y-2">
+
+        <div class="space-y-2">
+          <h2 id="auth-title" class="text-[30px] sm:text-[34px] leading-[1.15] font-bold tracking-[-0.02em]">Create your account</h2>
+          <p id="auth-subtitle" class="text-body text-label-2 [@media(max-height:820px)]:hidden">Join to collaborate on projects, find co-founders, and share ideas.</p>
         </div>
 
         <!-- Google SSO (demo: above the email form) -->
@@ -110,7 +101,7 @@
         <!-- Form-level message (e.g. account not found) -->
         <p id="auth-error" class="hidden text-subhead text-redText bg-appleRed/10 rounded-xl px-4 py-3"></p>
 
-        <form id="auth-form" data-on-submit="handleAuthSubmit(event)" novalidate class="space-y-3 [@media(max-height:700px)]:space-y-2">
+        <form id="auth-form" data-on-submit="handleAuthSubmit(event)" novalidate class="space-y-6 [@media(max-height:820px)]:space-y-3 [@media(max-height:700px)]:space-y-2">
           <div data-signup-only data-demo-only class="grid grid-cols-2 gap-3">
             <div>
               <label for="first-name" class="pf-label">First name</label>
@@ -138,20 +129,20 @@
 
           <!-- Track Selection (sign up only, mandatory, nothing pre-selected) -->
           <fieldset data-signup-only>
-            <legend class="pf-label">Your bootcamp track</legend>
-            <div class="grid grid-cols-2 gap-2">
+            <legend class="pf-label !text-subhead">Your bootcamp track</legend>
+            <div class="grid grid-cols-2 gap-3">
               <label class="cursor-pointer">
                 <input type="radio" id="track-dev" name="track" value="Software Developer" class="peer sr-only" data-on-change="clearError('track')">
-                <div class="h-full flex items-center gap-2 px-2.5 py-2 rounded-2xl bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-appleBlue peer-checked:bg-appleBlue/10 peer-focus-visible:ring-4 peer-focus-visible:ring-appleBlue/30">
-                  <svg class="icon w-5 h-5 text-blueText"><use href="#i-laptop"/></svg>
-                  <span class="leading-tight min-w-0"><span class="font-semibold block text-subhead sm:whitespace-nowrap">Software Developer</span><span class="text-footnote text-label-2">Coder / Engineer</span></span>
+                <div class="track-tile h-full flex flex-col items-start gap-3 p-[18px] rounded-[20px] bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-appleBlue peer-checked:bg-appleBlue/10 peer-focus-visible:ring-4 peer-focus-visible:ring-appleBlue/30">
+                  <span class="track-icon w-10 h-10 rounded-xl bg-appleBlue/15 flex items-center justify-center"><svg class="icon w-[22px] h-[22px] text-blueText"><use href="#i-laptop"/></svg></span>
+                  <span class="leading-tight min-w-0"><span class="track-name font-semibold block text-body">Software Developer</span><span class="block text-subhead text-label-2 mt-0.5">Coder or engineer</span></span>
                 </div>
               </label>
               <label class="cursor-pointer">
                 <input type="radio" id="track-biz" name="track" value="Business Developer" class="peer sr-only" data-on-change="clearError('track')">
-                <div class="h-full flex items-center gap-2 px-2.5 py-2 rounded-2xl bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-applePurple peer-checked:bg-applePurple/10 peer-focus-visible:ring-4 peer-focus-visible:ring-applePurple/30">
-                  <svg class="icon w-5 h-5 text-purpleText"><use href="#i-briefcase"/></svg>
-                  <span class="leading-tight min-w-0"><span class="font-semibold block text-subhead sm:whitespace-nowrap">Business Developer</span><span class="text-footnote text-label-2">Growth / Product</span></span>
+                <div class="track-tile h-full flex flex-col items-start gap-3 p-[18px] rounded-[20px] bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-applePurple peer-checked:bg-applePurple/10 peer-focus-visible:ring-4 peer-focus-visible:ring-applePurple/30">
+                  <span class="track-icon w-10 h-10 rounded-xl bg-applePurple/15 flex items-center justify-center"><svg class="icon w-[22px] h-[22px] text-purpleText"><use href="#i-briefcase"/></svg></span>
+                  <span class="leading-tight min-w-0"><span class="track-name font-semibold block text-body">Business Developer</span><span class="block text-subhead text-label-2 mt-0.5">Growth or product</span></span>
                 </div>
               </label>
             </div>
@@ -160,9 +151,9 @@
 
           <!-- Terms & Privacy (sign up only, mandatory) -->
           <div data-signup-only>
-            <label class="flex items-start gap-2.5 cursor-pointer text-subhead text-label-2">
-              <input id="terms" type="checkbox" class="mt-0.5 w-[18px] h-[18px] rounded" data-on-change="clearError('terms')">
-              <span>I agree to the <a href="https://github.com/jennyshenstudio/bootcamp-connect/blob/main/docs/terms-of-service.md" target="_blank" rel="noopener" class="text-blueText font-medium hover:underline">Terms of Service<span class="sr-only"> (opens in new tab)</span></a> and have read the <a href="https://github.com/jennyshenstudio/bootcamp-connect/blob/main/docs/privacy-notice.md" target="_blank" rel="noopener" class="text-blueText font-medium hover:underline">Privacy notice<span class="sr-only"> (opens in new tab)</span></a></span>
+            <label class="flex items-start gap-3 cursor-pointer text-subhead text-label-2">
+              <input id="terms" type="checkbox" class="mt-0.5 w-5 h-5 shrink-0 rounded" data-on-change="clearError('terms')">
+              <span>I agree to the <a href="https://github.com/jennyshenstudio/bootcamp-connect/blob/main/docs/terms-of-service.md" target="_blank" rel="noopener" class="text-blueText font-semibold hover:underline">Terms of Service<span class="sr-only"> (opens in new tab)</span></a> and have read the <a href="https://github.com/jennyshenstudio/bootcamp-connect/blob/main/docs/privacy-notice.md" target="_blank" rel="noopener" class="text-blueText font-semibold hover:underline">Privacy notice<span class="sr-only"> (opens in new tab)</span></a></span>
             </label>
             <p id="terms-error" class="hidden pf-error">Agree to the Terms of Service to continue.</p>
           </div>
@@ -172,18 +163,21 @@
           </button>
 
           <!-- Google SSO (live site: the only way in, after track and terms) -->
-          <button type="button" id="google-btn-live" data-live-only data-on-click="handleGoogle()" class="btn btn-google w-full !gap-3">
-            <svg class="w-5 h-5" aria-hidden="true"><use href="#i-google"/></svg>
-            Continue with Google
-          </button>
+          <div data-live-only class="space-y-3.5">
+            <button type="button" id="google-btn-live" data-on-click="handleGoogle()" class="btn btn-google w-full !gap-3">
+              <svg class="w-5 h-5" aria-hidden="true"><use href="#i-google"/></svg>
+              Continue with Google
+            </button>
+            <p id="live-note" class="text-footnote text-label-2 text-center">
+              Google shares your name, email address and profile photo with us. Email sign-in is coming later.
+            </p>
+          </div>
         </form>
 
-        <p id="live-note" data-live-only class="text-caption text-label-2 border-t border-hairline pt-3">
-          Google shares your name, email address and profile photo with us. Email sign-in is coming later.
-        </p>
         <p id="demo-note" data-demo-only class="text-caption text-label-2 border-t border-hairline pt-3">
           Demo: nothing leaves this browser. Use a made-up password.
         </p>
+      </div>
       </div>
     </main>
   </div>
