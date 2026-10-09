@@ -16,6 +16,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Licence:** `LICENSE` makes the code "all rights reserved" (D031). It can be read on GitHub but not copied or reused without permission.
 
 ### Changed
+- **Sign-up screen:** the Google button uses Google's official "G" and button colours, in light and dark mode (Google's sign-in branding guidelines). The terms checkbox now reads "I agree to the Terms of Service and have read the Privacy notice", and both links open the draft documents on GitHub until they become pages in the app. Wording follows GOV.UK style: "Create account", "Agree to the Terms of Service to continue" and a shorter demo note.
 - **How we work:** the project now follows Foundation's shared software rules (D030). `CLAUDE.md` imports them; each session ends with a note in `docs/handover.md`.
 - **Spec 09 reviewed** (not built yet): launching to real members now means moving to beta first, with backups, an incident plan, DPIA screening and an expert review. Log out and Delete my account must clear the member's data from the browser. The Content Security Policy allows Google's photo address so the starting photo can be copied. The draft privacy notice adds data handled outside the UK and 2 more rights. `docs/personal-data.md` adds the shared computer risk.
 - **Project folder:** the project now lives in `~/code/bootcamp-connect`, next to `~/code/foundation` (D037). `CLAUDE.md` and the setup test point at `../foundation`.

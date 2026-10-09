@@ -5,6 +5,8 @@ Decisions: D032 (backend and hosting), D033 (Google sign-in), D034 (real members
 ## Purpose
 Real people can sign in to the live site with Google and save their profile to a server, so it's there on any device. This is step 1 of D034: a profile is private to its owner. Nobody else can see it yet.
 
+**Built so far (2026-10-09):** the live sign-up and log-in screen layout, switched on by `isLiveSite()` in `js/backend.js`. Google sign-in, the server and the privacy and terms pages aren't built yet. The terms links open the draft documents on GitHub for now.
+
 ## Two versions from the same code
 - **Live site:** GitHub Pages, built by `npm run build` with the Supabase settings. Real accounts and profiles are stored in Supabase.
 - **Demo:** the claude.ai artifact, `index.html` opened from disk, `npm start`, and any build without Supabase settings. It works exactly as now, with everything stored in the browser and sample members.
