@@ -65,7 +65,7 @@ The app picks the version when it starts: live if the Supabase settings are pres
 - Turn on GitHub Pages (D028, `docs/deployment.md`).
 
 ## Open questions
-- **Contact email** for privacy questions and deletion requests. It shouldn't be a personal address, because the privacy notice is public.
-- **Backups:** the free plan has no automatic backups, and its own backups can't be downloaded (checked 2026-10-09 on Supabase's pricing page). Either the owner exports the data regularly and tests a restore, or the project moves to Supabase's Pro plan, which costs money.
+- **Contact email** for privacy questions and deletion requests. It shouldn't be a personal address, because the privacy notice is public. None yet; decide before beta.
+- **Backups:** the free plan has no automatic backups, and its own backups can't be downloaded (checked 2026-10-09 on Supabase's pricing page). **Decided 2026-10-09:** the owner exports the data by hand and tests a restore. Everything stays on free plans until the owner decides whether the app goes public and is sold.
 - **Pausing:** free projects pause after a week with little use. Supabase emails a warning first. Someone has to restore it, and members can't sign in until then.
-- **Who runs the service:** the privacy notice must name the person or business responsible for members' data.
+- **Who runs the service:** the privacy notice must name the person or business responsible for members' data. There's no company yet, so this would be the owner. Decide before beta.
