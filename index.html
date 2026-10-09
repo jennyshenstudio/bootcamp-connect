@@ -61,7 +61,7 @@
     </aside>
 
     <!-- Form panel: a full-height glass panel on desktop, straight on the background on phones -->
-    <main class="auth-main flex-1 min-w-0 flex flex-col px-5 sm:px-8 lg:px-10 py-6 lg:py-8 [@media(max-height:820px)]:py-3">
+    <main class="auth-main flex-1 min-w-0 flex flex-col px-5 sm:px-8 lg:px-10 py-6">
       <div class="flex items-center justify-between gap-3">
         <div class="lg:hidden flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-[9px] bg-gradient-to-br from-[#0A84FF] to-[#BF5AF2] flex items-center justify-center">
@@ -78,33 +78,33 @@
       </div>
 
       <div class="flex-1 flex items-center justify-center">
-      <div class="auth-card w-full max-w-[440px] space-y-6 [@media(max-height:820px)]:space-y-3 [@media(max-height:700px)]:space-y-2">
+      <div class="w-full max-w-[440px] space-y-6">
 
         <div class="space-y-2">
           <h2 id="auth-title" class="text-[30px] sm:text-[34px] leading-[1.15] font-bold tracking-[-0.02em]">Create your account</h2>
-          <p id="auth-subtitle" class="text-body text-label-2 [@media(max-height:820px)]:hidden">Join to collaborate on projects, find co-founders, and share ideas.</p>
+          <p id="auth-subtitle" class="text-body text-label-2">Join to collaborate on projects, find co-founders, and share ideas.</p>
         </div>
 
         <!-- Form-level message (e.g. account not found) -->
         <p id="auth-error" class="hidden text-subhead text-redText bg-appleRed/10 rounded-xl px-4 py-3"></p>
 
-        <form id="auth-form" data-on-submit="handleAuthSubmit(event)" novalidate class="space-y-6 [@media(max-height:820px)]:space-y-3 [@media(max-height:700px)]:space-y-2">
+        <form id="auth-form" data-on-submit="handleAuthSubmit(event)" novalidate class="space-y-6">
           <!-- Track Selection (sign up only, mandatory, nothing pre-selected) -->
           <fieldset data-signup-only>
             <legend class="pf-label !text-subhead">Your bootcamp track</legend>
             <div class="grid grid-cols-2 gap-3">
               <label class="cursor-pointer">
                 <input type="radio" id="track-dev" name="track" value="Software Developer" class="peer sr-only" data-on-change="clearError('track')">
-                <div class="track-tile h-full flex flex-col items-start gap-3 p-[18px] rounded-[20px] bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-appleBlue peer-checked:bg-appleBlue/10 peer-focus-visible:ring-4 peer-focus-visible:ring-appleBlue/30">
-                  <span class="track-icon w-10 h-10 rounded-xl bg-appleBlue/15 flex items-center justify-center"><svg class="icon w-[22px] h-[22px] text-blueText"><use href="#i-laptop"/></svg></span>
-                  <span class="leading-tight min-w-0"><span class="track-name font-semibold block text-body">Software Developer</span><span class="block text-subhead text-label-2 mt-0.5">Coder or engineer</span></span>
+                <div class="h-full flex flex-col items-start gap-3 p-[18px] rounded-[20px] bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-appleBlue peer-checked:bg-appleBlue/10 peer-focus-visible:ring-4 peer-focus-visible:ring-appleBlue/30">
+                  <span class="w-10 h-10 rounded-xl bg-appleBlue/15 flex items-center justify-center"><svg class="icon w-[22px] h-[22px] text-blueText"><use href="#i-laptop"/></svg></span>
+                  <span class="leading-tight min-w-0"><span class="font-semibold block text-body">Software Developer</span><span class="block text-subhead text-label-2 mt-0.5">Coder or engineer</span></span>
                 </div>
               </label>
               <label class="cursor-pointer">
                 <input type="radio" id="track-biz" name="track" value="Business Developer" class="peer sr-only" data-on-change="clearError('track')">
-                <div class="track-tile h-full flex flex-col items-start gap-3 p-[18px] rounded-[20px] bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-applePurple peer-checked:bg-applePurple/10 peer-focus-visible:ring-4 peer-focus-visible:ring-applePurple/30">
-                  <span class="track-icon w-10 h-10 rounded-xl bg-applePurple/15 flex items-center justify-center"><svg class="icon w-[22px] h-[22px] text-purpleText"><use href="#i-briefcase"/></svg></span>
-                  <span class="leading-tight min-w-0"><span class="track-name font-semibold block text-body">Business Developer</span><span class="block text-subhead text-label-2 mt-0.5">Growth or product</span></span>
+                <div class="h-full flex flex-col items-start gap-3 p-[18px] rounded-[20px] bg-[var(--glass-field)] border-2 border-[var(--field-rim)] transition ease-apple hover:bg-[var(--glass-control-hover)] peer-checked:border-applePurple peer-checked:bg-applePurple/10 peer-focus-visible:ring-4 peer-focus-visible:ring-applePurple/30">
+                  <span class="w-10 h-10 rounded-xl bg-applePurple/15 flex items-center justify-center"><svg class="icon w-[22px] h-[22px] text-purpleText"><use href="#i-briefcase"/></svg></span>
+                  <span class="leading-tight min-w-0"><span class="font-semibold block text-body">Business Developer</span><span class="block text-subhead text-label-2 mt-0.5">Growth or product</span></span>
                 </div>
               </label>
             </div>

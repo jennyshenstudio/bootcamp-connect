@@ -10,7 +10,7 @@ module.exports = async (browser, t) => {
     await shown(page, 'input[name="track"] + div') && await shown(page, '#terms') && await shown(page, '#google-btn')
     && await shown(page, '#email-toggle') && !(await shown(page, '#email')) && !(await shown(page, '#auth-submit')));
   t.ok('track tiles are large, with the icon above the name',
-    await page.$eval('.track-tile', e => getComputedStyle(e).flexDirection === 'column'));
+    await page.$eval('input[name="track"] + div', e => getComputedStyle(e).flexDirection === 'column'));
   await page.click('#email-toggle');
   t.ok('Sign up with email instead shows the email form', await shown(page, '#email') && await shown(page, '#first-name') && !(await shown(page, '#email-toggle')));
 
@@ -70,6 +70,12 @@ module.exports = async (browser, t) => {
     t.ok(`live sign-up fits one screen at ${width}×${height}`, await pageFits(page) && await noHorizontalScroll(page));
     await page.close();
   }
+
+  // Short windows (a browser inside claude.ai is about 700px tall) keep the same design, not a squashed one
+  page = await openApp(browser, t, { width: 1470, height: 695 });
+  t.ok('on a short window the track tiles stay large and the subtitle shows',
+    await page.$eval('input[name="track"] + div', e => getComputedStyle(e).flexDirection === 'column') && await shown(page, '#auth-subtitle'));
+  await page.close();
 
   // The sign-up page fits one screen at common sizes
   for (const [width, height] of [[1440, 900], [1366, 768], [1280, 720], [1280, 650], [390, 844]]) {
