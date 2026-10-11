@@ -1,6 +1,6 @@
-// Bootcamp Connect prototype: project loop (specs/07-project-loop.md).
+// Bootcamp Connect prototype: opportunities and the project loop (specs/12-opportunities.md, specs/07-project-loop.md).
 // Plain script (shared globals); load order is set in index.html.
-// Apply → team forms → project chat → mark complete → ratings and endorsements → verified experience.
+// Opportunity page → apply → team forms → project chat → mark complete → ratings and endorsements → verified experience.
 
 // ----- Post and project state -----
 const nowYM = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
@@ -27,7 +27,109 @@ function formatMoney(amount, currency) {
   try { return new Intl.NumberFormat('en-GB', { style: 'currency', currency: currency || 'GBP', maximumFractionDigits: 0 }).format(amount || 0); }
   catch { return '£' + Number(amount || 0).toLocaleString('en-GB'); }
 }
-function payLabel(pay) { return pay.type === 'Paid' ? 'Paid · ' + formatMoney(pay.amount, pay.currency) : PAY_TYPES[pay.type].short; }
+function payLabel(pay) { return pay.type === 'Paid' ? formatMoney(pay.amount, pay.currency) + ', fixed' : 'Unpaid'; }
+
+// ----- Opportunities (spec 12) -----
+const fmtDay = (d, year) => new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', ...(year ? { year: 'numeric' } : {}) });
+// "2 Nov – 14 Dec 2026", or both years when the dates cross into a new year
+function opportunityDates(post) {
+  if (!post.start || !post.end) return '';
+  const sameYear = post.start.slice(0, 4) === post.end.slice(0, 4);
+  return fmtDay(post.start, !sameYear) + ' – ' + fmtDay(post.end, true);
+}
+function opportunityWeeks(post) {
+  const days = (new Date(post.end) - new Date(post.start)) / 86400000;
+  const weeks = Math.max(1, Math.round(days / 7));
+  return weeks + (weeks === 1 ? ' week' : ' weeks');
+}
+const workplaceLabel = post => post.workplace + (post.town && post.workplace !== 'Remote' ? ' · ' + post.town : '');
+const isBizTrack = track => track === 'Business Developer';
+
+// Projects posted before spec 12 keep working: fill in the new fields from the old ones.
+// A fee in another currency keeps it, since showing €500 as £500 would misstate the fee, and a
+// project that needed both pathways keeps its first one.
+function upgradeOpportunity(p) {
+  if (p.lookingFor) return;
+  p.lookingFor = (p.roles && p.roles[0] && p.roles[0].track) || 'Software Developer';
+  if (p.pay.type !== 'Paid') p.pay = { type: 'Unpaid' };
+  p.commitment = 'Part-time';
+  p.workplace = p.setting || 'Remote';
+  p.responsibilities = p.deliverable ? [p.deliverable] : [];
+  p.requirements = [];
+  p.niceToHave = [];
+}
+
+// The buttons an opportunity offers you, on its Feed card and its page
+function opportunityActions(post) {
+  const status = projectStatus(post);
+  const app = demo.applications[post.id];
+  if (isMine(post)) {
+    const pending = projectApplicantList(post).filter(a => a.status === 'applied').length;
+    return '<button type="button" class="btn btn-primary btn-sm" data-on-click="openManage(\'' + post.id + '\')">Manage' + (pending ? ' <span class="nav-badge !bg-white !text-blueText">' + pending + '</span>' : '') + '</button>';
+  }
+  if (onTeam(post) && status === 'in-progress') {
+    return '<button type="button" class="btn btn-gray btn-sm" data-on-click="goToChat(\'' + (post.chatId || projectState(post).chatId) + '\')"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Project chat</button>' +
+      '<button type="button" class="btn btn-primary btn-sm" data-on-click="openComplete(\'' + post.id + '\')">Mark complete</button>';
+  }
+  if (onTeam(post) && status === 'completed') return '<span class="inline-flex items-center gap-1 text-footnote font-semibold text-greenText"><svg class="icon w-4 h-4"><use href="#i-check"/></svg>Completed · on your profile</span>';
+  if (app && app.status === 'applied') return '<button type="button" class="btn btn-gray btn-sm" disabled aria-disabled="true">Applied · waiting for ' + esc(memberName(post.author)) + '</button>';
+  if (status === 'open') {
+    const fit = projectFit(post, memberView('me'));
+    return fit.blocked && fit.blockers[0].startsWith('For ')
+      ? '<button type="button" class="btn btn-gray btn-sm" disabled aria-disabled="true">Apply</button>'
+      : '<button type="button" class="btn ' + (fit.blocked ? 'btn-gray' : 'btn-primary') + ' btn-sm" data-on-click="openApply(\'' + post.id + '\')">Apply</button>';
+  }
+  return '';
+}
+
+function listSection(title, items) {
+  return items && items.length ? '<section class="space-y-1.5"><h3 class="font-semibold text-body">' + title + '</h3>' +
+    '<ul class="list-disc pl-5 space-y-1 text-subhead">' + items.map(i => '<li>' + esc(i) + '</li>').join('') + '</ul></section>' : '';
+}
+
+// The opportunity page, laid out like a job listing
+function openOpportunity(postId, { focusSave = false } = {}) {
+  const post = postById(postId);
+  const fit = projectFit(post, memberView('me'));
+  const blockerNote = !isMine(post) && !onTeam(post) && projectStatus(post) === 'open' && fit.blocked
+    ? '<p class="text-footnote text-orangeText font-medium">Not a fit right now: ' + esc(fit.blockers[0]) + '</p>' : '';
+  const a = post.author;
+  const who = memberView(a);
+  const saved = postState(post.id).saved;
+  const actions = opportunityActions(post);
+  const glance = [
+    ['Pay', payLabel(post.pay)], ['Commitment', post.commitment], ['Workplace', workplaceLabel(post)],
+    ['Dates', opportunityDates(post) ? opportunityDates(post) + ' · ' + opportunityWeeks(post) : ''],
+  ].filter(r => r[1]);
+  const html = '<div class="relative p-5 sm:p-7 space-y-5">' + sheetClose() +
+    '<div class="space-y-3 pr-10">' +
+      '<div class="flex items-center gap-3">' + memberAvatar(a, 'w-10 h-10 text-subhead') +
+        '<div class="min-w-0"><p class="font-semibold text-subhead">' + esc(memberName(a, true)) + '</p><p class="text-footnote text-label-2">' + esc(shortTrack(who.track) || 'Member') + ' · Posted ' + esc(post.ts ? relTime(post.ts) : post.time) + '</p></div></div>' +
+      '<p>' + pathwayChip(post) + '</p>' +
+      '<h2 id="sheet-title" class="text-title2 font-bold">' + esc(post.title) + '</h2>' + blockerNote +
+      '<div class="flex flex-wrap gap-2">' + actions +
+        '<button id="opp-save" type="button" class="btn btn-gray btn-sm" data-on-click="toggleSaveOpportunity(\'' + post.id + '\')" aria-pressed="' + saved + '"><svg class="icon w-4 h-4"><use href="#i-bookmark"/></svg>' + (saved ? 'Saved' : 'Save') + '</button></div>' +
+    '</div>' +
+    '<section class="space-y-1.5"><h3 class="font-semibold text-body">At a glance</h3><dl class="entry grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-subhead">' +
+      glance.map(([k, v]) => '<dt class="text-label-2">' + k + '</dt><dd class="font-semibold">' + esc(v) + '</dd>').join('') + '</dl></section>' +
+    '<section class="space-y-1.5"><h3 class="font-semibold text-body">About the project</h3><p class="text-subhead whitespace-pre-line">' + esc(post.body) + '</p></section>' +
+    listSection('Responsibilities', post.responsibilities) +
+    listSection('Minimum requirements', post.requirements) +
+    listSection('Nice to have', post.niceToHave) +
+    renderAttachments(post) +
+    '<section class="space-y-1.5"><h3 class="font-semibold text-body">About ' + esc(memberName(a)) + '</h3><p class="text-subhead text-label-2">' +
+      esc([who.track, who.cohort ? 'Cohort ' + who.cohort : '', who.headline].filter(Boolean).join(' · ')) + '</p></section>' +
+  '</div>';
+  openSheet(html, 'opportunity:' + post.id);
+  hydrateAttachments($('sheet-panel'));
+  $(focusSave ? 'opp-save' : 'sheet-close').focus();
+}
+// Keep focus on Save after the page redraws, so keyboard users don't lose their place
+function toggleSaveOpportunity(id) { toggleSave(id); openOpportunity(id, { focusSave: true }); }
+
+function pathwayChip(post) {
+  return '<span class="text-footnote font-semibold px-2.5 py-0.5 rounded-full ' + (isBizTrack(post.lookingFor) ? 'bg-applePurple/15 text-purpleText' : 'bg-appleBlue/10 text-blueText') + '">' + esc(post.lookingFor) + '</span>';
+}
 
 function refreshProjectViews() {
   renderFeed();
@@ -60,19 +162,30 @@ function postToProjectChat(post, msg) {
   saveDemo();
 }
 
-// ----- Applying to someone else's project -----
+// ----- Applying to someone else's opportunity -----
 function openApply(postId) {
   const post = postById(postId);
-  const fit = projectFit(post, memberView('me'));
   const owner = person(post.author);
+  // Another pathway's opportunity can't be applied to; other blockers (such as pay) are a warning
+  const fit = projectFit(post, memberView('me'));
+  if (fit.blocked && fit.blockers[0].startsWith('For ')) return showToast(fit.blockers[0] + '. You can still message ' + owner.first + '.');
+  const warning = fit.blocked ? '<div class="entry !bg-appleOrange/10 space-y-1"><p class="font-semibold text-subhead text-orangeText">Not a fit right now</p>' +
+    fit.blockers.map(b => '<p class="text-footnote text-label-2">' + esc(b) + '</p>').join('') + '</div>' : '';
+  const work = profileOf(currentAccount() || {}).work || [];
   openSheet(
-    '<form class="relative p-5 sm:p-7 space-y-4" data-on-submit="submitApplication(event, \'' + post.id + '\')">' + sheetClose() +
-      '<div class="pr-10"><p class="text-footnote text-label-2">Apply to ' + esc(owner.first) + '\'s project</p><h2 id="sheet-title" class="text-title3 font-bold">' + esc(post.title) + '</h2></div>' +
-      fitBox(fit) +
-      '<div><label for="apply-note" class="pf-label">Note to ' + esc(owner.first) + ' (optional)</label>' +
-      '<textarea id="apply-note" rows="4" maxlength="500" class="pf-input resize-y" placeholder="Why you\'re a good fit, what you want to learn, and when you can start."></textarea></div>' +
+    '<form class="relative p-5 sm:p-7 space-y-4" data-on-submit="submitApplication(event, \'' + post.id + '\')" novalidate>' + sheetClose() +
+      '<div class="pr-10"><p class="text-footnote text-label-2">Apply to</p><h2 id="sheet-title" class="text-title3 font-bold">' + esc(post.title) + '</h2></div>' + warning +
+      '<div><label for="apply-note" class="pf-label">Message to ' + esc(owner.first) + '</label>' +
+        '<textarea id="apply-note" rows="4" maxlength="300" class="pf-input resize-y" aria-describedby="apply-note-hint"></textarea>' +
+        '<p id="apply-note-hint" class="pf-hint">Up to 300 characters.</p><p id="apply-note-error" class="pf-error hidden"></p></div>' +
+      '<div><label for="apply-work" class="pf-label">Your most relevant work</label>' +
+        (work.length
+          ? '<select id="apply-work" class="pf-input"><option value="">Choose a piece of work (optional)</option>' + work.map((w, i) => '<option value="' + i + '">' + esc(w.title) + '</option>').join('') + '</select>'
+          : '<p id="apply-work" class="pf-hint">You haven\'t added any work to your profile yet. You can still apply.</p>') + '</div>' +
+      '<p class="text-footnote text-label-2">Your profile is sent with your application.</p>' +
       '<div class="flex justify-end gap-2"><button type="button" class="btn btn-gray btn-sm" data-on-click="closeSheet()">Cancel</button><button type="submit" class="btn btn-primary btn-sm">Send application</button></div>' +
     '</form>', '');
+  $('apply-note').addEventListener('input', () => { $('apply-note').classList.remove('invalid'); $('apply-note-error').classList.add('hidden'); });
   $('apply-note').focus();
 }
 
@@ -80,7 +193,16 @@ function submitApplication(e, postId) {
   e.preventDefault();
   const post = postById(postId);
   const owner = person(post.author);
-  demo.applications[postId] = { status: 'applied', note: $('apply-note').value.trim(), at: Date.now() };
+  const note = $('apply-note').value.trim();
+  if (!note) {
+    $('apply-note-error').textContent = 'Write a short message to ' + owner.first + '.';
+    $('apply-note-error').classList.remove('hidden');
+    $('apply-note').classList.add('invalid');
+    return $('apply-note').focus();
+  }
+  const pick = $('apply-work').tagName === 'SELECT' ? $('apply-work').value : '';
+  const workTitle = pick === '' ? '' : profileOf(currentAccount()).work[Number(pick)].title;
+  demo.applications[postId] = { status: 'applied', note, workTitle, at: Date.now() };
   saveDemo();
   closeSheet();
   refreshProjectViews();
@@ -89,10 +211,9 @@ function submitApplication(e, postId) {
   setTimeout(() => {
     if (!demo.applications[postId] || demo.applications[postId].status !== 'applied') return;
     demo.applications[postId].status = 'accepted';
-    const role = projectFit(post, memberView('me')).role;
     setProject(post, { team: projectTeam(post).concat('me'), status: 'in-progress', started: projectState(post).started || nowYM() });
     ensureProjectChat(post, [
-      systemMsg(memberName('me') + ' joined the team' + (role ? ' as ' + shortTrack(role.track) : '') + '. Deliverable: ' + post.deliverable),
+      systemMsg(memberName('me') + ' joined the team as ' + post.lookingFor + '.' + (opportunityDates(post) ? ' Dates: ' + opportunityDates(post) + '.' : '')),
       { from: post.author, day: 'Today', time: fmtTime(new Date()), ts: Date.now() + 1, text: 'Welcome aboard, ' + memberName('me') + '! Kickoff call tomorrow at 6pm? I\'ll share the brief here.' },
     ]);
     refreshProjectViews();
@@ -105,11 +226,11 @@ function submitApplication(e, postId) {
 // ----- Owning a project -----
 const APPLY_NOTES = [
   (p, s, l) => 'Hi! I\'d love to help. I\'ve worked with ' + s + ' and this would be a great chance to practise ' + l + '.',
-  (p, s, l) => 'This sounds great. I can commit the hours and I\'m strong in ' + s + '. Keen to learn ' + l + ' along the way.',
+  (p, s, l) => 'This sounds great. I\'m strong in ' + s + ' and keen to learn ' + l + ' along the way.',
   (p, s, l) => 'Count me in! ' + s + ' is my strongest skill, and I want more portfolio work in this area.',
 ];
 
-// Demo: the best-fitting sample members apply to your new project over a few seconds
+// Demo: the best-fitting sample members apply to your new opportunity over a few seconds
 function scheduleApplicants(post) {
   const ranked = DEMO_PEOPLE
     .map(p => ({ p, fit: projectFit(post, memberView(p.id)) }))
@@ -121,7 +242,8 @@ function scheduleApplicants(post) {
     const st = projectState(post);
     const skill = fit.has[0] || p.skills[0];
     const learn = fit.learn[0] || (p.learn[0] || 'something new');
-    setProject(post, { applicants: (st.applicants || []).concat({ id: p.id, status: 'applied', at: Date.now(), note: APPLY_NOTES[i % 3](p, skill, learn) }) });
+    const workTitle = (p.work && p.work[0] && p.work[0].title) || '';
+    setProject(post, { applicants: (st.applicants || []).concat({ id: p.id, status: 'applied', at: Date.now(), note: APPLY_NOTES[i % 3](p, skill, learn), workTitle }) });
     refreshProjectViews();
     if (!$('sheet').classList.contains('hidden') && $('sheet').dataset.person === 'manage:' + post.id) openManage(post.id, { keepFocus: true });
     showToast(p.first + ' applied to "' + shortTitle(post) + '"');
@@ -164,19 +286,11 @@ function startProject(postId) {
   setProject(post, { status: 'in-progress', started: nowYM() });
   const chatId = ensureProjectChat(post, [
     systemMsg('Project started by ' + memberName('me') + '. Team: ' + projectTeam(post).map(id => memberName(id)).join(', ') + '.'),
-    systemMsg('Deliverable: ' + post.deliverable),
-  ]);
+  ].concat(opportunityDates(post) ? [systemMsg('Dates: ' + opportunityDates(post) + '.')] : []));
   closeSheet();
   refreshProjectViews();
   goToChat(chatId);
   showToast('Project started. Your team chat is ready.');
-}
-
-function fitBox(fit) {
-  if (fit.blocked) return '<div class="entry !bg-appleOrange/10 space-y-1"><p class="font-semibold text-subhead text-orangeText">Not a fit right now</p>' +
-    fit.blockers.map(b => '<p class="text-footnote text-label-2">' + esc(b) + '</p>').join('') + '</div>';
-  return '<div class="entry !bg-appleGreen/10 space-y-1.5"><p class="font-semibold text-subhead"><span class="text-greenText tabular-nums">' + fit.score + '% fit</span> for you</p>' +
-    '<ul class="space-y-1">' + fit.reasons.slice(0, 4).map(r => '<li class="flex items-start gap-2 text-footnote text-label-2"><svg class="icon w-4 h-4 text-greenText mt-px"><use href="#i-check"/></svg>' + esc(r) + '</li>').join('') + '</ul></div>';
 }
 
 function openManage(postId, { keepFocus = false } = {}) {
@@ -189,7 +303,7 @@ function openManage(postId, { keepFocus = false } = {}) {
   const personRow = (id, right, sub) => '<li class="flex items-center gap-3 py-2">' +
     '<button type="button" class="tap rounded-full" data-on-click="openPerson(\'' + id + '\')" aria-label="View ' + esc(memberName(id, true)) + '">' + memberAvatar(id, 'w-10 h-10 text-subhead') + '</button>' +
     '<div class="min-w-0 flex-1"><p class="font-semibold text-subhead">' + esc(memberName(id, true)) + (id === 'me' ? ' <span class="text-label-2 font-normal">(you)</span>' : '') + '</p>' + (sub || '') + '</div>' + (right || '') + '</li>';
-  const fitLine = id => { const f = projectFit(post, memberView(id)); return '<p class="text-footnote text-label-2"><span class="text-greenText font-semibold">' + f.score + '% fit</span> · ' + esc(f.reasons[0] || shortTrack(memberTrack(id))) + '</p>'; };
+  const applicantLine = a => '<p class="text-footnote text-label-2">' + esc(shortTrack(memberTrack(a.id))) + (a.workTitle ? ' · Relevant work: ' + esc(a.workTitle) : '') + '</p>';
 
   const html = '<div class="relative p-5 sm:p-7 space-y-5">' + sheetClose() +
     '<div class="pr-10"><p class="text-footnote text-label-2">Manage project · ' + esc(statusLabel(status)) + '</p><h2 id="sheet-title" class="text-title3 font-bold">' + esc(post.title) + '</h2></div>' +
@@ -198,11 +312,11 @@ function openManage(postId, { keepFocus = false } = {}) {
     (status !== 'completed' ? '<section class="space-y-1"><h3 class="font-semibold text-body">Applicants' + (applicants.length ? ' (' + applicants.length + ')' : '') + '</h3>' +
       (applicants.length ? '<ul class="divide-y divide-[var(--hairline)]">' + applicants.map(a => personRow(a.id,
         '<div class="flex gap-1.5 shrink-0"><button type="button" class="btn btn-gray btn-sm" data-on-click="respondToApplicant(\'' + post.id + '\', \'' + a.id + '\', false)">Decline</button><button type="button" class="btn btn-primary btn-sm" data-on-click="respondToApplicant(\'' + post.id + '\', \'' + a.id + '\', true)">Accept</button></div>',
-        fitLine(a.id) + (a.note ? '<p class="text-footnote text-label mt-1">"' + esc(a.note) + '"</p>' : ''))).join('') + '</ul>'
-        : '<p class="text-footnote text-label-2">No applicants yet. Matching members are notified about new projects.</p>') + '</section>' : '') +
-    (status !== 'completed' && (suggestions.length || invited.length) ? '<section class="space-y-1"><h3 class="font-semibold text-body">Suggested team</h3><p class="text-footnote text-label-2">Picked to cover every open role with the strongest fit for each.</p><ul class="divide-y divide-[var(--hairline)]">' +
+        applicantLine(a) + (a.note ? '<p class="text-footnote text-label mt-1">"' + esc(a.note) + '"</p>' : ''))).join('') + '</ul>'
+        : '<p class="text-footnote text-label-2">No applicants yet. Members on the ' + esc(post.lookingFor) + ' pathway are told about new opportunities.</p>') + '</section>' : '') +
+    (status !== 'completed' && (suggestions.length || invited.length) ? '<section class="space-y-1"><h3 class="font-semibold text-body">Suggested members</h3><p class="text-footnote text-label-2">' + esc(post.lookingFor) + 's you could invite.</p><ul class="divide-y divide-[var(--hairline)]">' +
       suggestions.map(s => personRow(s.person.id, '<button type="button" class="btn btn-secondary btn-sm shrink-0" data-on-click="inviteMember(\'' + post.id + '\', \'' + s.person.id + '\')">Invite</button>',
-        '<p class="text-footnote text-label-2">For the ' + esc(shortTrack(s.role.track)) + ' role · <span class="text-greenText font-semibold">' + s.fit.score + '% fit</span></p>')).join('') +
+        '<p class="text-footnote text-label-2">' + esc(s.fit.reasons[0] || shortTrack(s.person.track)) + '</p>')).join('') +
       invited.map(id => personRow(id, '<span class="text-footnote text-label-2 shrink-0">Invited</span>', '')).join('') + '</ul></section>' : '') +
     '<div class="flex flex-wrap justify-end gap-2 pt-1">' +
       (status === 'open' ? '<button type="button" class="btn btn-primary btn-sm"' + (team.length < 2 ? ' disabled aria-disabled="true" title="Add at least one teammate first"' : '') + ' data-on-click="startProject(\'' + post.id + '\')">Start project</button>' : '') +
@@ -233,7 +347,7 @@ function openComplete(postId) {
   openSheet(
     '<form class="relative p-5 sm:p-7 space-y-4" data-on-submit="completeProject(event, \'' + post.id + '\')">' + sheetClose() +
       '<div class="pr-10"><p class="text-footnote text-label-2">Mark complete</p><h2 id="sheet-title" class="text-title3 font-bold">' + esc(post.title) + '</h2>' +
-      '<p class="text-footnote text-label-2 mt-1">Deliverable: ' + esc(post.deliverable) + '</p></div>' +
+      (opportunityDates(post) ? '<p class="text-footnote text-label-2 mt-1">' + esc(opportunityDates(post)) + '</p>' : '') + '</div>' +
       '<p class="text-subhead">Rate your teammates and endorse what they did well. Everyone on the team gets this project as <strong>verified experience</strong> on their profile.</p>' +
       '<ul class="space-y-3">' + rows + '</ul>' +
       '<div><label for="complete-note" class="pf-label">What did you deliver? (optional)</label><textarea id="complete-note" rows="3" maxlength="400" class="pf-input resize-y" placeholder="e.g. Shipped the booking page; 3 restaurants live, no-shows down 40%."></textarea></div>' +
@@ -258,8 +372,7 @@ function completeProject(e, postId) {
     skills: [...document.querySelectorAll('input[name="endorse-' + id + '"]:checked')].map(b => b.value),
   }));
   // Demo: teammates rate you and endorse skills you used on this project
-  const role = projectFit(post, me).role;
-  const relevant = overlap(me.skills, (role ? role.skills : post.roles.flatMap(r => r.skills)));
+  const relevant = projectFit(post, me).has;
   const pool = relevant.length ? relevant : me.skills.slice(0, 3);
   const received = {};
   mates.forEach((id, i) => {
@@ -271,7 +384,7 @@ function completeProject(e, postId) {
   const rating = ratings.length ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length * 10) / 10 : null;
   demo.verified.unshift({
     postId, title: post.title, owner: post.author,
-    role: post.author === 'me' ? 'Project lead' : role ? shortTrack(role.track) : 'Team member',
+    role: post.author === 'me' ? 'Project lead' : shortTrack(post.lookingFor),
     with: mates, start: projectState(post).started || post.started || nowYM(), end: nowYM(),
     rating, endorsed: Object.keys(received), note: $('complete-note').value.trim(), given,
   });
@@ -308,6 +421,6 @@ function renderVerified() {
     ? (endorsed.length ? '<div><p class="pf-label">Endorsed skills</p><div class="flex flex-wrap gap-1.5">' + endorsed.map(([s, n]) => '<span class="chip !cursor-default !min-h-[28px] !text-footnote">' + esc(s) + ' <span class="text-greenText font-semibold ml-1">' + n + '</span></span>').join('') + '</div></div>' : '') +
       '<ul class="space-y-3">' + items.map(v => verifiedEntryHtml(v, id => memberName(id))).join('') + '</ul>'
     : '<div class="entry text-center space-y-2 !py-6"><p class="font-semibold text-subhead">No verified experience yet</p>' +
-      '<p class="text-footnote text-label-2">Join a project from the Feed or Connect. When it\'s done, your teammates\' ratings and endorsements appear here.</p>' +
-      '<button type="button" class="btn btn-secondary btn-sm" data-on-click="showProjectMatches()">Find a project</button></div>';
+      '<p class="text-footnote text-label-2">Join an opportunity from the Feed. When it\'s done, your teammates\' ratings and endorsements appear here.</p>' +
+      '<button type="button" class="btn btn-secondary btn-sm" data-on-click="showOpportunities()">Find an opportunity</button></div>';
 }

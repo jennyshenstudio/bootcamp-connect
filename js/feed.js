@@ -1,13 +1,12 @@
-// Bootcamp Connect prototype: typed feed, composer, and Matchmaker project view (specs/05-feed.md).
+// Bootcamp Connect prototype: typed feed and composer (specs/05-feed.md, specs/12-opportunities.md).
 // Plain script (shared globals); load order is set in index.html.
 
 let feedFilter = 'foryou';
-let mmView = 'projects';
 const openComments = new Set();
 let cp = null;   // composer draft
 
 const FEED_FILTERS = [
-  ['foryou', 'For you'], ['all', 'All'], ['work', 'Projects'], ['resource', 'Resources'],
+  ['foryou', 'For you'], ['all', 'All'], ['work', 'Opportunities'], ['resource', 'Resources'],
   ['personal', 'Personal'], ['support', 'Support'], ['community', 'Community'],
 ];
 
@@ -33,8 +32,9 @@ function forYouScore(post, me) {
     if (isMine(post)) return 60 + recency;
     if (onTeam(post)) return status === 'completed' ? null : 30 + recency;
     if (status !== 'open') return null;
+    // Open opportunities for your pathway come before everything else (spec 12)
     const fit = projectFit(post, me);
-    return fit.blocked ? null : fit.score + recency;
+    return fit.blocked ? null : 100 + fit.score + recency;
   }
   if (post.type === 'resource') return 25 + 15 * overlap(post.tags || [], me.skills.concat(me.learn)).length + recency;
   if (post.type === 'support') return 20 + (postSolved(post) ? 0 : 10) + recency;
@@ -55,7 +55,7 @@ function renderFeed() {
   }
   $('feed-filters').innerHTML = FEED_FILTERS.map(([k, label]) =>
     '<button type="button" class="chip whitespace-nowrap' + (feedFilter === k ? ' chip-active' : '') + '" data-on-click="setFeedFilter(\'' + k + '\')" aria-pressed="' + (feedFilter === k) + '">' + label + '</button>').join('');
-  $('feed-hint').textContent = feedFilter === 'foryou' ? 'Ranked by your skills, the skills you want to learn, your goals, and your weekly hours.' : '';
+  $('feed-hint').textContent = feedFilter === 'foryou' ? 'Opportunities for your pathway first, then posts from your cohort.' : '';
   list.innerHTML = posts.length ? posts.map(p => renderPost(p)).join('')
     : '<div class="card p-8 text-center space-y-2"><p class="font-semibold text-body">Nothing here yet</p><p class="text-subhead text-label-2">Be the first to post in ' + esc((FEED_FILTERS.find(f => f[0] === feedFilter) || [])[1] || 'this section') + '.</p>' +
       '<button type="button" class="btn btn-primary btn-sm" data-on-click="openComposer(\'' + (POST_TYPES[feedFilter] ? feedFilter : 'community') + '\')">Create a post</button></div>';
@@ -87,51 +87,23 @@ function authorBlock(post) {
   '</div>';
 }
 
-function skillChip(s, me) {
-  const has = overlap([s], me.skills).length, learn = overlap([s], me.learn).length;
-  const cls = has ? 'bg-appleBlue/10 text-blueText' : learn ? 'bg-applePurple/10 text-purpleText' : 'bg-fill text-label-2';
-  const title = has ? 'You have this skill' : learn ? 'You want to learn this' : '';
-  return '<span class="text-caption font-medium px-2 py-0.5 rounded-md ' + cls + '"' + (title ? ' title="' + title + '"' : '') + '>' + esc(s) + '</span>';
-}
-
-function workBlock(post, compact) {
-  const me = memberView('me');
+function workBlock(post) {
   const status = projectStatus(post);
   const team = projectTeam(post);
-  const app = demo.applications[post.id];
-  const mine = isMine(post), member = onTeam(post);
-  const statusCls = status === 'open' ? 'bg-appleBlue/10 text-blueText' : status === 'in-progress' ? 'bg-appleOrange/15 text-orangeText' : 'bg-appleGreen/15 text-greenText';
-  const payCls = post.pay.type === 'Paid' ? 'bg-appleGreen/15 text-greenText' : post.pay.type === 'Equity' ? 'bg-applePurple/15 text-purpleText' : 'bg-fill text-label';
   const fact = (txt, cls) => '<span class="text-footnote font-semibold px-2.5 py-0.5 rounded-full ' + (cls || 'bg-fill text-label-2') + '">' + esc(txt) + '</span>';
-  let html = '<div class="flex flex-wrap gap-1.5">' + fact(payLabel(post.pay), payCls) + fact(post.hours + ' hrs/wk') + fact(post.weeks + (post.weeks === 1 ? ' week' : ' weeks')) + fact(post.setting) + fact(post.industry) + fact(statusLabel(status), statusCls) + '</div>';
-  html += '<div class="space-y-1.5">' + post.roles.map(r =>
-    '<div class="flex flex-wrap items-center gap-1.5"><span class="text-footnote font-semibold mr-0.5">' + esc(shortTrack(r.track)) + ' ×' + r.count + '</span>' + r.skills.map(s => skillChip(s, me)).join('') + '</div>').join('') + '</div>';
-  if (!compact) html += '<p class="text-footnote"><span class="font-semibold">Deliverable:</span> <span class="text-label-2">' + esc(post.deliverable) + '</span></p>';
-  const pending = mine ? projectApplicantList(post).filter(a => a.status === 'applied').length : 0;
+  const facts = [pathwayChip(post), fact(payLabel(post.pay), post.pay.type === 'Paid' ? 'bg-appleGreen/15 text-greenText' : ''), fact(post.commitment), fact(workplaceLabel(post))];
+  if (opportunityDates(post)) facts.push(fact(opportunityDates(post)));
+  if (status !== 'open') facts.push(fact(statusLabel(status), status === 'in-progress' ? 'bg-appleOrange/15 text-orangeText' : 'bg-appleGreen/15 text-greenText'));
+  let html = '<div class="flex flex-wrap gap-1.5">' + facts.join('') + '</div>';
+  html += '<p class="text-subhead text-label-2 whitespace-pre-line line-clamp-3">' + esc(post.body) + '</p>';
   html += '<div class="flex items-center gap-2 text-footnote text-label-2"><span class="flex -space-x-2">' + team.slice(0, 5).map(id => '<span class="ring-2 ring-[var(--surface)] rounded-full">' + memberAvatar(id, 'w-6 h-6 text-[9px]') + '</span>').join('') + '</span>' +
     '<span>Team of ' + team.length + ' · ' + projectApplicants(post) + ' applicant' + (projectApplicants(post) === 1 ? '' : 's') + '</span></div>';
-
-  if (!mine && !member && status === 'open' && !app) {
-    const fit = projectFit(post, me);
-    html += fit.blocked
-      ? '<p class="text-footnote text-orangeText font-medium">Not a fit right now: ' + esc(fit.blockers[0]) + '</p>'
-      : '<p class="text-footnote"><span class="text-greenText font-semibold">' + fit.score + '% fit</span> <span class="text-label-2">· ' + esc(fit.reasons.slice(0, compact ? 1 : 2).join(' · ')) + '</span></p>';
+  if (!isMine(post) && !onTeam(post) && status === 'open' && !demo.applications[post.id]) {
+    const fit = projectFit(post, memberView('me'));
+    if (fit.blocked) html += '<p class="text-footnote text-orangeText font-medium">Not a fit right now: ' + esc(fit.blockers[0]) + '</p>';
   }
-  let actions = '';
-  if (mine) {
-    actions = '<button type="button" class="btn btn-primary btn-sm" data-on-click="openManage(\'' + post.id + '\')">Manage' + (pending ? ' <span class="nav-badge !bg-white !text-blueText">' + pending + '</span>' : '') + '</button>';
-  } else if (member && status === 'in-progress') {
-    actions = '<button type="button" class="btn btn-gray btn-sm" data-on-click="goToChat(\'' + (post.chatId || projectState(post).chatId) + '\')"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Project chat</button>' +
-      '<button type="button" class="btn btn-primary btn-sm" data-on-click="openComplete(\'' + post.id + '\')">Mark complete</button>';
-  } else if (member && status === 'completed') {
-    actions = '<span class="inline-flex items-center gap-1 text-footnote font-semibold text-greenText"><svg class="icon w-4 h-4"><use href="#i-check"/></svg>Completed · on your profile</span>';
-  } else if (app && app.status === 'applied') {
-    actions = '<button type="button" class="btn btn-gray btn-sm" disabled aria-disabled="true">Applied · waiting for ' + esc(memberName(post.author)) + '</button>';
-  } else if (status === 'open') {
-    const blocked = projectFit(post, me).blocked;
-    actions = '<button type="button" class="btn ' + (blocked ? 'btn-gray' : 'btn-primary') + ' btn-sm" data-on-click="openApply(\'' + post.id + '\')">Apply</button>';
-  }
-  return html + (actions ? '<div class="flex flex-wrap gap-2">' + actions + '</div>' : '');
+  return html + '<div class="flex flex-wrap gap-2">' + opportunityActions(post) +
+    '<button type="button" class="btn btn-gray btn-sm" data-on-click="openOpportunity(\'' + post.id + '\')">See details</button></div>';
 }
 
 function renderPost(post, { compact = false } = {}) {
@@ -139,8 +111,8 @@ function renderPost(post, { compact = false } = {}) {
   const comments = postComments(post);
   let body = '';
   if (post.title) body += '<h3 class="font-semibold text-body">' + esc(post.title) + '</h3>';
-  if (post.body) body += '<p class="text-subhead text-label-2 whitespace-pre-line' + (compact ? ' line-clamp-2' : '') + '">' + esc(post.body) + '</p>';
-  if (post.type === 'work') body += workBlock(post, compact);
+  if (post.body && post.type !== 'work') body += '<p class="text-subhead text-label-2 whitespace-pre-line' + (compact ? ' line-clamp-2' : '') + '">' + esc(post.body) + '</p>';
+  if (post.type === 'work') body += workBlock(post);
   if (post.type === 'resource' && (post.tags || []).length) body += '<div class="flex flex-wrap gap-1">' + post.tags.map(t => '<span class="bg-fill text-label-2 text-caption px-2 py-0.5 rounded-md">#' + esc(t) + '</span>').join('') + '</div>';
   if (post.type === 'personal' && post.feedback) body += '<p><span class="text-footnote font-semibold px-2.5 py-0.5 rounded-full bg-applePurple/10 text-purpleText">Feedback wanted</span></p>';
   if (post.type === 'support') {
@@ -163,7 +135,9 @@ function renderPost(post, { compact = false } = {}) {
     '</div>' +
     (openComments.has(post.id) ? commentsBlock(post, comments) : '');
 
-  return '<article id="post-' + post.id + '" data-post="' + post.id + '" data-compact="' + (compact ? 1 : 0) + '" class="card p-5 space-y-3 scroll-mt-24">' + authorBlock(post) + body + footer + '</article>';
+  // Opportunities get a coloured edge for their pathway (D040); the pathway is also named in words
+  const edge = post.type !== 'work' ? '' : isBizTrack(post.lookingFor) ? ' border-l-[6px] border-l-applePurple' : ' border-l-[6px] border-l-appleBlue';
+  return '<article id="post-' + post.id + '" data-post="' + post.id + '" data-compact="' + (compact ? 1 : 0) + '" class="card p-5 space-y-3 scroll-mt-24' + edge + '">' + authorBlock(post) + body + footer + '</article>';
 }
 
 function commentsBlock(post, comments) {
@@ -225,41 +199,24 @@ function renderFeedSidebar() {
       '<span class="block font-semibold text-subhead truncate">' + esc(p.title) + '</span><span class="block text-footnote text-label-2">' + esc(label) + '</span></button></li>';
   });
   box.innerHTML =
-    '<div class="card p-4 space-y-2"><div class="flex items-baseline justify-between px-1"><h3 class="font-semibold text-body">Projects for you</h3><button type="button" class="text-footnote font-semibold text-blueText hover:underline" data-on-click="showProjectMatches()">See all</button></div>' +
-      (picks.length ? '<ul>' + picks.map(({ p, fit }) => '<li><button type="button" class="w-full text-left rounded-xl px-2 py-2 hover:bg-fill" data-on-click="scrollToPost(\'' + p.id + '\')">' +
-        '<span class="flex items-start justify-between gap-2"><span class="font-semibold text-subhead line-clamp-2">' + esc(p.title) + '</span><span class="shrink-0 text-footnote font-semibold text-greenText tabular-nums">' + fit.score + '%</span></span>' +
-        '<span class="block text-footnote text-label-2">' + esc(memberName(p.author)) + ' · ' + esc(payLabel(p.pay)) + ' · ' + esc(p.hours) + ' hrs/wk</span></button></li>').join('') + '</ul>'
-        : '<p class="text-footnote text-label-2 px-1">No open projects match your profile right now. Add skills you want to learn to see stretch projects.</p>') + '</div>' +
+    '<div class="card p-4 space-y-2"><div class="flex items-baseline justify-between px-1"><h3 class="font-semibold text-body">Opportunities for you</h3><button type="button" class="text-footnote font-semibold text-blueText hover:underline" data-on-click="showOpportunities()">See all</button></div>' +
+      (picks.length ? '<ul>' + picks.map(({ p }) => '<li><button type="button" class="w-full text-left rounded-xl px-2 py-2 hover:bg-fill" data-on-click="openOpportunity(\'' + p.id + '\')">' +
+        '<span class="block font-semibold text-subhead line-clamp-2">' + esc(p.title) + '</span>' +
+        '<span class="block text-footnote text-label-2">' + esc(memberName(p.author)) + ' · ' + esc(payLabel(p.pay)) + ' · ' + esc(p.commitment) + '</span></button></li>').join('') + '</ul>'
+        : '<p class="text-footnote text-label-2 px-1">No open opportunities for your pathway right now.</p>') + '</div>' +
     '<div class="card p-4 space-y-2"><h3 class="font-semibold text-body px-1">Your projects</h3>' +
-      (mineRows.length ? '<ul>' + mineRows.join('') + '</ul>' : '<p class="text-footnote text-label-2 px-1">Post a project or apply to one to see it here.</p>') + '</div>' +
+      (mineRows.length ? '<ul>' + mineRows.join('') + '</ul>' : '<p class="text-footnote text-label-2 px-1">Post an opportunity or apply to one to see it here.</p>') + '</div>' +
     '<div class="card p-4 flex items-center justify-between gap-3"><div><p class="font-semibold text-body">Verified experience</p><p class="text-footnote text-label-2">' + demo.verified.length + ' completed project' + (demo.verified.length === 1 ? '' : 's') + '</p></div>' +
       '<button type="button" class="btn btn-gray btn-sm" data-on-click="openVerifiedExperience()">View</button></div>';
 }
 
-// ----- Matchmaker: Projects / People -----
-function setMatchmakerView(v) { mmView = v; renderMatchmaker(); }
-function showProjectMatches() { switchTab('matching'); setMatchmakerView('projects'); }
-
-function renderMatchmaker() {
-  if (!demo || !$('mm-view')) return;
-  document.querySelectorAll('#mm-view [data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === mmView));
-  $('people-view').classList.toggle('hidden', mmView !== 'people');
-  $('projects-view').classList.toggle('hidden', mmView !== 'projects');
-  if (mmView === 'people') return renderPeople();
-  const me = memberView('me');
-  const open = allPosts().filter(p => p.type === 'work' && !isMine(p) && !onTeam(p) && projectStatus(p) === 'open').map(p => ({ p, fit: projectFit(p, me) }));
-  const fits = open.filter(x => !x.fit.blocked).sort((a, b) => b.fit.score - a.fit.score);
-  const blocked = open.filter(x => x.fit.blocked);
-  $('projects-view').innerHTML =
-    (fits.length ? '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">' + fits.map(x => renderPost(x.p, { compact: true })).join('') + '</div>'
-      : '<div class="card p-6 text-subhead text-label-2">No open projects fit your profile right now. Try adding skills you want to learn or widening the pay types you\'re open to.</div>') +
-    (blocked.length ? '<details class="group"><summary class="cursor-pointer list-none flex items-center gap-1 font-semibold text-subhead text-label-2 min-h-[44px]"><svg class="icon w-4 h-4 transition group-open:rotate-90"><use href="#i-chevron"/></svg>Not a fit right now (' + blocked.length + ')</summary>' +
-      '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2">' + blocked.map(x => renderPost(x.p, { compact: true })).join('') + '</div></details>' : '');
-}
+// Connect is People only; opportunities live in the Feed (D040)
+function renderMatchmaker() { if (demo) renderPeople(); }
+function showOpportunities() { switchTab('feed'); setFeedFilter('work'); }
 
 // ----- Composer -----
 const COMPOSER_COPY = {
-  work: { title: 'Project title', titlePh: 'e.g. Booking page for 3 pilot restaurants', body: 'What is the project?', bodyPh: 'The problem, who it\'s for, and what\'s already done.' },
+  work: { title: 'Title', titlePh: 'e.g. Booking page for 3 Bristol restaurants', body: 'About the project', bodyPh: 'What it is and why it matters.' },
   resource: { title: 'Title', titlePh: 'e.g. Unit economics template', body: 'Why it\'s useful', bodyPh: 'What it helped you with and who should read it.' },
   personal: { title: 'Project name', titlePh: 'e.g. StudySprint v2', body: 'What did you build?', bodyPh: 'What it does, what you learned, and what feedback you want.' },
   support: { title: 'Your question', titlePh: 'e.g. How should I price a pilot?', body: 'Details', bodyPh: 'Context that helps people answer.' },
@@ -268,7 +225,8 @@ const COMPOSER_COPY = {
 
 function openComposer(type) {
   const me = memberView('me');
-  cp = { type: POST_TYPES[type] ? type : 'community', attachments: [], posted: false, roles: [{ track: me.track || 'Software Developer', count: 1, skills: '' }] };
+  // An opportunity starts looking for the other pathway from yours
+  cp = { type: POST_TYPES[type] ? type : 'community', attachments: [], posted: false, lookingFor: isBizTrack(me.track) ? 'Software Developer' : 'Business Developer' };
   sheetOnClose = discardComposer;
   openSheet(
     '<form id="composer" class="relative p-5 sm:p-7 space-y-4" data-on-submit="submitPost(event)" novalidate>' + sheetClose() +
@@ -276,7 +234,9 @@ function openComposer(type) {
       '<fieldset><legend class="pf-label">Post type</legend><div class="flex flex-wrap gap-2">' +
         Object.entries(POST_TYPES).map(([k, t]) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-type" value="' + k + '"' + (k === cp.type ? ' checked' : '') + ' data-on-change="setComposerType(this.value)">' +
           '<span class="chip gap-1.5"><svg class="icon w-4 h-4"><use href="#' + t.icon + '"/></svg>' + t.label + '</span></label>').join('') + '</div></fieldset>' +
+      '<div id="cp-before-title" class="space-y-4"></div>' +
       '<div><label for="cp-title" id="cp-title-label" class="pf-label"></label><input id="cp-title" class="pf-input" maxlength="120"><p id="cp-title-error" class="pf-error hidden"></p></div>' +
+      '<div id="cp-after-title" class="space-y-4"></div>' +
       '<div><label for="cp-body" id="cp-body-label" class="pf-label"></label><textarea id="cp-body" rows="4" maxlength="2000" class="pf-input resize-y"></textarea><p id="cp-body-error" class="pf-error hidden"></p></div>' +
       '<div id="cp-type-fields" class="space-y-4"></div>' +
       '<section class="space-y-2" aria-label="Attachments">' +
@@ -303,7 +263,7 @@ function openComposer(type) {
     if (!e.target.id) return;
     e.target.classList.remove('invalid');
     $(e.target.id + '-error')?.classList.add('hidden');
-    if (e.target.id.startsWith('cp-role-skills')) $('cp-roles-error')?.classList.add('hidden');
+    if (e.target.id === 'cp-start') $('cp-end-error')?.classList.add('hidden');
   });
   form.addEventListener('dragover', e => { e.preventDefault(); form.classList.add('ring-4', 'ring-appleBlue/30'); });
   form.addEventListener('dragleave', e => { if (e.target === form) form.classList.remove('ring-4', 'ring-appleBlue/30'); });
@@ -312,68 +272,59 @@ function openComposer(type) {
   $('cp-title').focus();
 }
 
+// Buttons for a one-of-several choice, built from native radio inputs
+function choiceGroup(name, legend, options, checked, onChange) {
+  return '<fieldset><legend class="pf-label">' + legend + '</legend><div class="flex flex-wrap gap-2">' +
+    options.map(o => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="' + name + '" value="' + o + '"' + (o === checked ? ' checked' : '') + (onChange ? ' data-on-change="' + onChange + '"' : '') + '><span class="chip">' + o + '</span></label>').join('') +
+    '</div></fieldset>';
+}
+const choiceOf = name => document.querySelector('input[name="' + name + '"]:checked').value;
+const linesOf = id => $(id).value.split('\n').map(s => s.replace(/^[-•*]\s*/, '').trim()).filter(Boolean).slice(0, 10);
+
 function setComposerType(type) {
-  syncRoles();
   cp.type = type;
   const copy = COMPOSER_COPY[type];
   $('cp-title-label').textContent = copy.title; $('cp-title').placeholder = copy.titlePh;
   $('cp-body-label').textContent = copy.body; $('cp-body').placeholder = copy.bodyPh;
   ['cp-title', 'cp-body'].forEach(id => { $(id).classList.remove('invalid'); $(id + '-error').classList.add('hidden'); });
-  const f = $('cp-type-fields');
+  const before = $('cp-before-title'), after = $('cp-after-title'), f = $('cp-type-fields');
+  before.innerHTML = after.innerHTML = f.innerHTML = '';
   if (type === 'work') {
-    f.innerHTML =
-      '<div><p class="pf-label">Roles needed</p><div id="cp-roles" class="space-y-2"></div>' +
-        '<button type="button" class="btn btn-plain btn-sm -ml-2 mt-1" data-on-click="addRole()"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add role</button><p id="cp-roles-error" class="pf-error hidden"></p></div>' +
-      '<fieldset><legend class="pf-label">Hours per week</legend><div class="flex flex-wrap gap-2">' + HOURS.map((h, i) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-hours" value="' + h + '"' + (i === 1 ? ' checked' : '') + '><span class="chip">' + h + '</span></label>').join('') + '</div></fieldset>' +
-      '<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">' +
-        '<div><label for="cp-weeks" class="pf-label">Duration (weeks)</label><input id="cp-weeks" type="number" min="1" max="26" value="4" class="pf-input"></div>' +
-        '<div><label for="cp-setting" class="pf-label">Work setting</label><select id="cp-setting" class="pf-input">' + SETTINGS.map(s => '<option>' + s + '</option>').join('') + '</select></div>' +
-        '<div class="col-span-2 sm:col-span-1"><label for="cp-industry" class="pf-label">Industry</label><select id="cp-industry" class="pf-input">' + INDUSTRIES.map(s => '<option>' + s + '</option>').join('') + '</select></div>' +
-      '</div>' +
-      '<fieldset><legend class="pf-label">Pay</legend><div class="flex flex-wrap gap-2">' + Object.entries(PAY_TYPES).map(([k, t], i) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-pay" value="' + k + '"' + (i === 0 ? ' checked' : '') + ' data-on-change="onPayTypeChange(this)"><span class="chip">' + t.label + '</span></label>').join('') + '</div>' +
-        '<div id="cp-amount-wrap" class="mt-2 sm:w-2/3"><label for="cp-amount" class="pf-label">Fixed fee</label><div class="flex gap-2">' +
-          '<label for="cp-currency" class="sr-only">Currency</label><select id="cp-currency" class="pf-input !w-auto shrink-0">' + CURRENCIES.map(([c, l]) => '<option value="' + c + '"' + (c === 'GBP' ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>' +
-          '<input id="cp-amount" type="number" min="1" step="1" placeholder="e.g. 750" class="pf-input"></div><p id="cp-amount-error" class="pf-error hidden"></p></div></fieldset>' +
-      '<div><label for="cp-deliverable" class="pf-label">Deliverable</label><input id="cp-deliverable" class="pf-input" maxlength="200" placeholder="What exists when the project is done?"><p id="cp-deliverable-error" class="pf-error hidden"></p></div>';
-    renderRoles();
+    // Order follows spec 12: looking for, title, pay, commitment, workplace, dates, about, then the lists
+    before.innerHTML = choiceGroup('cp-looking', 'Looking for', ['Software Developer', 'Business Developer'], cp.lookingFor, 'setLookingFor(this.value)');
+    after.innerHTML =
+      '<div>' + choiceGroup('cp-pay', 'Pay', ['Paid', 'Unpaid'], 'Paid', 'onPayTypeChange(this)') +
+        '<div id="cp-amount-wrap" class="mt-2 sm:w-1/2"><label for="cp-amount" class="pf-label">Fixed fee for the whole project</label>' +
+          '<div class="flex items-center gap-2"><span class="text-body font-semibold" aria-hidden="true">£</span><input id="cp-amount" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 750" class="pf-input" aria-describedby="cp-amount-error"></div>' +
+          '<p id="cp-amount-error" class="pf-error hidden"></p></div></div>' +
+      choiceGroup('cp-commitment', 'Commitment', COMMITMENTS, 'Part-time') +
+      '<div>' + choiceGroup('cp-workplace', 'Workplace', WORKPLACES, 'Remote', 'onWorkplaceChange(this)') +
+        '<div id="cp-town-wrap" class="hidden mt-2 sm:w-1/2"><label for="cp-town" class="pf-label">Town or city</label><input id="cp-town" class="pf-input" maxlength="60" placeholder="e.g. Bristol"><p id="cp-town-error" class="pf-error hidden"></p></div></div>' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+        '<div><label for="cp-start" class="pf-label">Start date</label><input id="cp-start" type="date" class="pf-input"><p id="cp-start-error" class="pf-error hidden"></p></div>' +
+        '<div><label for="cp-end" class="pf-label">End date</label><input id="cp-end" type="date" class="pf-input"><p id="cp-end-error" class="pf-error hidden"></p></div></div>';
+    const list = (id, label, hint) => '<div><label for="' + id + '" class="pf-label">' + label + '</label><textarea id="' + id + '" rows="3" maxlength="1000" class="pf-input resize-y" aria-describedby="' + id + '-hint"></textarea>' +
+      '<p id="' + id + '-hint" class="pf-hint">' + hint + '</p><p id="' + id + '-error" class="pf-error hidden"></p></div>';
+    f.innerHTML = list('cp-duties', 'Responsibilities', 'One per line.') + list('cp-requirements', 'Minimum requirements', 'One per line.') + list('cp-nice', 'Nice to have (optional)', 'One per line.');
   } else if (type === 'resource') {
     f.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label for="cp-kind" class="pf-label">Kind</label><select id="cp-kind" class="pf-input">' + ['Link', 'Doc', 'Video', 'Screenshot', 'Other'].map(k => '<option>' + k + '</option>').join('') + '</select></div>' +
       '<div><label for="cp-tags" class="pf-label">Tags</label><input id="cp-tags" class="pf-input" placeholder="e.g. Pitch decks, SQL"></div></div>';
   } else if (type === 'personal') {
     f.innerHTML = '<label class="flex items-center gap-2.5 text-subhead cursor-pointer"><input id="cp-feedback" type="checkbox" class="w-[18px] h-[18px]" checked> I\'d like feedback on this</label>';
-  } else {
-    f.innerHTML = '';
   }
 }
-
-function syncRoles() {
-  if (!cp || !$('cp-roles')) return;
-  cp.roles = [...$('cp-roles').querySelectorAll('[data-role]')].map(row => ({
-    track: row.querySelector('select[data-f="track"]').value,
-    count: Number(row.querySelector('select[data-f="count"]').value),
-    skills: row.querySelector('input[data-f="skills"]').value,
-  }));
-}
-function renderRoles() {
-  $('cp-roles').innerHTML = cp.roles.map((r, i) =>
-    '<div data-role class="entry !p-3 grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_2fr_auto] gap-2 items-end">' +
-      '<div><label for="cp-role-track-' + i + '" class="pf-hint">Track</label><select id="cp-role-track-' + i + '" data-f="track" class="pf-input !min-h-[38px] !py-1.5 !text-subhead">' +
-        ['Software Developer', 'Business Developer'].map(t => '<option value="' + t + '"' + (t === r.track ? ' selected' : '') + '>' + shortTrack(t) + '</option>').join('') + '</select></div>' +
-      '<div><label for="cp-role-count-' + i + '" class="pf-hint">People</label><select id="cp-role-count-' + i + '" data-f="count" class="pf-input !min-h-[38px] !py-1.5 !text-subhead">' + [1, 2, 3].map(n => '<option' + (n === r.count ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></div>' +
-      '<div class="col-span-2 sm:col-span-1"><label for="cp-role-skills-' + i + '" class="pf-hint">Skills (comma-separated)</label><input id="cp-role-skills-' + i + '" data-f="skills" class="pf-input !min-h-[38px] !py-1.5 !text-subhead" value="' + esc(r.skills) + '" placeholder="' + esc(SKILL_SUGGESTIONS[r.track].slice(0, 3).join(', ')) + '"></div>' +
-      (cp.roles.length > 1 ? '<button type="button" class="btn btn-plain btn-sm !text-redText col-span-2 sm:col-span-1 justify-self-end" data-on-click="removeRole(' + i + ')">Remove</button>' : '<span class="hidden sm:block"></span>') +
-    '</div>').join('');
-}
-function addRole() { syncRoles(); if (cp.roles.length >= 4) return; cp.roles.push({ track: cp.roles[0].track === 'Software Developer' ? 'Business Developer' : 'Software Developer', count: 1, skills: '' }); renderRoles(); }
-function removeRole(i) { syncRoles(); cp.roles.splice(i, 1); renderRoles(); }
 
 function attError(msg) { const el = $('cp-att-error'); el.textContent = msg; el.classList.toggle('hidden', !msg); }
 
 // File inputs: add the chosen files, then clear the input so the same file can be chosen again
 function addComposerFilesFromInput(input) { addComposerFiles(input.files); input.value = ''; }
 
-// The fixed fee field only applies to paid projects
+// Remember the pathway, so switching post type and back doesn't reset it
+function setLookingFor(track) { cp.lookingFor = track; }
+
+// The fixed fee only applies to paid opportunities, and the town only to in-person or hybrid ones
 function onPayTypeChange(input) { $('cp-amount-wrap').classList.toggle('hidden', input.value !== 'Paid'); }
+function onWorkplaceChange(input) { $('cp-town-wrap').classList.toggle('hidden', input.value === 'Remote'); }
 
 // Open Profile and scroll to Verified experience once the tab has rendered
 function openVerifiedExperience() { switchTab('profile'); setTimeout(() => goToSection('verified'), 50); }
@@ -453,28 +404,31 @@ function cpError(id, msg) {
 function submitPost(e) {
   e.preventDefault();
   if (cp.attachments.some(a => a.kind === 'pending')) return attError('Wait for your files to finish adding.');
-  syncRoles();
-  ['cp-title', 'cp-body', 'cp-deliverable', 'cp-amount'].forEach(id => { $(id)?.classList.remove('invalid'); $(id + '-error')?.classList.add('hidden'); });
-  $('cp-roles-error')?.classList.add('hidden');
+  ['cp-title', 'cp-body', 'cp-amount', 'cp-town', 'cp-start', 'cp-end', 'cp-duties', 'cp-requirements'].forEach(id => { $(id)?.classList.remove('invalid'); $(id + '-error')?.classList.add('hidden'); });
   const type = cp.type;
   const title = $('cp-title').value.trim();
   const body = $('cp-body').value.trim();
   const bad = [];
   if (type !== 'community' && !title) { cpError('cp-title', type === 'support' ? 'Write your question.' : 'Add a title.'); bad.push('cp-title'); }
-  if ((type === 'community' || type === 'work') && !body) { cpError('cp-body', type === 'work' ? 'Describe the project.' : 'Write a message.'); bad.push('cp-body'); }
+  if ((type === 'community' || type === 'work') && !body) { cpError('cp-body', type === 'work' ? 'Say what the project is about.' : 'Write a message.'); bad.push('cp-body'); }
   const post = { id: 'u-' + Date.now().toString(36), type, author: 'me', ts: Date.now(), title, body, attachments: cp.attachments, likes: 0, comments: [] };
   if (type === 'work') {
-    const roles = cp.roles.map(r => ({ track: r.track, count: r.count, skills: r.skills.split(',').map(s => s.trim()).filter(Boolean).slice(0, 8) })).filter(r => r.skills.length);
-    if (!roles.length) { $('cp-roles-error').textContent = 'Add at least one role with the skills it needs.'; $('cp-roles-error').classList.remove('hidden'); bad.push('cp-roles'); }
-    const pay = document.querySelector('input[name="cp-pay"]:checked').value;
+    const pay = choiceOf('cp-pay'), workplace = choiceOf('cp-workplace');
     const amount = Number($('cp-amount').value);
-    if (pay === 'Paid' && !(amount > 0)) { cpError('cp-amount', 'Enter the fixed fee.'); bad.push('cp-amount'); }
-    const deliverable = $('cp-deliverable').value.trim();
-    if (!deliverable) { cpError('cp-deliverable', 'Say what will exist when the project is done.'); bad.push('cp-deliverable'); }
+    const town = $('cp-town').value.trim();
+    const start = $('cp-start').value, end = $('cp-end').value;
+    const responsibilities = linesOf('cp-duties'), requirements = linesOf('cp-requirements');
+    if (pay === 'Paid' && !(amount > 0)) { cpError('cp-amount', 'Enter the fixed fee in pounds, or choose Unpaid.'); bad.push('cp-amount'); }
+    if (workplace !== 'Remote' && !town) { cpError('cp-town', 'Enter the town or city, or choose Remote.'); bad.push('cp-town'); }
+    if (!start) { cpError('cp-start', 'Enter the start date.'); bad.push('cp-start'); }
+    if (!end) { cpError('cp-end', 'Enter the end date.'); bad.push('cp-end'); }
+    else if (start && end < start) { cpError('cp-end', 'The end date must be the same as or after the start date.'); bad.push('cp-end'); }
+    if (!responsibilities.length) { cpError('cp-duties', 'Add at least one responsibility.'); bad.push('cp-duties'); }
+    if (!requirements.length) { cpError('cp-requirements', 'Add at least one minimum requirement.'); bad.push('cp-requirements'); }
     Object.assign(post, {
-      roles, hours: document.querySelector('input[name="cp-hours"]:checked').value,
-      weeks: Math.min(26, Math.max(1, Number($('cp-weeks').value) || 4)), setting: $('cp-setting').value, industry: $('cp-industry').value,
-      pay: pay === 'Paid' ? { type: pay, amount, currency: $('cp-currency').value } : { type: pay }, deliverable, status: 'open', team: ['me'], applicants: 0,
+      lookingFor: choiceOf('cp-looking'), pay: pay === 'Paid' ? { type: pay, amount } : { type: pay },
+      commitment: choiceOf('cp-commitment'), workplace, town: workplace === 'Remote' ? '' : town, start, end,
+      responsibilities, requirements, niceToHave: linesOf('cp-nice'), status: 'open', team: ['me'], applicants: 0,
     });
   } else if (type === 'resource') {
     Object.assign(post, { kind: $('cp-kind').value, tags: $('cp-tags').value.split(',').map(s => s.trim()).filter(Boolean).slice(0, 6), saves: 0 });
@@ -483,7 +437,7 @@ function submitPost(e) {
   } else if (type === 'support') {
     post.solved = false;
   }
-  if (bad.length) { (bad[0] === 'cp-roles' ? $('cp-roles') : $(bad[0])).scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  if (bad.length) { $(bad[0]).scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
 
   demo.posts.unshift(post);
   cp.posted = true;
@@ -494,7 +448,7 @@ function submitPost(e) {
   renderFeed();
   renderFeedSidebar();
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (type === 'work') { showToast('Project posted. Matching members are being notified.'); scheduleApplicants(post); }
+  if (type === 'work') { showToast('Opportunity posted. Members on the ' + post.lookingFor + ' pathway are being told.'); scheduleApplicants(post); }
   else showToast('Posted');
 }
 

@@ -31,7 +31,7 @@ module.exports = async (browser, t) => {
   t.ok('waiting connection requests come from real sample members, with a note', community.invites);
   t.ok('Messages badge starts at 7 unread', (await page.$eval('#btn-chat [data-badge]', e => e.hidden ? '' : e.textContent)) === '7');
 
-  await page.evaluate(() => { switchTab('matching'); setMatchmakerView('people'); }); await sleep(200);
+  await page.evaluate(() => switchTab('matching')); await sleep(200);
   const count = () => page.$$eval('#people-grid article', x => x.length);
   const shown = () => page.$eval('#people-count', e => e.textContent);
 

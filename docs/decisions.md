@@ -20,8 +20,8 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D010 | Navigation: Feed, Connect, Messages, Profile | Accepted (built) | Navigation |
 | D011 | Sample community for demos, clearly labelled | Accepted (built) | Demo content |
 | D012 | Typed feed with the same attachments on every post type | Accepted (built) | Feed |
-| D013 | Pay types: Paid (fixed fee), Unpaid / volunteer, Equity / co-founder | Accepted (built) | Projects, matching |
-| D014 | Matching v2: hard filters, weighted fit, two-way person fit, team suggestions | Accepted (built); person fit superseded by D038 | Feed, Connect |
+| D013 | Pay types: Paid (fixed fee), Unpaid / volunteer, Equity / co-founder | Accepted (built); for posting, superseded by D040 (Paid or Unpaid, pounds only) | Projects, matching |
+| D014 | Matching v2: hard filters, weighted fit, two-way person fit, team suggestions | Accepted (built); person fit superseded by D038; project fit percentage and skills superseded by D040 | Feed, Connect |
 | D015 | Project loop ending in verified experience | Accepted (built) | Projects, profile |
 | D016 | Claude features run on the published page, with a fallback elsewhere | Accepted (built) | Import, chat replies |
 | D017 | Code organised as `prototype.html` + `css/` + `js/` modules; build script for the artifact | Superseded by D027 | Codebase, release |
@@ -47,6 +47,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D037 | Project folder moves to `~/code/bootcamp-connect`, next to `~/code/foundation` (Foundation F015) | Accepted (built) | How we work |
 | D038 | Connect is a networking app: LinkedIn-style requests, all members visible, no match percentage, suggestions from mutual connections and shared context, stage scale | Accepted (built) | Connect, matching, demo content |
 | D039 | Profile built around work to show: guided case studies, facts line, skills proven by work, teammates confirm, AI helper, "Built with" instead of an AI badge, JSON Resume shape | Accepted (built) | Profile, AI, matching, demo content |
+| D040 | Opportunities replace projects in the Feed: Paid or Unpaid, commitment, workplace, dates, job-listing layout, coloured edge for the pathway, short application; Connect is People only | Accepted (built) | Feed, projects, matching, Connect, demo content |
 
 ## Entries
 
@@ -316,3 +317,18 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Risks:** AI suggestions could overstate what someone did, so every suggestion needs the member's approval, and teammate confirmation stays the stronger evidence. The published page may not be allowed to read GitHub; the fallback is pasting the README. On the live site, tagging teammates is user-to-user content (D034 step 2), and the AI helper meets the AI features trigger.
 - **Reviewed:** 2026-10-09, checked in session: reversible while the app is in alpha with made-up data, so no separate review.
 - **Affects:** Profile, AI, matching, demo content.
+
+### D040 Opportunities replace projects in the Feed
+- **Date:** 2026-10-11 · **Status:** Accepted (built), approved by the owner as the basic structure for the demo · **Spec:** `specs/12-opportunities.md`
+- **Context:** the owner found the app cluttered and is preparing a demo for next week. Working through the Feed one post type at a time, starting with opportunities. Compared with Upwork and LinkedIn job posts, Handshake and Google job listings, the CIPD's inclusive recruitment guide (2022), Acas guidance on job adverts, and GOV.UK and NCVO guidance on volunteers.
+- **Decision:**
+  - The "Project" post type becomes **Opportunity**. Opportunities live in the Feed; Connect's Projects view is removed.
+  - Posting asks for: looking for (Software Developer or Business Developer), title, pay (Paid with a fixed fee in pounds, or Unpaid), commitment (Part-time, Full-time or Contract), workplace (In person, Hybrid or Remote, with a town), start and end dates, about the project, responsibilities, minimum requirements and nice to have.
+  - Removed from posting: skills, number of people, hours per week, industry, deliverable, status, currencies other than pounds, and equity.
+  - Feed cards have a coloured edge for the pathway (option D of 4, chosen by the owner) and name the pathway in words. No fit percentage.
+  - The opportunity page is laid out like a job listing.
+  - Applying asks for a message to the poster and your most relevant work.
+- **Options considered:** "Opportunities" as a section name (rejected by the owner: sounds like a job site); Paid work, Passion project and Startup as types (simplified by the owner to Paid or Unpaid); "Offer" as a pay option (dropped); a skills field (removed by the owner); a "What you'll get" section (removed by the owner); structured prompts ("Summary, What you'll do, What you'll need") (rejected by the owner: doesn't sound natural); one free-text box checked by Claude (parked until after the demo); a banner, label or icon for the pathway (owner chose the coloured edge); asking applicants about availability (removed by the owner); do nothing (rejected: the owner finds the Feed cluttered).
+- **Risks:** without skills, "For you" can only order by pathway, pay type, workplace and skills mentioned in the text. Unpaid opportunities from businesses, and Unpaid with Full-time, can make a volunteer count as a worker owed the minimum wage (GOV.UK "Volunteer opportunities, rights and expenses"); the owner chose to allow both for the demo, so they need a legal check before real members use the live site. Equity stays in the profile's "Open to" list until the profile is revisited.
+- **Reviewed:** 2026-10-11, checked in session: reversible while the app is in alpha with made-up data, so no separate review. The minimum wage risk was raised with the owner, who chose to proceed for the demo.
+- **Affects:** Feed, projects, matching, Connect, demo content.

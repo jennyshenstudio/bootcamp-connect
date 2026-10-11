@@ -128,8 +128,9 @@ module.exports = async (browser, t) => {
   await page.click('button[data-on-click="switchTab(\'feed\')"]'); await sleep(400); await collect();
   await page.click('button[data-on-click="openComposer(\'work\')"]'); await sleep(400); await collect();
   await page.keyboard.press('Escape'); await sleep(300);
+  await page.$eval('#feed-list button[data-on-click^="openOpportunity"]', b => b.click()); await sleep(400); await collect();
+  await page.keyboard.press('Escape'); await sleep(300);
   await page.click('button[data-on-click="switchTab(\'matching\')"]'); await sleep(400); await collect();
-  await page.click('#mm-view [data-view="people"]'); await sleep(400); await collect();
   await page.$eval('#people-grid button[data-on-click^="openPerson"]', b => b.click()); await sleep(400); await collect();
   await page.keyboard.press('Escape'); await sleep(300);
   await page.click('button[data-on-click="switchTab(\'chat\')"]'); await sleep(500);

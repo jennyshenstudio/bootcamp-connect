@@ -21,14 +21,15 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 | `docs/deployment.md` | Building, deploying, and installing the app. |
 | `tests/` | Browser tests (`npm install`, then `npm test`). Needs Google Chrome. |
 | `test-data/` | Sample CV for a made-up member (Maya Okafor) as PDF, Word, and HTML, for testing the profile import. |
-| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. `05-feed.md`, `06-matching.md`, `07-project-loop.md`: experience-first platform. `08-installable-app.md`: web and phone app. |
+| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. `05-feed.md`, `06-matching.md`, `07-project-loop.md`: experience-first platform. `08-installable-app.md`: web and phone app. `12-opportunities.md`: opportunities in the Feed. |
 
 ## Prototype features
 
-Bootcamp Connect is **experience first**: members join real projects (paid, unpaid, or equity) that become verified portfolio experience.
+Bootcamp Connect is **experience first**: members join real opportunities (paid or unpaid) that become verified portfolio experience.
 
-- Typed feed: Projects, Resources, Personal projects, Support, Community, with For you ranking, likes, comments, saves, and photos, videos, documents, and links on every post type
-- Matching v2: hard filters (pay type, hours, setting, track) plus skill fit, growth fit (skills you want to learn), commitment, interests, goals, and fairness, with reasons; two-way person matching; team suggestions for project owners
+- Typed feed: Opportunities, Resources, Personal projects, Support, Community, with For you ranking, likes, comments, saves, and photos, videos, documents, and links on every post type
+- Opportunities (spec 12): paid or unpaid, with commitment, workplace and dates, a page laid out like a job listing, a coloured edge for the pathway, and a short application (a message and your most relevant work)
+- Matching: opportunities for your pathway and pay types first; people suggestions from mutual connections and shared context (spec 10)
 - Project loop: apply, manage applicants, start a project with an automatic team chat, mark complete with ratings and endorsements, and earn verified experience on your profile
 
 - Full-page sign up / log in with Google (simulated) and email
@@ -37,7 +38,7 @@ Bootcamp Connect is **experience first**: members join real projects (paid, unpa
 - One-page profile setup: photo, headline, track, location, About, links, work experience, skills, projects, and what you're looking for, with a live preview card and profile strength meter
 - Import from a CV or LinkedIn profile PDF (PDF, .docx, or text): extracts experience, skills, projects, and more, with a review step before anything is added. Uses Claude on the published claude.ai page, or a built-in reader when opened as a local file
 - New sign-ups land on profile setup; returning members land on the Project Feed
-- Demo community: 8 sample members with full profiles, a ranked Connect tab (projects and people) with connection requests and profile view, 3 group chats and direct messages with unread badges, typing indicators, and replies (written by Claude on the published page)
+- Demo community: 8 sample members with full profiles, a Connect tab for finding people with connection requests and profile view, 3 group chats and direct messages with unread badges, typing indicators, and replies (written by Claude on the published page)
 - Project feed with upvotes
 - Installable on phones and computers (Add to Home Screen) and works offline once opened, when published from `dist/`
 

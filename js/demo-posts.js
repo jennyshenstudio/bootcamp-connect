@@ -1,17 +1,19 @@
 // Bootcamp Connect prototype: sample feed posts (specs/05-feed.md).
 // Plain script (shared globals); load order is set in index.html.
 // Posts from the sample members in demo-data.js. Not real people or projects.
+// Opportunities (type 'work') follow specs/12-opportunities.md.
 
 const POST_TYPES = {
-  work: { label: 'Project', plural: 'Projects', icon: 'i-briefcase', cls: 'bg-appleBlue/10 text-blueText' },
+  work: { label: 'Opportunity', plural: 'Opportunities', icon: 'i-briefcase', cls: 'bg-appleBlue/10 text-blueText' },
   resource: { label: 'Resource', plural: 'Resources', icon: 'i-book', cls: 'bg-appleGreen/15 text-greenText' },
   personal: { label: 'Personal project', plural: 'Personal', icon: 'i-spark', cls: 'bg-applePurple/15 text-purpleText' },
   support: { label: 'Support', plural: 'Support', icon: 'i-help', cls: 'bg-appleOrange/15 text-orangeText' },
   community: { label: 'Community', plural: 'Community', icon: 'i-megaphone', cls: 'bg-fill text-label-2' },
 };
 
-// British app: fixed fees default to pounds sterling; other currencies are available.
-const CURRENCIES = [['GBP', '£ GBP'], ['EUR', '€ EUR'], ['USD', '$ USD'], ['CAD', '$ CAD'], ['AUD', '$ AUD']];
+// Opportunities (specs/12-opportunities.md): fees are fixed and in pounds (D002, D040).
+const COMMITMENTS = ['Part-time', 'Full-time', 'Contract'];
+const WORKPLACES = ['In person', 'Hybrid', 'Remote'];
 
 const PAY_TYPES = {
   Paid: { label: 'Paid (fixed fee)', short: 'Paid', goal: 'Paid work' },
@@ -24,9 +26,11 @@ const DEMO_POSTS = [
     id: 'p-finance', type: 'work', author: 'sarah', rank: 40, time: 'Mon',
     title: 'Freelancer Finance: AI tax and savings planner (MVP)',
     body: 'Validated with 25 freelancer interviews and a 62-person waitlist. Building the MVP: income tracking and a running tax estimate. Team is set and we are three weeks in.',
-    roles: [{ track: 'Software Developer', count: 2, skills: ['Next.js', 'TypeScript', 'React', 'PostgreSQL'] }, { track: 'Business Developer', count: 1, skills: ['Financial modelling', 'Pitch decks'] }],
-    hours: '20–40', weeks: 10, setting: 'Remote', pay: { type: 'Equity' }, industry: 'Fintech',
-    deliverable: 'Working MVP: income tracking + running tax estimate, tested with 10 waitlist users',
+    lookingFor: 'Software Developer', pay: { type: 'Unpaid' }, commitment: 'Part-time', workplace: 'Remote',
+    start: '2026-09-14', end: '2026-11-20',
+    responsibilities: ['Build income tracking and the running tax estimate in Next.js', 'Test each release with 10 people from the waitlist', 'Join a weekly planning call with the team'],
+    requirements: ["You've built a web app with React or Next.js", "You've worked with a database such as PostgreSQL"],
+    niceToHave: ['You know how UK Self Assessment works'],
     status: 'in-progress', team: ['sarah', 'elena', 'marcus', 'me'], applicants: 7, chatId: 'g-finance', started: '2026-09',
     likes: 24, comments: [
       { from: 'priya', time: 'Mon', text: 'Love this. Self Assessment was my biggest headache as a contractor.' },
@@ -36,9 +40,11 @@ const DEMO_POSTS = [
     id: 'p-tableturn', type: 'work', author: 'diego', rank: 39, time: '2h',
     title: 'TableTurn: booking page + deposit checkout for 3 pilot restaurants',
     body: 'Three independent restaurants in Bristol have agreed to pilot a simple booking page with a refundable deposit to cut no-shows. I handle the restaurants; I need a developer to build it.',
-    roles: [{ track: 'Software Developer', count: 1, skills: ['React', 'Node.js', 'PostgreSQL', 'Stripe'] }],
-    hours: '10–20', weeks: 6, setting: 'Remote', pay: { type: 'Paid', amount: 950, currency: 'GBP' }, industry: 'Marketplaces',
-    deliverable: 'Booking page and deposit checkout live for 3 restaurants',
+    lookingFor: 'Software Developer', pay: { type: 'Paid', amount: 950 }, commitment: 'Part-time', workplace: 'Hybrid', town: 'Bristol',
+    start: '2026-11-02', end: '2026-12-14',
+    responsibilities: ['Build the booking page and the deposit checkout', "Set it up for each restaurant's tables and opening hours", 'Join a weekly call with me and the restaurant owners'],
+    requirements: ["You've built and launched a web app with React and Node.js"],
+    niceToHave: ["You've taken online payments with Stripe"],
     status: 'open', team: ['diego'], applicants: 2,
     attachments: [{ id: 'a-tt1', kind: 'image', name: 'tableturn-mockup.png', src: mockBrowser({ url: 'tableturn.app/casa-brava', accent: '#FF9500', heading: 'Book a table', rows: [['Fri 7:00pm · 2 guests', 'Available'], ['Fri 7:30pm · 4 guests', '£20 deposit'], ['Sat 8:00pm · 2 guests', 'Waitlist']] }) }],
     likes: 11, comments: [{ from: 'marcus', time: '1h', text: 'Stripe deposits with refunds are a fun problem. Sending an application.' }],
@@ -57,9 +63,11 @@ const DEMO_POSTS = [
     id: 'p-refill', type: 'work', author: 'priya', rank: 37, time: '5h',
     title: 'RefillRadar: pharmacist dashboard prototype',
     body: 'My refill-prediction model works on public data. Next step is a tiny dashboard a pharmacist can use for one week, plus someone to run the pilot conversation with the pharmacy.',
-    roles: [{ track: 'Software Developer', count: 1, skills: ['React', 'TypeScript', 'Data visualisation'] }, { track: 'Business Developer', count: 1, skills: ['Customer discovery', 'Partnerships'] }],
-    hours: 'Under 10', weeks: 4, setting: 'Remote', pay: { type: 'Unpaid' }, industry: 'Health',
-    deliverable: 'Dashboard prototype used by one pharmacy for a week, with written feedback',
+    lookingFor: 'Software Developer', pay: { type: 'Unpaid' }, commitment: 'Part-time', workplace: 'Remote',
+    start: '2026-11-09', end: '2026-12-04',
+    responsibilities: ['Build a small dashboard in React that shows predicted refills', 'Make it simple enough for a pharmacist to use for one week', 'Collect written feedback from the pharmacy'],
+    requirements: ["You've built a React app with TypeScript"],
+    niceToHave: ["You've made charts or other data visualisation"],
     status: 'open', team: ['priya'], applicants: 1,
     attachments: [{ id: 'a-int', kind: 'doc', name: 'Pharmacy interview notes.pdf', mime: 'application/pdf', size: 39244, src: DEMO_FILES.interviews }],
     likes: 17, comments: [],
@@ -96,9 +104,11 @@ const DEMO_POSTS = [
     id: 'p-gradeloop', type: 'work', author: 'tom', rank: 33, time: 'Yesterday',
     title: 'GradeLoop: 3-week research sprint on teacher feedback',
     body: 'Thirty teacher interviews say feedback time, not grading, is the pain. I want to test two prototype concepts with 8 teachers. Great portfolio project for anyone into UX research or prototyping.',
-    roles: [{ track: 'Business Developer', count: 1, skills: ['UX research', 'User interviews'] }, { track: 'Software Developer', count: 1, skills: ['Figma', 'React'] }],
-    hours: '10–20', weeks: 3, setting: 'Hybrid', pay: { type: 'Unpaid' }, industry: 'Edtech',
-    deliverable: 'Two clickable prototypes tested with 8 teachers + a findings report',
+    lookingFor: 'Business Developer', pay: { type: 'Unpaid' }, commitment: 'Part-time', workplace: 'Hybrid', town: 'Manchester',
+    start: '2026-11-02', end: '2026-11-20',
+    responsibilities: ['Plan and run interviews with 8 teachers', 'Test two prototype concepts with them', 'Write up what we learned in a short findings report'],
+    requirements: ["You've run user interviews or customer research"],
+    niceToHave: ["You've worked in or with schools"],
     status: 'open', team: ['tom'], applicants: 0,
     likes: 9, comments: [],
   },
@@ -125,9 +135,11 @@ const DEMO_POSTS = [
     id: 'p-footprint-landing', type: 'work', author: 'hannah', rank: 30, time: 'Tue',
     title: 'Landing page copy and launch plan for Footprint',
     body: 'Footprint is almost ready to publish. I need a Business Dev partner to write the landing page and plan a small launch (Product Hunt + two climate newsletters).',
-    roles: [{ track: 'Business Developer', count: 1, skills: ['Copywriting', 'Growth marketing'] }],
-    hours: 'Under 10', weeks: 2, setting: 'Remote', pay: { type: 'Paid', amount: 300, currency: 'GBP' }, industry: 'Climate',
-    deliverable: 'Published landing page + launch checklist executed',
+    lookingFor: 'Business Developer', pay: { type: 'Paid', amount: 300 }, commitment: 'Contract', workplace: 'Remote',
+    start: '2026-11-16', end: '2026-11-27',
+    responsibilities: ['Write the landing page copy', 'Plan a small launch on Product Hunt and two climate newsletters', 'Run the launch checklist on the day'],
+    requirements: ["You've written copy for a product or a landing page"],
+    niceToHave: ["You've launched something on Product Hunt"],
     status: 'open', team: ['hannah'], applicants: 1,
     likes: 7, comments: [],
   },

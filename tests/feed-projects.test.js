@@ -1,8 +1,8 @@
-// Specs 05–07: typed feed and attachments, matching v2, project loop and verified experience.
+// Specs 05–07 and 12: typed feed and attachments, opportunities, matching, project loop and verified experience.
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { ROOT, openApp, signUp, sleep, fixture, screenshot } = require('./helpers');
+const { ROOT, openApp, signUp, sleep, fixture, screenshot, noHorizontalScroll } = require('./helpers');
 
 module.exports = async (browser, t) => {
   // Files that must be rejected, made on the fly
@@ -23,38 +23,68 @@ module.exports = async (browser, t) => {
   await page.click('#pf-industries-7 + .chip'); await page.click('#pf-industries-2 + .chip');
   await page.click('#profile-form button[type=submit]'); await sleep(300);
 
-  // ---------- Matching v2 ----------
+  // ---------- Opportunity matching (spec 12) ----------
   const fit = id => page.evaluate(id => { const f = projectFit(postById(id), memberView('me')); return { score: f.score, blocked: f.blocked, reasons: f.reasons, blockers: f.blockers }; }, id);
   let f = await fit('p-tableturn');
-  t.ok('strong skill match reason', f.reasons.some(r => r.startsWith('Strong skill match: React, Node.js, PostgreSQL')), JSON.stringify(f.reasons));
-  t.ok('growth fit reason for a skill you want to learn', f.reasons.some(r => r.includes('practise Stripe')));
-  t.ok('good fit scores 70%+', !f.blocked && f.score >= 70, 'score ' + f.score);
-  f = await fit('p-finance');
-  t.ok('pay-type filter blocks equity when not open to it', f.blocked && f.blockers[0].includes('equity'));
+  t.ok('skills named in the opportunity count as a reason', f.reasons.some(r => r.startsWith('Uses React, Node.js')), JSON.stringify(f.reasons));
+  t.ok('a skill you want to learn counts as a reason', f.reasons.some(r => r.includes('practise Stripe')));
+  t.ok('an opportunity for your pathway is not blocked', !f.blocked);
   f = await fit('p-footprint-landing');
-  t.ok('track filter blocks a Business-only project for a developer', f.blocked && f.blockers[0].includes('Business Dev only'));
-  await page.evaluate(() => updateProfile(currentAccount(), { hours: 'Under 10' }));
-  f = await fit('p-tableturn');
-  t.ok('hours filter blocks a 10–20 hrs project for someone with under 10', f.blocked && f.blockers.some(b => b.includes('Needs 10–20')));
-  await page.evaluate(() => updateProfile(currentAccount(), { hours: '10–20' }));
+  t.ok('an opportunity for the other pathway is blocked, with the reason', f.blocked && f.blockers[0] === 'For Business Developers only');
+  await page.evaluate(() => updateProfile(currentAccount(), { openTo: ['Paid'] }));
+  f = await fit('p-refill');
+  t.ok('pay-type filter blocks unpaid when not open to it', f.blocked && f.blockers[0].includes('unpaid'));
+  await page.evaluate(() => updateProfile(currentAccount(), { openTo: ['Equity'] }));
+  f = await fit('p-refill');
+  t.ok('members open to equity (a pay type before D040) can see unpaid opportunities', !f.blocked);
+  await page.evaluate(() => updateProfile(currentAccount(), { openTo: ['Paid', 'Unpaid'] }));
+  const words = await page.evaluate(() => [mentions('a digital product', 'Git'), mentions('built with git and react', 'Git'), mentions('node.js api', 'Node.js'), mentions('c++ and rust', 'C++')]);
+  t.ok('skills match whole words only', words.join() === 'false,true,true,true', words.join());
+  const dates = await page.evaluate(() => opportunityDates({ start: '2026-12-14', end: '2027-01-20' }));
+  t.ok('dates that cross a year show both years', dates === '14 Dec 2026 – 20 Jan 2027', dates);
   // People suggestions replaced two-way person fit (spec 10); their tests are in community.test.js
   const people = await page.evaluate(() => ['elena', 'marcus', 'diego'].map(id => suggestionFor(id)));
   t.ok('people suggestions include two-way skill reasons', people.some(p => p.reasons.some(r => r.startsWith('Can help you learn') || r.startsWith('You can help them'))));
-  const team = await page.evaluate(() => suggestTeam(postById('p-refill')).map(x => x.role.track));
-  t.ok('team suggestions cover every open role', team.length === 2 && team.includes('Software Developer') && team.includes('Business Developer'));
+  const team = await page.evaluate(() => suggestTeam(postById('p-gradeloop')).map(x => x.person.track));
+  t.ok('suggested members are on the pathway the opportunity is looking for', team.length > 0 && team.length <= 3 && team.every(tr => tr === 'Business Developer'), team.join());
 
   // ---------- Feed filters and fees ----------
   await page.evaluate(() => switchTab('feed')); await sleep(300);
   const forYou = await page.$$eval('#feed-list article', x => x.map(e => e.dataset.post));
   t.ok('For you hides blocked projects and ranks good fits first', !forYou.includes('p-footprint-landing') && forYou.includes('p-tableturn') &&
     (forYou.indexOf('p-tableturn') < forYou.indexOf('p-gradeloop') || !forYou.includes('p-gradeloop')));
-  for (const [k, label] of [['work', 'Project'], ['resource', 'Resource'], ['personal', 'Personal project'], ['support', 'Support'], ['community', 'Community']]) {
+  for (const [k, label] of [['work', 'Opportunity'], ['resource', 'Resource'], ['personal', 'Personal project'], ['support', 'Support'], ['community', 'Community']]) {
     await page.evaluate(k => setFeedFilter(k), k); await sleep(100);
     const badges = await page.$$eval('#feed-list article', x => x.map(e => e.querySelector('span.shrink-0.inline-flex').textContent.trim()));
     t.ok('filter ' + k + ' shows only ' + label + ' posts', badges.length > 0 && badges.every(b => b === label));
   }
   await page.evaluate(() => setFeedFilter('work')); await sleep(100);
-  t.ok('sample fees are in pounds', (await page.$$eval('#feed-list article', x => x.map(e => (e.innerText.match(/Paid · \S+/) || [])[0]).filter(Boolean).join())) === 'Paid · £950,Paid · £300');
+  t.ok('Opportunities filter is labelled and selected', (await page.$eval('#feed-filters [aria-pressed="true"]', e => e.textContent)) === 'Opportunities');
+  t.ok('sample fees are fixed and in pounds', (await page.$$eval('#feed-list article', x => x.map(e => (e.innerText.match(/£\d+, fixed/) || [])[0]).filter(Boolean).join())) === '£950, fixed,£300, fixed');
+  const card = id => page.$eval(`[data-post="${id}"]`, e => ({ cls: e.className, facts: [...e.querySelectorAll('.flex-wrap.gap-1\\.5 > span')].map(s => s.textContent), text: e.innerText }));
+  const dev = await card('p-tableturn'), biz = await card('p-gradeloop');
+  t.ok('a Software Developer opportunity has a blue edge and names the pathway first', dev.cls.includes('border-l-appleBlue') && dev.facts[0] === 'Software Developer', JSON.stringify(dev.facts));
+  t.ok('a Business Developer opportunity has a purple edge and names the pathway first', biz.cls.includes('border-l-applePurple') && biz.facts[0] === 'Business Developer');
+  t.ok('the card shows pay, commitment, workplace and dates', ['£950, fixed', 'Part-time', 'Hybrid · Bristol', '2 Nov – 14 Dec 2026'].every(x => dev.facts.includes(x)), JSON.stringify(dev.facts));
+  t.ok('no fit percentage on opportunity cards', !(await page.$eval('#feed-list', e => e.innerText)).includes('% fit'));
+  await page.evaluate(() => openOpportunity('p-tableturn')); await sleep(300);
+  const sections = await page.$$eval('#sheet-panel h3', x => x.map(e => e.textContent));
+  t.ok('the opportunity page shows its sections in order', sections.join('|') === 'At a glance|About the project|Responsibilities|Minimum requirements|Nice to have|About Diego', sections.join('|'));
+  t.ok('At a glance includes the length in weeks', (await page.$eval('#sheet-panel dl', e => e.innerText)).includes('6 weeks'));
+  await page.click('#opp-save'); await sleep(200);
+  t.ok('Save keeps keyboard focus on the Save button', await page.evaluate(() => document.activeElement.id === 'opp-save' && document.activeElement.getAttribute('aria-pressed') === 'true'));
+  await page.keyboard.press('Escape'); await sleep(200);
+  t.ok("you can't apply to another pathway's opportunity", await page.$eval('[data-post="p-footprint-landing"]', e => [...e.querySelectorAll('button')].some(b => b.textContent === 'Apply' && b.disabled)));
+  await page.evaluate(() => openApply('p-footprint-landing')); await sleep(200);
+  t.ok("the application form doesn't open for another pathway", !(await page.$('#apply-note')));
+  await page.evaluate(() => setFeedFilter('foryou')); await sleep(200);
+  const forYouOrder = await page.evaluate(() => {
+    const open = allPosts().filter(p => p.type === 'work' && !isMine(p) && !onTeam(p) && projectStatus(p) === 'open' && !projectFit(p, memberView('me')).blocked).map(p => p.id);
+    const shown = [...document.querySelectorAll('#feed-list article')].map(e => e.dataset.post);
+    return { open, first: shown.slice(0, open.length) };
+  });
+  t.ok('For you shows opportunities for your pathway first', forYouOrder.open.length >= 2 && forYouOrder.open.every(id => forYouOrder.first.includes(id)), JSON.stringify(forYouOrder));
+  await page.evaluate(() => setFeedFilter('work')); await sleep(100);
 
   // ---------- Composer, attachments, viewer ----------
   await page.evaluate(() => { setFeedFilter('all'); openComposer('community'); }); await sleep(200);
@@ -101,9 +131,21 @@ module.exports = async (browser, t) => {
   const supportId = await page.evaluate(() => demo.posts.find(p => p.type === 'support').id);
   await page.evaluate(id => markSolved(id), supportId);
   await page.evaluate(() => openComposer('work')); await sleep(100);
+  const fieldOrder = await page.$$eval('#composer legend, #composer label.pf-label', x => x.map(e => e.textContent));
+  t.ok('the opportunity form asks its questions in order', ['Looking for', 'Title', 'Pay', 'Commitment', 'Workplace', 'Start date', 'End date', 'About the project', 'Responsibilities', 'Minimum requirements', 'Nice to have (optional)'].every((l, i, all) => fieldOrder.indexOf(l) >= 0 && (i === 0 || fieldOrder.indexOf(all[i - 1]) < fieldOrder.indexOf(l))), fieldOrder.join('|'));
+  t.ok('looking for starts on the other pathway', (await page.$eval('input[name=cp-looking]:checked', e => e.value)) === 'Business Developer');
+  await page.click('input[name=cp-looking][value="Software Developer"] + .chip');
+  await page.click('input[name=cp-type][value=resource] + .chip'); await page.click('input[name=cp-type][value=work] + .chip'); await sleep(100);
+  t.ok('looking for is kept when switching post type and back', (await page.$eval('input[name=cp-looking]:checked', e => e.value)) === 'Software Developer');
+  await page.click('input[name=cp-looking][value="Business Developer"] + .chip');
+  t.ok('fees are in pounds only', !(await page.$('#cp-currency')) && (await page.$eval('#cp-amount-wrap', e => e.innerText)).includes('£'));
   await page.type('#cp-title', 'x'); await page.type('#cp-body', 'y'); await page.click('#cp-submit'); await sleep(100);
-  t.ok('a project needs roles and a deliverable', await page.$eval('#cp-roles-error', e => !e.classList.contains('hidden')) && await page.$eval('#cp-deliverable-error', e => !e.classList.contains('hidden')));
-  t.ok('fixed fee defaults to pounds', (await page.$eval('#cp-currency', e => e.value)) === 'GBP');
+  const shown = id => page.$eval('#' + id + '-error', e => !e.classList.contains('hidden'));
+  t.ok('an opportunity needs a fee, dates, responsibilities and requirements', await shown('cp-amount') && await shown('cp-start') && await shown('cp-end') && await shown('cp-duties') && await shown('cp-requirements'));
+  await page.evaluate(() => { $('cp-start').value = '2026-12-10'; $('cp-end').value = '2026-12-01'; }); await page.click('#cp-submit'); await sleep(100);
+  t.ok('the end date cannot be before the start', (await page.$eval('#cp-end-error', e => e.textContent)).includes('after the start date'));
+  await page.click('input[name=cp-workplace][value="In person"] + .chip'); await page.click('#cp-submit'); await sleep(100);
+  t.ok('in person needs a town or city', await shown('cp-town'));
   await page.evaluate(() => closeSheet());
   await page.reload({ waitUntil: 'networkidle0' }); await sleep(500);
   const kept = await page.evaluate(id => ({ liked: postState('p-rls').liked, saved: postState('p-rls').saved, comment: !!postState('p-rls').comments[0], solved: postSolved(postById(id)), posts: demo.posts.length }), supportId);
@@ -113,30 +155,40 @@ module.exports = async (browser, t) => {
 
   // ---------- Project loop: apply ----------
   await page.evaluate(() => openApply('p-tableturn')); await sleep(200);
+  t.ok('the application asks for a message to the poster', (await page.$eval('label[for=apply-note]', e => e.textContent)) === 'Message to Diego');
+  t.ok('the application asks for your most relevant work', (await page.$eval('label[for=apply-work]', e => e.textContent)) === 'Your most relevant work');
+  await page.click('#sheet button[type=submit]'); await sleep(100);
+  t.ok('a message is required', await page.$eval('#apply-note-error', e => !e.classList.contains('hidden')) && await page.evaluate(() => !demo.applications['p-tableturn']));
   await page.type('#apply-note', 'I want to go deeper on Stripe.'); await page.click('#sheet button[type=submit]'); await sleep(200);
-  t.ok('application is pending', await page.evaluate(() => demo.applications['p-tableturn'].status === 'applied'));
+  t.ok('application is pending', await page.evaluate(() => demo.applications['p-tableturn'].status === 'applied' && demo.applications['p-tableturn'].note === 'I want to go deeper on Stripe.'));
   await sleep(2600);
   const acc = await page.evaluate(() => ({ team: projectTeam(postById('p-tableturn')), chat: allChats().find(c => c.id === 'p-p-tableturn') }));
   t.ok('accepted: on the team with a project chat', acc.team.includes('me') && !!acc.chat && acc.chat.messages[0].from === 'system');
   t.ok('card offers Project chat and Mark complete', await page.$eval('[data-post="p-tableturn"]', e => e.innerText.includes('Project chat') && e.innerText.includes('Mark complete')));
 
-  // ---------- Own project: applicants, manage, start ----------
+  // ---------- Own opportunity: applicants, manage, start ----------
   await page.evaluate(() => openComposer('work')); await sleep(100);
   await page.type('#cp-title', 'Pricing page and pilot pitch for RefillRadar');
-  await page.type('#cp-body', 'Need a Biz partner to shape pricing and pitch the pilot.');
-  await page.evaluate(() => { $('cp-role-track-0').value = 'Business Developer'; });
-  await page.type('#cp-role-skills-0', 'Pricing, Customer discovery, Sales');
-  await page.click('input[name=cp-hours][value="Under 10"] + .chip');
-  await page.select('#cp-currency', 'EUR');
-  await page.type('#cp-amount', '500'); await page.type('#cp-deliverable', 'Pricing page + pilot agreement draft');
+  await page.click('input[name=cp-commitment][value="Contract"] + .chip');
+  await page.click('input[name=cp-workplace][value="Hybrid"] + .chip');
+  await page.type('#cp-town', 'Leeds');
+  await page.type('#cp-amount', '500');
+  await page.evaluate(() => { $('cp-start').value = '2026-11-02'; $('cp-end').value = '2026-11-30'; });
+  await page.type('#cp-body', 'Need a Business Developer to shape pricing and pitch the pilot.');
+  await page.type('#cp-duties', 'Shape the pricing page\nPitch the pilot to one pharmacy');
+  await page.type('#cp-requirements', "You've run customer interviews");
   await page.click('#cp-submit'); await sleep(300);
   const myPost = await page.evaluate(() => demo.posts.find(p => p.type === 'work').id);
-  t.ok('fee shows in the chosen currency', (await page.$eval(`[data-post="${myPost}"]`, e => e.innerText)).includes('Paid · €500'));
+  const mine = await card(myPost);
+  t.ok('a posted opportunity shows its pathway, fee, commitment, workplace and dates', mine.cls.includes('border-l-applePurple') &&
+    ['Business Developer', '£500, fixed', 'Contract', 'Hybrid · Leeds', '2 Nov – 30 Nov 2026'].every(x => mine.facts.includes(x)), JSON.stringify(mine.facts));
+  t.ok('responsibilities are saved one per line', await page.evaluate(id => postById(id).responsibilities.length === 2, myPost));
   await sleep(5600);
   const apps = await page.evaluate(id => projectApplicantList(postById(id)).map(a => a.id), myPost);
-  t.ok('best-fitting members apply', apps.length >= 2, apps.join());
+  t.ok('members on the right pathway apply', apps.length >= 2 && await page.evaluate(ids => ids.every(id => person(id).track === 'Business Developer'), apps), apps.join());
   await page.evaluate(id => openManage(id), myPost); await sleep(200);
-  t.ok('Manage lists applicants with fit', (await page.$eval('#sheet-panel', e => e.innerText)).includes('% fit'));
+  const manage = await page.$eval('#sheet-panel', e => e.innerText);
+  t.ok('Manage shows each applicant\'s message and relevant work, with no fit percentage', manage.includes('Relevant work:') && manage.includes('"') && !manage.includes('% fit'));
   await page.evaluate((id, who) => respondToApplicant(id, who, true), myPost, apps[0]); await sleep(200);
   t.ok('accepted applicant joins the team', await page.evaluate((id, who) => projectTeam(postById(id)).includes(who), myPost, apps[0]));
   await page.evaluate(id => startProject(id), myPost); await sleep(400);
@@ -155,6 +207,22 @@ module.exports = async (browser, t) => {
   t.ok('profile shows verified experience and endorsement counts', (await page.$eval('#verified-list', e => e.innerText)).includes('Freelancer Finance') && /\d/.test(await page.$eval('#skill-tags', e => e.innerText)));
   await page.reload({ waitUntil: 'networkidle0' }); await sleep(300);
   t.ok('verified experience persists after reload', await page.evaluate(() => demo.verified.length === 1));
+  // ---------- Opportunities at 320px wide ----------
+  await page.setViewport({ width: 320, height: 700 });
+  await page.evaluate(() => { switchTab('feed'); setFeedFilter('work'); }); await sleep(300);
+  t.ok('opportunity cards have no sideways scroll at 320px', await noHorizontalScroll(page));
+  await page.evaluate(() => openOpportunity('p-tableturn')); await sleep(300);
+  t.ok('the opportunity page has no sideways scroll at 320px', await noHorizontalScroll(page) && await page.$eval('#sheet-panel', e => e.scrollWidth <= e.clientWidth));
+  await screenshot(page, 'opportunity-320');
+  await page.keyboard.press('Escape'); await sleep(200);
+  await page.evaluate(() => openComposer('work')); await sleep(200);
+  t.ok('the opportunity form has no sideways scroll at 320px', await noHorizontalScroll(page) && await page.$eval('#sheet-panel', e => e.scrollWidth <= e.clientWidth));
+  await page.evaluate(() => closeSheet());
+  await page.setViewport({ width: 1440, height: 900 });
+
+  // ---------- Connect is People only (D040) ----------
+  await page.evaluate(() => switchTab('matching')); await sleep(300);
+  t.ok('Connect has no Projects view', await page.evaluate(() => !$('projects-view') && !$('mm-view') && !$('people-view').classList.contains('hidden')));
   await page.close();
   fs.rmSync(tmp, { recursive: true, force: true });
 };

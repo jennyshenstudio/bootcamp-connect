@@ -11,6 +11,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 ## Unreleased
 
 ### Added
+- **Opportunities** (spec 12, D040): the "Project" post type becomes Opportunity. Posting asks who it's for (Software Developer or Business Developer), title, pay (Paid with a fixed fee in pounds, or Unpaid), commitment (Part-time, Full-time or Contract), workplace (In person, Hybrid or Remote, with a town or city), start and end dates, about the project, responsibilities, minimum requirements and nice to have. Each missing answer says what to fix.
+- **Opportunity page:** See details opens a page laid out like a job listing: at a glance (pay, commitment, workplace, dates and length in weeks), about the project, responsibilities, minimum requirements, nice to have and about the poster, with Apply and Save.
+- **Coloured edge for the pathway:** opportunity cards have a blue edge for Software Developer and a purple edge for Business Developer, and name the pathway first in their facts, so it never relies on colour alone.
+- **Shorter application:** a message to the poster (required, up to 300 characters) and your most relevant work from your profile. The poster's Manage view shows both.
+- **Spec 12** and decision D040.
 - **Profile built around work to show** (spec 11, D039): pieces of work are short case studies with guided questions worded for each track (the problem, your role, what you did, what happened, what you'd do differently), facts that show the level ("Led · team of 4 to 6 · 1 to 3 months · Live"), a screenshot, live and code links, skills used, Built with (including AI tools) and teammates. Up to 6; the first 3 show on the profile. Tagged teammates confirm the work, and it then shows on their profile too. Skills show as confirmed, proven (used in work) or listed, and selecting one shows the work behind it. Business Developer viewers see live links first, with code in a closed "Technical details" section; Software Developer viewers see code links straight away. New profile fields: stage, cohort, "currently working on" and education. "See your full profile" previews your own profile. Every profile says "Members can use AI to help write their profiles"; there is no AI badge.
 - **Claude helps write work to show** (on the published page only): "Write it with Claude" interviews you one question at a time and drafts the piece; "Suggest from code link" reads a public GitHub repository's README and package.json (or asks you to paste them if it can't); "Suggest from a document" reads a PDF or Word file. Every suggestion is marked "Suggested" until you use or dismiss it, and nothing is saved until you press Save. CV import now turns projects into draft pieces of work.
 - **New test suite** `tests/work.test.js` for spec 11.
@@ -22,6 +27,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Licence:** `LICENSE` makes the code "all rights reserved" (D031). It can be read on GitHub but not copied or reused without permission.
 
 ### Changed
+- **Feed:** the Projects filter is now Opportunities, and "For you" puts open opportunities for your pathway first. The sidebar shows "Opportunities for you" without percentages. Sample projects are now opportunities with the new fields; the equity project is now Unpaid.
+- **Connect is People only:** opportunities live in the Feed, so Connect's Projects view and its Projects and People switch are gone.
+- **Matching opportunities:** with no skills field, skills count when an opportunity's text mentions them as whole words. Members open to "Equity" can see unpaid opportunities. Members to invite are picked from the pathway the opportunity is looking for.
+- Projects saved in a browser before this change still load, with the new fields filled in from the old ones. A fee in another currency keeps its currency.
 - **Profiles are saved in the JSON Resume shape** (D039), an open standard for CV data, with the app's own fields in a `bootcampConnect` section. Profiles saved in the old shape load without losing anything, and their projects become work to show. The profile form follows the order others see: basics, work to show, skills and currently learning, experience, education, verified experience, available for, links.
 - **People suggestions** (spec 10): ranked by mutual connections, same cohort, same company, same school, the other track, skills each of you wants to learn, and newer members. Goals and stage no longer count. There's no match percentage on people any more, only reasons ("Why you might connect"). Project matching is unchanged. Tests for two-way person fit were replaced by tests for the new suggestions.
 - **Dates on profiles** use British order ("Available from 1 Nov").
@@ -33,6 +42,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **How we work:** the project now follows Foundation's shared software rules (D030). `CLAUDE.md` imports them; each session ends with a note in `docs/handover.md`.
 - **Spec 09 reviewed** (not built yet): launching to real members now means moving to beta first, with backups, an incident plan, DPIA screening and an expert review. Log out and Delete my account must clear the member's data from the browser. The Content Security Policy allows Google's photo address so the starting photo can be copied. The draft privacy notice adds data handled outside the UK and 2 more rights. `docs/personal-data.md` adds the shared computer risk.
 - **Project folder:** the project now lives in `~/code/bootcamp-connect`, next to `~/code/foundation` (D037). `CLAUDE.md` and the setup test point at `../foundation`.
+
+### Removed
+- From posting an opportunity: skills, number of people per role, hours per week, industry, deliverable, status, currencies other than pounds and equity (D040).
+- The fit percentage on opportunity cards, the sidebar and the Manage view.
 
 ### Security
 - A pre-commit check (`.githooks/pre-commit`) blocks commits containing passwords, API keys or tokens (gitleaks), or with failing tests.
