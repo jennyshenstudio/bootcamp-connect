@@ -94,6 +94,17 @@ module.exports = async (browser, t) => {
   await page.evaluate(() => deleteDraft(demo.drafts[0].id)); await sleep(200);
   t.ok('Delete removes a draft and the Drafts section', await page.evaluate(() => demo.drafts.length === 0) && !(await headings()).includes('Drafts'));
 
+  // ---------- A sidebar taller than the window scrolls on its own ----------
+  await page.evaluate(() => { openComposer('update'); $('cp-body').value = 'A draft to make the sidebar long'; closeSheet(); }); await sleep(300);
+  await page.setViewport({ width: 1440, height: 700 });
+  await page.evaluate(() => { switchTab('feed'); window.scrollTo(0, 2000); }); await sleep(300);
+  const side = await page.$eval('#feed-sidebar', e => { const r = e.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, scrolls: e.scrollHeight > e.clientHeight, overflow: getComputedStyle(e).overflowY }; });
+  t.ok('the sidebar stays in view when the Feed scrolls', side.top >= 0 && side.top <= 100, JSON.stringify(side));
+  t.ok('a sidebar taller than the window fits it and scrolls on its own', side.bottom <= 700 && side.scrolls && side.overflow === 'auto', JSON.stringify(side));
+  await page.$eval('#feed-sidebar', e => { e.scrollTop = e.scrollHeight; }); await sleep(100);
+  t.ok('the last section can be scrolled into view', await page.$eval('#feed-sidebar section:last-child', e => e.getBoundingClientRect().bottom <= innerHeight));
+  await page.evaluate(() => deleteDraft(demo.drafts[0].id)); await sleep(100);
+
   // ---------- Phones ----------
   await page.setViewport({ width: 390, height: 800 });
   await page.evaluate(() => { switchTab('feed'); window.scrollTo(0, 0); }); await sleep(300);

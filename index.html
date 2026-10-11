@@ -247,7 +247,8 @@
             <p id="feed-hint" class="text-footnote text-label-2 -mt-2"></p>
             <div id="feed-list" class="space-y-4"></div>
           </div>
-          <aside id="feed-sidebar" class="space-y-4 min-w-0 lg:sticky lg:top-20 order-first lg:order-none hidden lg:block"></aside>
+          <!-- Sticks beside the Feed; when it is taller than the window it scrolls on its own, so nothing is out of reach -->
+          <aside id="feed-sidebar" aria-label="Your activity" class="space-y-4 min-w-0 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overscroll-contain lg:pb-2 order-first lg:order-none hidden lg:block"></aside>
         </div>
       </section>
 

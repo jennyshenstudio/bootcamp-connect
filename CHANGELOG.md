@@ -61,6 +61,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - Updated to Foundation 1.0 (Foundation F017): the pre-commit check blocks changes to the secret scanner's settings files (`.gitleaks.toml`, `.gitleaksignore`), renaming code to `.md` no longer skips the tests, and more `.env` file names are blocked.
 
 ### Fixed
+- **Your activity on smaller windows:** the sidebar stayed in place but was taller than the window, so its lower sections (To do, Drafts) could never be reached. It now fits the window and scrolls on its own.
 - **Accessibility:** switching between Sign up and Log in (including from links in error messages) moved keyboard focus to the top of the page, because the pressed button disappears. Focus now moves to the screen's title (WCAG 2.2, 2.4.3).
 - **Tests:** the profile suite sometimes failed on CI. After a blocked save, the app smooth-scrolls to the error for up to a second, and the next click could land while the page was still moving. Tests now wait for scrolling to stop (`waitForScrollToStop` in `tests/helpers.js`).
 
