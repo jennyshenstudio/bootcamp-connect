@@ -222,6 +222,11 @@
           <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Feed</h2>
           <p class="text-subhead text-label-2">Opportunities to build your portfolio, plus resources, questions and news from your cohort.</p>
         </div>
+        <!-- Your activity on phones: a bar that opens the summary (specs/14-activity-and-drafts.md) -->
+        <button type="button" id="activity-toggle" class="lg:hidden card w-full px-4 py-3 flex items-center justify-between gap-3 text-left" aria-expanded="false" aria-controls="feed-sidebar" data-on-click="toggleActivity()">
+          <span><span class="block font-semibold text-body">Your activity</span><span id="activity-count" class="block text-footnote text-label-2"></span></span>
+          <svg class="icon w-5 h-5 text-label-2"><use href="#i-chevron"/></svg>
+        </button>
         <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
           <div class="space-y-4 min-w-0">
             <!-- Composer -->

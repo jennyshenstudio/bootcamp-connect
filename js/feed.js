@@ -187,32 +187,89 @@ function scrollToPost(id) {
   setTimeout(() => el.classList.remove('ring-4', 'ring-appleBlue/40'), 1600);
 }
 
-// ----- Sidebar -----
+// ----- Your activity (spec 14) -----
+// A summary of where you stand. Each section only shows when it has something in it.
+function activityData() {
+  const me = memberView('me');
+  const work = allPosts().filter(p => p.type === 'work');
+  const fresh = work.filter(p => !isMine(p) && !onTeam(p) && !demo.applications[p.id] && projectStatus(p) === 'open')
+    .map(p => ({ p, fit: projectFit(p, me) })).filter(x => !x.fit.blocked).sort((a, b) => b.fit.score - a.fit.score).slice(0, 3).map(x => x.p);
+  const applied = p => demo.applications[p.id] && demo.applications[p.id].status === 'applied';
+  const current = work.filter(p => projectStatus(p) !== 'completed' && (isMine(p) || onTeam(p) || applied(p)));
+  const toReview = current.filter(isMine).reduce((n, p) => n + projectApplicantList(p).filter(a => a.status === 'applied').length, 0);
+  const invites = (demo.invites || []).filter(i => person(i.from) && !demo.connected[i.from]);
+  const unread = allChats().filter(c => demo.unread[c.id]).sort((a, b) => chatSortKey(b) - chatSortKey(a));
+  const profile = profileOf(currentAccount());
+  const todo = strengthChecks(profile).filter(c => !c[1]).slice(0, 2).map(([label, , , section]) => ({ label, action: "openProfileSection('" + section + "')" }));
+  const today = new Date().toLocaleDateString('en-CA');   // YYYY-MM-DD in local time
+  work.filter(p => onTeam(p) && projectStatus(p) === 'in-progress' && p.end && p.end < today)
+    .forEach(p => todo.push({ label: 'Mark ' + shortTitle(p) + ' complete', action: "openComplete('" + p.id + "')" }));
+  const needs = todo.length;
+  if (!Object.keys(demo.applications).length) todo.push({ label: 'Apply to your first opportunity', action: 'showOpportunities()' });
+  return { fresh, current, toReview, invites, unread, todo: todo.slice(0, 3), todoNeeds: Math.min(needs, 3), drafts: demo.drafts, newMember: !profile.headline };
+}
+
+function activityRow(action, main, sub) {
+  return '<li><button type="button" class="w-full text-left rounded-xl px-2 py-2 hover:bg-fill" data-on-click="' + action + '">' +
+    '<span class="block font-semibold text-subhead line-clamp-2">' + esc(main) + '</span>' + (sub ? '<span class="block text-footnote text-label-2">' + esc(sub) + '</span>' : '') + '</button></li>';
+}
+const activityCard = (title, body) => '<section class="card p-4 space-y-1"><h3 class="font-semibold text-body px-1">' + title + '</h3>' + body + '</section>';
+
+function currentRow(p) {
+  if (!isMine(p) && !onTeam(p)) return activityRow("openOpportunity('" + p.id + "')", p.title, 'Applied · Waiting to hear from ' + memberName(p.author));
+  const chatId = p.chatId || projectState(p).chatId;
+  if (isMine(p) && projectStatus(p) === 'open') {
+    const n = projectApplicantList(p).filter(a => a.status === 'applied').length;
+    return activityRow("openManage('" + p.id + "')", p.title, 'Your post · ' + n + ' applicant' + (n === 1 ? '' : 's') + ' to review');
+  }
+  return activityRow(chatId ? "goToChat('" + chatId + "')" : "openManage('" + p.id + "')", p.title, 'In progress' + (p.end ? ' · Ends ' + fmtDay(p.end) : ''));
+}
+
+// "just now", "5 minutes ago", "3 hours ago" or a date, to read naturally after "Saved"
+function savedAgo(ts) {
+  const m = Math.floor((Date.now() - ts) / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + (m === 1 ? ' minute' : ' minutes') + ' ago';
+  if (m < 1440) { const h = Math.floor(m / 60); return h + (h === 1 ? ' hour' : ' hours') + ' ago'; }
+  return 'on ' + new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+function draftRow(d) {
+  const text = ((d.values || {})['cp-body'] || (d.values || {})['cp-title'] || '').trim();
+  const words = text.length > 60 ? text.slice(0, 57).trim() + '…' : text || 'Attachments only';
+  return '<li class="px-2 py-2 space-y-1"><p class="text-subhead"><span class="font-semibold">' + esc(POST_TYPES[d.type].label) + '</span> · ' + esc(words) + '</p>' +
+    '<div class="flex items-center gap-1 text-footnote text-label-2"><span class="mr-auto">Saved ' + esc(savedAgo(d.savedAt)) + '</span>' +
+      '<button type="button" class="btn btn-plain btn-sm" data-on-click="continueDraft(\'' + d.id + '\')">Continue</button>' +
+      '<button type="button" class="btn btn-plain btn-sm !text-redText" data-on-click="deleteDraft(\'' + d.id + '\')">Delete</button></div></li>';
+}
+
 function renderFeedSidebar() {
   const box = $('feed-sidebar');
   if (!box || !demo) return;
-  const me = memberView('me');
-  const posts = allPosts().filter(p => p.type === 'work');
-  const picks = posts.filter(p => !isMine(p) && !onTeam(p) && !demo.applications[p.id] && projectStatus(p) === 'open')
-    .map(p => ({ p, fit: projectFit(p, me) })).filter(x => !x.fit.blocked).sort((a, b) => b.fit.score - a.fit.score).slice(0, 3);
-  const mineRows = posts.filter(p => isMine(p) || onTeam(p) || demo.applications[p.id]).map(p => {
-    const st = projectStatus(p);
-    const app = demo.applications[p.id];
-    const label = isMine(p) ? (st === 'open' ? 'Your post · ' + projectApplicantList(p).filter(a => a.status === 'applied').length + ' to review' : statusLabel(st)) :
-      app && app.status === 'applied' ? 'Applied · waiting' : statusLabel(st);
-    return '<li><button type="button" class="w-full text-left rounded-xl px-2 py-2 hover:bg-fill" data-on-click="' + (isMine(p) ? 'openManage(\'' + p.id + '\')' : 'scrollToPost(\'' + p.id + '\')') + '">' +
-      '<span class="block font-semibold text-subhead truncate">' + esc(p.title) + '</span><span class="block text-footnote text-label-2">' + esc(label) + '</span></button></li>';
-  });
-  box.innerHTML =
-    '<div class="card p-4 space-y-2"><div class="flex items-baseline justify-between px-1"><h3 class="font-semibold text-body">Opportunities for you</h3><button type="button" class="text-footnote font-semibold text-blueText hover:underline" data-on-click="showOpportunities()">See all</button></div>' +
-      (picks.length ? '<ul>' + picks.map(({ p }) => '<li><button type="button" class="w-full text-left rounded-xl px-2 py-2 hover:bg-fill" data-on-click="openOpportunity(\'' + p.id + '\')">' +
-        '<span class="block font-semibold text-subhead line-clamp-2">' + esc(p.title) + '</span>' +
-        '<span class="block text-footnote text-label-2">' + esc(memberName(p.author)) + ' · ' + esc(payLabel(p.pay)) + ' · ' + esc(p.commitment) + '</span></button></li>').join('') + '</ul>'
-        : '<p class="text-footnote text-label-2 px-1">No open opportunities for your pathway right now.</p>') + '</div>' +
-    '<div class="card p-4 space-y-2"><h3 class="font-semibold text-body px-1">Your projects</h3>' +
-      (mineRows.length ? '<ul>' + mineRows.join('') + '</ul>' : '<p class="text-footnote text-label-2 px-1">Post an opportunity or apply to one to see it here.</p>') + '</div>' +
-    '<div class="card p-4 flex items-center justify-between gap-3"><div><p class="font-semibold text-body">Verified experience</p><p class="text-footnote text-label-2">' + demo.verified.length + ' completed project' + (demo.verified.length === 1 ? '' : 's') + '</p></div>' +
-      '<button type="button" class="btn btn-gray btn-sm" data-on-click="openVerifiedExperience()">View</button></div>';
+  const a = activityData();
+  const acc = currentAccount() || {};
+  const sections = [];
+  if (a.fresh.length) sections.push(activityCard('New for you', '<ul>' + a.fresh.map(p => activityRow("openOpportunity('" + p.id + "')", p.title, memberName(p.author) + ' · ' + payLabel(p.pay) + ' · ' + p.commitment)).join('') + '</ul>' +
+    '<button type="button" class="btn btn-plain btn-sm" data-on-click="showOpportunities()">See all opportunities</button>'));
+  if (a.current.length) sections.push(activityCard('Current', '<ul>' + a.current.map(currentRow).join('') + '</ul>'));
+  if (a.invites.length || a.unread.length) sections.push(activityCard('People to get back to', '<ul>' +
+    (a.invites.length ? activityRow("switchTab('matching')", a.invites.length + ' invitation' + (a.invites.length === 1 ? '' : 's') + ' to connect', 'Open Connect') : '') +
+    a.unread.slice(0, 2).map(c => activityRow("goToChat('" + c.id + "')", chatTitle(c), demo.unread[c.id] + ' new')).join('') +
+    (a.unread.length > 2 ? activityRow("switchTab('chat')", (a.unread.length - 2) + ' more conversation' + (a.unread.length === 3 ? '' : 's') + ' with new messages', 'Open Messages') : '') + '</ul>'));
+  const todo = a.todo.length ? activityCard('To do', '<ul>' + a.todo.map(t => activityRow(t.action, t.label)).join('') + '</ul>') : '';
+  if (todo) a.newMember ? sections.unshift(todo) : sections.push(todo);
+  if (a.drafts.length) sections.push(activityCard('Drafts', '<ul class="divide-y divide-[var(--hairline)]">' + a.drafts.map(draftRow).join('') + '</ul>'));
+  box.innerHTML = '<div class="card p-4 flex items-center gap-3">' + myAvatar('w-10 h-10 text-subhead') +
+      '<div class="min-w-0"><h2 class="font-semibold text-body">Your activity</h2><p class="text-footnote text-label-2 truncate">' + esc(memberName('me', true) + (acc.track ? ' · ' + acc.track : '')) + '</p></div></div>' +
+    sections.join('');
+  const needs = a.toReview + a.invites.length + a.unread.length + a.todoNeeds;
+  $('activity-count').textContent = needs ? needs + (needs === 1 ? ' thing needs' : ' things need') + ' you' : 'All caught up';
+}
+
+// Phones: the summary sits behind a bar above the Feed
+function toggleActivity() {
+  const open = $('feed-sidebar').classList.toggle('hidden') === false;
+  $('activity-toggle').setAttribute('aria-expanded', open);
 }
 
 // Connect is People only; opportunities live in the Feed (D040)
@@ -261,7 +318,7 @@ function openComposer(type) {
         '<p id="cp-att-error" class="pf-error hidden" role="alert"></p>' +
         '<p class="pf-hint">You can also drag files onto this form. In the prototype, files are stored only in this browser.</p>' +
       '</section>' +
-      '<div class="flex justify-end gap-2 pt-1"><button type="button" class="btn btn-gray btn-sm" data-on-click="closeSheet()">Cancel</button><button id="cp-submit" type="submit" class="btn btn-primary btn-sm">Post</button></div>' +
+      '<div class="flex flex-wrap justify-end gap-2 pt-1"><button type="button" class="btn btn-gray btn-sm" data-on-click="closeSheet()">Cancel</button><button type="button" id="cp-draft" class="btn btn-gray btn-sm" data-on-click="saveDraft()">Save draft</button><button id="cp-submit" type="submit" class="btn btn-primary btn-sm">Post</button></div>' +
     '</form>', 'composer', { wide: true });
   const form = $('composer');
   form.addEventListener('input', e => {
@@ -339,8 +396,8 @@ function setLookingFor(track) { cp.lookingFor = track; }
 function onPayTypeChange(input) { $('cp-amount-wrap').classList.toggle('hidden', input.value !== 'Paid'); }
 function onWorkplaceChange(input) { $('cp-town-wrap').classList.toggle('hidden', input.value === 'Remote'); }
 
-// Open Profile and scroll to Verified experience once the tab has rendered
-function openVerifiedExperience() { switchTab('profile'); setTimeout(() => goToSection('verified'), 50); }
+// Open Profile and scroll to one of its sections once the tab has rendered
+function openProfileSection(section) { switchTab('profile'); setTimeout(() => goToSection(section), 50); }
 
 async function addComposerFiles(files) {
   attError('');
@@ -353,8 +410,11 @@ async function addComposerFiles(files) {
     renderComposerAtts();
     try {
       const att = await processAttachment(file);
+      // The form may have closed while the file was being added; don't keep a file nothing uses
+      if (!cp || !cp.attachments.includes(placeholder)) { if (att.kind !== 'link') idbDelete(att.id); return; }
       cp.attachments[cp.attachments.indexOf(placeholder)] = att;
     } catch (e) {
+      if (!cp || !cp.attachments.includes(placeholder)) return;
       cp.attachments.splice(cp.attachments.indexOf(placeholder), 1);
       errors.push(e.message);
     }
@@ -374,9 +434,11 @@ function addComposerLink() {
   $('cp-link-form').classList.add('hidden');
   renderComposerAtts();
 }
+const draftOf = id => demo.drafts.find(d => d.id === id);
 function removeComposerAtt(id) {
   const att = cp.attachments.find(a => a.id === id);
-  if (att && att.kind !== 'link') idbDelete(id);
+  const inDraft = cp.draftId && (draftOf(cp.draftId) || { attachments: [] }).attachments.some(a => a.id === id);
+  if (att && att.kind !== 'link' && !inDraft) idbDelete(id);
   cp.attachments = cp.attachments.filter(a => a.id !== id);
   renderComposerAtts();
 }
@@ -403,9 +465,86 @@ function renderComposerAtts() {
   });
 }
 
+// ----- Drafts (spec 14) -----
+// A draft keeps every field of the form by id, the chosen buttons by name, and the attachments
+// Fields the current post type uses (an update's hidden title box can still hold text)
+const usedField = el => el.id !== 'cp-title' || !!COMPOSER_COPY[cp.type].title;
+function composerSnapshot() {
+  const values = {}, radios = {};
+  $('composer').querySelectorAll('input[id^="cp-"]:not([type=radio]):not([type=file]):not([type=checkbox]):not([id^="cp-link"]), textarea[id^="cp-"], select[id^="cp-"]')
+    .forEach(el => { if (el.value && usedField(el)) values[el.id] = el.value; });
+  $('composer').querySelectorAll('input[type=radio]:checked').forEach(el => { if (el.name !== 'cp-type') radios[el.name] = el.value; });
+  return { values, radios };
+}
+// Files still being added, or kept only for this session (no IndexedDB), can't be part of a draft
+const composerAtts = () => cp.attachments.filter(a => a.kind !== 'pending' && !a.sessionOnly);
+// Something written or attached (choices and the resource "Kind" list alone don't count)
+const composerHasContent = () => composerAtts().length > 0 ||
+  [...$('composer').querySelectorAll('input[id^="cp-"]:not([type=radio]):not([type=file]):not([id^="cp-link"]), textarea[id^="cp-"]')].some(el => usedField(el) && el.value.trim());
+
+// Files a saved draft used that it no longer does
+function dropRemovedFiles(before, after) {
+  (before || []).filter(a => a.kind !== 'link' && !after.some(x => x.id === a.id)).forEach(a => idbDelete(a.id));
+}
+function storeDraft() {
+  const previous = demo.drafts;
+  const old = draftOf(cp.draftId);
+  const draft = { id: cp.draftId || 'd-' + Date.now().toString(36), type: cp.type, ...composerSnapshot(), attachments: composerAtts(), savedAt: Date.now() };
+  demo.drafts = [draft].concat(previous.filter(d => d.id !== draft.id));
+  if (!saveDemo()) { demo.drafts = previous; return false; }
+  if (old) dropRemovedFiles(old.attachments, draft.attachments);
+  cp.draftId = draft.id;
+  return true;
+}
+const DRAFT_SAVED = "Saved as a draft. It's under Your activity.";
+const DRAFT_FULL = "Couldn't save the draft. This browser's storage is full.";
+function saveDraft() {
+  if (!composerHasContent()) return attError('Write something before saving a draft.');
+  if (!storeDraft()) return attError(DRAFT_FULL);
+  cp.kept = true;
+  closeSheet();
+  renderFeedSidebar();
+  showToast(DRAFT_SAVED);
+}
+
+// Closing the form keeps anything written as a draft, so nothing is lost (spec 14)
 function discardComposer() {
-  if (cp && !cp.posted) cp.attachments.filter(a => a.kind !== 'link' && a.kind !== 'pending').forEach(a => idbDelete(a.id));
+  if (cp && !cp.posted && !cp.kept && $('composer')) {
+    if (composerHasContent()) {
+      if (storeDraft()) { renderFeedSidebar(); showToast(DRAFT_SAVED); }
+      else { showToast(DRAFT_FULL); if (!cp.draftId) cp.attachments.filter(a => a.kind !== 'link' && a.kind !== 'pending').forEach(a => idbDelete(a.id)); }
+    } else if (cp.draftId) {
+      // Everything was cleared out of a draft: remove it and its files
+      dropRemovedFiles((draftOf(cp.draftId) || {}).attachments, []);
+      demo.drafts = demo.drafts.filter(d => d.id !== cp.draftId); saveDemo(); renderFeedSidebar();
+    }
+  }
   cp = null;
+}
+
+function continueDraft(id) {
+  const d = demo.drafts.find(x => x.id === id);
+  if (!d) return;
+  openComposer(d.type);
+  cp.draftId = d.id;
+  cp.attachments = d.attachments.slice();
+  // Choices first, since some of them show or hide fields (fee, town)
+  Object.entries(d.radios || {}).forEach(([name, value]) => {
+    const input = document.querySelector('#composer input[name="' + name + '"][value="' + value + '"]');
+    if (input && !input.checked) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
+  });
+  Object.entries(d.values || {}).forEach(([fid, value]) => { if ($(fid)) $(fid).value = value; });
+  renderComposerAtts();
+}
+
+function deleteDraft(id) {
+  const d = demo.drafts.find(x => x.id === id);
+  if (!d) return;
+  d.attachments.filter(a => a.kind !== 'link').forEach(a => idbDelete(a.id));
+  demo.drafts = demo.drafts.filter(x => x.id !== id);
+  saveDemo();
+  renderFeedSidebar();
+  showToast('Draft deleted');
 }
 
 function cpError(id, msg) {
@@ -458,8 +597,11 @@ function submitPost(e) {
   if (bad.length) { $(bad[0]).scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
 
   demo.posts.unshift(post);
+  const drafts = demo.drafts, draft = draftOf(cp.draftId);
+  demo.drafts = drafts.filter(d => d.id !== cp.draftId);   // posting a draft replaces it
   cp.posted = true;
-  if (!saveDemo()) { demo.posts.shift(); cp.posted = false; return attError("Couldn't save. This browser's storage is full."); }
+  if (!saveDemo()) { demo.posts.shift(); demo.drafts = drafts; cp.posted = false; return attError("Couldn't save. This browser's storage is full."); }
+  if (draft) dropRemovedFiles(draft.attachments, post.attachments);
   closeSheet();
   if (feedFilter !== 'foryou' && feedFilter !== 'all' && feedFilter !== type) feedFilter = 'all';
   switchTab('feed');

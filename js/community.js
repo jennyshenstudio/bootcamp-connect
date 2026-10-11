@@ -21,7 +21,7 @@ function loadDemo() {
     unread: Object.fromEntries(DEMO_CHATS.map(c => [c.id, c.unread])),
   };
   // Fields added in later versions of the prototype
-  const defaults = { posts: [], postState: {}, applications: {}, projects: {}, projectChats: [], verified: [], endorsements: {}, invites: DEMO_INVITES.map(i => ({ ...i })) };
+  const defaults = { posts: [], postState: {}, applications: {}, projects: {}, projectChats: [], verified: [], endorsements: {}, drafts: [], invites: DEMO_INVITES.map(i => ({ ...i })) };
   for (const k in defaults) if (!(k in demo)) demo[k] = defaults[k];
   demo.posts.filter(p => p.type === 'work').forEach(upgradeOpportunity);
   demo.posts.forEach(upgradeToUpdate);

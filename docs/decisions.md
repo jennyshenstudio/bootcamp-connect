@@ -49,6 +49,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D039 | Profile built around work to show: guided case studies, facts line, skills proven by work, teammates confirm, AI helper, "Built with" instead of an AI badge, JSON Resume shape | Accepted (built) | Profile, AI, matching, demo content |
 | D040 | Opportunities replace projects in the Feed: Paid or Unpaid, commitment, workplace, dates, job-listing layout, coloured edge for the pathway, short application; Connect is People only | Accepted (built) | Feed, projects, matching, Connect, demo content |
 | D041 | Updates replace Personal project and Community posts: Career or Project, professional announcements with attachments, no title or feedback option | Accepted (built) | Feed, demo content |
+| D042 | The Feed sidebar becomes "Your activity" (new, current, people, to do, drafts; empty sections hidden); drafts saved automatically | Accepted (built) | Feed, posts |
 
 ## Entries
 
@@ -345,3 +346,15 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Risks:** with community posts gone, there's no place for cohort-wide announcements; revisit if the demo needs one. Members asking for feedback now use Support (a question).
 - **Reviewed:** 2026-10-11, checked in session: reversible while the app is in alpha with made-up data, so no separate review.
 - **Affects:** Feed, demo content.
+
+### D042 "Your activity" sidebar and drafts
+- **Date:** 2026-10-11 · **Status:** Accepted (built), approved by the owner · **Spec:** `specs/14-activity-and-drafts.md`
+- **Context:** the old sidebar had 3 fixed cards (projects for you, your projects, a verified experience count). The owner wants it to be a summary of your activity, showing where you stand, and asked for drafts.
+- **Decision:**
+  - The sidebar shows New for you, Current, People to get back to, To do and Drafts, hiding empty sections. To do comes first until the profile has a headline.
+  - On phones, a Your activity bar above the Feed shows how many things need you and opens the summary.
+  - The post form has Save draft, and closing it with something written or attached saves a draft automatically, with a message.
+- **Options considered:** 3 fixed cards with a profile card (superseded by the owner's activity idea); widgets where each member picks their top 3 (the owner's idea; replaced by sections that hide when empty, because most people never change settings, so the default decides what nearly everyone sees); a People you may know card (left to Connect); asking "Save as draft?" on close, as LinkedIn does (rejected: saving without asking is simpler and loses nothing); do nothing (rejected by the owner).
+- **Risks:** automatic drafts could pile up; each has Delete. Drafts with attachments use browser storage, which is limited (D003).
+- **Reviewed:** 2026-10-11, checked in session: reversible while the app is in alpha with made-up data, so no separate review.
+- **Affects:** Feed, posts.

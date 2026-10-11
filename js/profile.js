@@ -81,7 +81,7 @@ function profileOf(account) {
   if (!p.basics) {
     // Older flat shape: "projects" become pieces of work to show
     const work = p.work || (p.projects || []).filter(x => x.title).map(x => ({ ...emptyWork(), title: x.title, link: x.link || '', role: x.role || '', did: x.desc || '' }));
-    return { education: [], ...p, work, skills: (p.skills || []).map(britishSkill), learn: (p.learn || []).map(britishSkill), goals: (p.goals || []).map(g => g === 'Paid gig' ? 'Paid work' : g) };
+    return { photo: null, headline: '', about: '', experience: [], education: [], hours: '', ...p, work, skills: (p.skills || []).map(britishSkill), learn: (p.learn || []).map(britishSkill), goals: (p.goals || []).map(g => g === 'Paid gig' ? 'Paid work' : g) };
   }
   const b = p.basics, x = p.bootcampConnect || {};
   const link = test => ((b.profiles || []).find(test) || {}).url || '';
@@ -373,8 +373,9 @@ function updatePreview() {
   updateStrength(d);
 }
 
-function updateStrength(d) {
-  const checks = [
+// The steps of profile strength, as [label, done, weight, section]. Also used by Your activity (spec 14).
+function strengthChecks(d) {
+  return [
     ['Add a profile photo', !!d.photo, 15, 'basics'],
     ['Write a headline', !!d.headline, 10, 'basics'],
     ['Write your About section', !!d.about, 10, 'basics'],
@@ -384,6 +385,10 @@ function updateStrength(d) {
     ['Add a piece of work to show', d.work.some(w => w.title && (w.did || w.result)), 10, 'work'],
     ['Choose your goals and hours', d.goals.length > 0 && !!d.hours, 15, 'looking'],
   ];
+}
+
+function updateStrength(d) {
+  const checks = strengthChecks(d);
   const pct = checks.reduce((sum, [, done, weight]) => sum + (done ? weight : 0), 0);
   $('strength-pct').textContent = pct + '%';
   const bar = $('strength-bar');

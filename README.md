@@ -21,7 +21,7 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 | `docs/deployment.md` | Building, deploying, and installing the app. |
 | `tests/` | Browser tests (`npm install`, then `npm test`). Needs Google Chrome. |
 | `test-data/` | Sample CV for a made-up member (Maya Okafor) as PDF, Word, and HTML, for testing the profile import. |
-| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. `05-feed.md`, `06-matching.md`, `07-project-loop.md`: experience-first platform. `08-installable-app.md`: web and phone app. `12-opportunities.md`: opportunities in the Feed. `13-updates.md`: updates in the Feed. |
+| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. `05-feed.md`, `06-matching.md`, `07-project-loop.md`: experience-first platform. `08-installable-app.md`: web and phone app. `12-opportunities.md`: opportunities in the Feed. `13-updates.md`: updates in the Feed. `14-activity-and-drafts.md`: Your activity and drafts. |
 
 ## Prototype features
 
@@ -29,6 +29,7 @@ Bootcamp Connect is **experience first**: members join real opportunities (paid 
 
 - Typed feed: Opportunities, Updates, Support, Resources, with For you ranking, likes, comments, saves, and photos, videos, documents, and links on every post type
 - Opportunities (spec 12): paid or unpaid, with commitment, workplace and dates, a page laid out like a job listing, a coloured edge for the pathway, and a short application (a message and your most relevant work)
+- Your activity beside the Feed (spec 14): new opportunities, current ones, people to get back to, to-dos and drafts; drafts are saved automatically when you close the post form
 - Matching: opportunities for your pathway and pay types first; people suggestions from mutual connections and shared context (spec 10)
 - Project loop: apply, manage applicants, start a project with an automatic team chat, mark complete with ratings and endorsements, and earn verified experience on your profile
 

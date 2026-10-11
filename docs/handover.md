@@ -2,6 +2,12 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-11 (Your activity and drafts)
+- **What changed:** the owner wanted the sidebar to be a summary of where you stand. Discussed fixed cards, then the owner's idea of widgets you pick, and settled on **Your activity** (spec 14, D042): New for you, Current, People to get back to, To do and Drafts, with empty sections hidden (so no picker is needed) and To do first for a new member. On phones, a Your activity bar opens it. **Drafts:** Save draft, and closing the form with something in it saves a draft automatically. `/code-review` found 10 problems, all fixed with tests (a failed save claimed success, draft files deleted too early, files still being added, a wrong "In progress" label, a UTC date, hidden title text, 36px buttons, a count that didn't match). New `tests/activity.test.js`. 333 tests pass, on the source and the built site. Shared prototype republished.
+- **What's next:** the owner said the Feed is "pretty much done". Still to confirm: whether Question (Support) and Resource stay as they are for the demo. Then Brainstorm (parked), and the demo itself: a motion graphics video and presentation prep. The presentation date and audience are still unknown.
+- **Open questions:** none new.
+- **Worth learning:** when saving can fail, check the result before telling the person it worked. A message that says "saved" when nothing was saved is worse than an error.
+
 ## 2026-10-11 (Feed: updates, version 1)
 - **What changed:** second Feed post type settled and built (spec 13, D041). **Update** replaces Personal project and Community: professional announcements about your career or a project, labelled Career or Project, up to 1,000 characters, with attachments, no title and no "feedback wanted". The Demo Day and welcome sample posts are gone; Elena has a new career update. Saved personal and community posts load as updates. `/code-review` found 7 problems, all fixed with tests (a hidden title could be saved, the 1,000 limit could be bypassed when switching type, a hint was announced to screen readers when hidden, a weak test, and changelog, README and code tidy-ups). 300 tests pass, on the source and the built site. Shared prototype republished.
 - **What's next:** **Support** (questions), then **Resource**. Then decide on **Brainstorm** (share an idea, others join a group chat on a set date to develop it), which the owner suggested and we parked.

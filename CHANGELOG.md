@@ -11,6 +11,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 ## Unreleased
 
 ### Added
+- **Your activity** (spec 14, D042): the column beside the Feed is now a summary of where you stand: New for you (opportunities for your pathway), Current (your opportunities: applicants to review, in progress with its end date, applied and waiting), People to get back to (invitations and unread conversations), To do (profile steps, projects to mark complete, applying to a first opportunity) and Drafts. Empty sections are hidden, and To do comes first until your profile has a headline. On phones, a Your activity bar above the Feed says how many things need you and opens the summary.
+- **Drafts:** Save draft in the post form, and closing the form with anything written or attached saves a draft too, with a message. Continue reopens it exactly as it was, posting it removes it, and Delete removes it and its files. If the browser's storage is full, it says so instead.
+- **Spec 14** and decision D042.
 - **Updates** (spec 13, D041): professional announcements about your career or a project, like a LinkedIn post. Choose Career or Project, write your news (up to 1,000 characters) and add photos, videos, documents or links. No title and no "feedback wanted" option. Each update shows its label in words, and the Feed has an **Updates** filter. Spec 13 and decision D041.
 - **Opportunities** (spec 12, D040): the "Project" post type becomes Opportunity. Posting asks who it's for (Software Developer or Business Developer), title, pay (Paid with a fixed fee in pounds, or Unpaid), commitment (Part-time, Full-time or Contract), workplace (In person, Hybrid or Remote, with a town or city), start and end dates, about the project, responsibilities, minimum requirements and nice to have. Each missing answer says what to fix.
 - **Opportunity page:** See details opens a page laid out like a job listing: at a glance (pay, commitment, workplace, dates and length in weeks), about the project, responsibilities, minimum requirements, nice to have and about the poster, with Apply and Save.
@@ -45,6 +48,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Project folder:** the project now lives in `~/code/bootcamp-connect`, next to `~/code/foundation` (D037). `CLAUDE.md` and the setup test point at `../foundation`.
 
 ### Removed
+- The old Feed sidebar cards (Opportunities for you, Your projects, Verified experience count), replaced by Your activity (D042).
 - The Personal project and Community post types, their filters and composer buttons (D041). Saved posts of those types load as updates, keeping their title and text. The Demo Day and welcome sample posts are gone; a career update from Elena is new.
 - From posting an opportunity: skills, number of people per role, hours per week, industry, deliverable, status, currencies other than pounds and equity (D040).
 - The fit percentage on opportunity cards, the sidebar and the Manage view.
