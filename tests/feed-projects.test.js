@@ -67,7 +67,14 @@ module.exports = async (browser, t) => {
   t.ok('a Business Developer opportunity has a purple edge and names the pathway first', biz.cls.includes('border-l-applePurple') && biz.facts[0] === 'Business Developer');
   t.ok('the card shows pay, commitment, workplace and dates', ['£950, fixed', 'Part-time', 'Hybrid · Bristol', '2 Nov – 14 Dec 2026'].every(x => dev.facts.includes(x)), JSON.stringify(dev.facts));
   t.ok('no fit percentage on opportunity cards', !(await page.$eval('#feed-list', e => e.innerText)).includes('% fit'));
+  // D043: one row of buttons, and the files wait on the opportunity page
+  const row = await page.$eval('[data-post="p-tableturn"] .border-t', e => [...e.querySelectorAll('button')].map(b => b.textContent.trim()));
+  t.ok('Apply and See details share the row with likes and comments', row.includes('Apply') && row.includes('See details') && row.length === 4, JSON.stringify(row));
+  t.ok('opportunity cards show no attachments', !(await page.$('[data-post="p-tableturn"] img[alt="tableturn-mockup.png"]')) &&
+    !(await page.$eval('[data-post="p-refill"]', e => e.innerText)).includes('Pharmacy interview notes.pdf'));
+  t.ok('other posts still show their attachments on the card', (await page.evaluate(() => renderPost(postById('p-unit-econ')))).includes('Unit economics template.pdf'));
   await page.evaluate(() => openOpportunity('p-tableturn')); await sleep(300);
+  t.ok('the opportunity page shows its attachments', !!(await page.$('#sheet-panel img[alt="tableturn-mockup.png"]')));
   const sections = await page.$$eval('#sheet-panel h3', x => x.map(e => e.textContent));
   t.ok('the opportunity page shows its sections in order', sections.join('|') === 'At a glance|About the project|Responsibilities|Minimum requirements|Nice to have|About Diego', sections.join('|'));
   t.ok('At a glance includes the length in weeks', (await page.$eval('#sheet-panel dl', e => e.innerText)).includes('6 weeks'));

@@ -19,7 +19,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D009 | Design: Apple Human Interface Guidelines with Liquid Glass, automatic dark mode | Accepted (built) | All screens |
 | D010 | Navigation: Feed, Connect, Messages, Profile | Accepted (built) | Navigation |
 | D011 | Sample community for demos, clearly labelled | Accepted (built) | Demo content |
-| D012 | Typed feed with the same attachments on every post type | Accepted (built) | Feed |
+| D012 | Typed feed with the same attachments on every post type | Accepted (built); opportunity cards show attachments on the opportunity page instead (D043) | Feed |
 | D013 | Pay types: Paid (fixed fee), Unpaid / volunteer, Equity / co-founder | Accepted (built); for posting, superseded by D040 (Paid or Unpaid, pounds only) | Projects, matching |
 | D014 | Matching v2: hard filters, weighted fit, two-way person fit, team suggestions | Accepted (built); person fit superseded by D038; project fit percentage and skills superseded by D040 | Feed, Connect |
 | D015 | Project loop ending in verified experience | Accepted (built) | Projects, profile |
@@ -50,6 +50,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D040 | Opportunities replace projects in the Feed: Paid or Unpaid, commitment, workplace, dates, job-listing layout, coloured edge for the pathway, short application; Connect is People only | Accepted (built) | Feed, projects, matching, Connect, demo content |
 | D041 | Updates replace Personal project and Community posts: Career or Project, professional announcements with attachments, no title or feedback option | Accepted (built) | Feed, demo content |
 | D042 | The Feed sidebar becomes "Your activity" (new, current, people, to do, drafts; empty sections hidden); drafts saved automatically | Accepted (built) | Feed, posts |
+| D043 | Opportunity cards have one row of buttons (with likes and comments) and show their attachments on the opportunity page, not the card | Accepted (built) | Feed |
 
 ## Entries
 
@@ -358,3 +359,14 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Risks:** automatic drafts could pile up; each has Delete. Drafts with attachments use browser storage, which is limited (D003).
 - **Reviewed:** 2026-10-11, checked in session: reversible while the app is in alpha with made-up data, so no separate review.
 - **Affects:** Feed, posts.
+
+### D043 Shorter opportunity cards
+- **Date:** 2026-10-11 · **Status:** Accepted (built), chosen by the owner from 3 mock-ups · **Spec:** `specs/12-opportunities.md`
+- **Context:** a gap analysis of the desktop Feed against 14 feed screens from 10 products (LinkedIn, Peerlist, Fishbowl, Blind, Reddit, Circle, Product Hunt, Threads, X, Bluesky; screenshots from Lazyweb). Every reference card has one row of buttons. Ours had 3 rows on opportunity cards: Apply and See details, the attachments, then likes and comments. The owner has said the Feed feels cluttered, and wants the desktop app improved first.
+- **Decision:**
+  - An opportunity's buttons (Apply, Applied, Manage, Project chat, Mark complete, See details) sit on the right of the row with likes and comments.
+  - An opportunity's attachments show on its page, not on its Feed card. Other post types keep attachments on the card, as D012 says.
+- **Options considered:** A, keep the card as it is (do nothing); B, move the buttons into the likes row but keep attachments on the card (saves one row; the TableTurn card stays tall); C, B and attachments on the page (chosen: about 3 opportunities fit where 1 and a half did, as on LinkedIn and Peerlist, where files and Apply live on the job's own page).
+- **Risks:** the Feed loses the TableTurn preview image, so it looks more text-heavy; a member has to open See details to see files. On phones the buttons can wrap onto a second line; the owner is leaving phones for later.
+- **Reviewed:** 2026-10-11, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review. Partly changes D012 (attachments on every post type) for opportunity cards only.
+- **Affects:** Feed.

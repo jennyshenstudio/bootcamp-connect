@@ -24,12 +24,13 @@ Attachments work as on every post. Everything except Nice to have and attachment
 - The card has a **coloured edge** for the pathway: blue for Software Developer, purple for Business Developer. The pathway is also the first fact, in words, so it never relies on colour alone.
 - Facts: pathway, pay ("£950, fixed" or "Unpaid"), commitment, workplace (with the town), dates, and status once it's no longer open.
 - About the project, cut to 3 lines, then the team and number of applicants.
-- **See details** opens the opportunity page. The buttons are as before (Apply, Applied, Manage, Project chat, Mark complete).
+- **See details** opens the opportunity page. The buttons (Apply, Applied, Manage, Project chat, Mark complete and See details) sit on the right of the row with likes and comments, so the card has one row of buttons (D043).
+- Attachments show on the opportunity page, not on the card (D043).
 - No fit percentage. When a member can't apply (another pathway, or a pay type they're not open to), the card says why.
 - Filter: **Opportunities**. "For you" puts opportunities for your pathway first.
 
 ## The opportunity page
-Laid out like a job listing: the poster and when it was posted, the pathway, the title, Apply and Save, then **At a glance** (pay, commitment, workplace, dates and length in weeks), **About the project**, **Responsibilities**, **Minimum requirements**, **Nice to have** (if any) and **About [name]**.
+Laid out like a job listing: the poster and when it was posted, the pathway, the title, Apply and Save, then **At a glance** (pay, commitment, workplace, dates and length in weeks), **About the project**, **Responsibilities**, **Minimum requirements**, **Nice to have** (if any), any attachments, and **About [name]**.
 
 ## Applying
 - **Message to [name]** (required, up to 300 characters).
@@ -48,7 +49,7 @@ Claude checking About the project; more than one Commitment or Workplace option;
 
 ## Acceptance criteria
 1. The composer offers Opportunity with the fields above in that order. Missing required fields, a Paid opportunity without a fee, and an end date before the start each show an error that says what to fix.
-2. A posted opportunity shows in the Feed with a coloured edge for its pathway, the pathway in words first in its facts, pay in pounds, commitment, workplace, dates and no fit percentage.
+2. A posted opportunity shows in the Feed with a coloured edge for its pathway, the pathway in words first in its facts, pay in pounds, commitment, workplace, dates and no fit percentage. Its buttons share the row with likes and comments, and its attachments show on the opportunity page instead of the card.
 3. See details opens the opportunity page with the sections above in order.
 4. The application asks for a message (required) and your most relevant work, and the poster sees both in Manage.
 5. Connect has no Projects view.

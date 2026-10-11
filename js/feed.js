@@ -107,7 +107,12 @@ function workBlock(post) {
     const fit = projectFit(post, memberView('me'));
     if (fit.blocked) html += '<p class="text-footnote text-orangeText font-medium">Not a fit right now: ' + esc(fit.blockers[0]) + '</p>';
   }
-  return html + '<div class="flex flex-wrap gap-2">' + opportunityActions(post) +
+  return html;
+}
+
+// An opportunity's buttons share the row with likes and comments (D043)
+function workActions(post) {
+  return '<div class="flex flex-wrap gap-2 ml-auto">' + opportunityActions(post) +
     '<button type="button" class="btn btn-gray btn-sm" data-on-click="openOpportunity(\'' + post.id + '\')">See details</button></div>';
 }
 
@@ -126,17 +131,20 @@ function renderPost(post, { compact = false } = {}) {
       '<span class="text-footnote text-label-2">' + comments.length + ' answer' + (comments.length === 1 ? '' : 's') + '</span>' +
       (isMine(post) && !solved ? '<button type="button" class="btn btn-plain btn-sm !min-h-[32px]" data-on-click="markSolved(\'' + post.id + '\')">Mark solved</button>' : '') + '</div>';
   }
-  if (!compact) body += renderAttachments(post);
+  // An opportunity's files show on its page, so its card stays short (D043)
+  if (!compact && post.type !== 'work') body += renderAttachments(post);
+  if (compact && post.type === 'work') body += workActions(post);
 
   const likeCount = (post.likes || 0) + (ps.liked ? 1 : 0);
   const footer = compact ? '' :
-    '<div class="pt-2 border-t border-hairline flex items-center gap-1 -mx-2">' +
+    '<div class="pt-2 border-t border-hairline flex flex-wrap items-center gap-1 -mx-2">' +
       '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] ' + (ps.liked ? '!text-redText' : '!text-label-2') + '" data-on-click="toggleLike(\'' + post.id + '\')" aria-pressed="' + ps.liked + '" aria-label="Like">' +
         '<svg class="icon w-[18px] h-[18px]"' + (ps.liked ? ' style="fill:currentColor"' : '') + '><use href="#i-heart"/></svg><span class="tabular-nums">' + likeCount + '</span></button>' +
       '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="toggleComments(\'' + post.id + '\')" aria-expanded="' + openComments.has(post.id) + '">' +
         '<svg class="icon w-[18px] h-[18px]"><use href="#i-chat"/></svg><span class="tabular-nums">' + comments.length + '</span><span class="sr-only"> comments</span></button>' +
       (post.type === 'resource' ? '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] ml-auto ' + (ps.saved ? '!text-blueText' : '!text-label-2') + '" data-on-click="toggleSave(\'' + post.id + '\')" aria-pressed="' + ps.saved + '">' +
         '<svg class="icon w-[18px] h-[18px]"' + (ps.saved ? ' style="fill:currentColor"' : '') + '><use href="#i-bookmark"/></svg>' + (ps.saved ? 'Saved' : 'Save') + ' <span class="tabular-nums">' + ((post.saves || 0) + (ps.saved ? 1 : 0)) + '</span></button>' : '') +
+      (post.type === 'work' ? workActions(post) : '') +
     '</div>' +
     (openComments.has(post.id) ? commentsBlock(post, comments) : '');
 

@@ -31,6 +31,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Licence:** `LICENSE` makes the code "all rights reserved" (D031). It can be read on GitHub but not copied or reused without permission.
 
 ### Changed
+- **Shorter opportunity cards** (D043): on an opportunity's Feed card, Apply (or Manage, Project chat, Mark complete) and See details now sit on the right of the row with likes and comments, and its attachments show on the opportunity page instead of the card. About 3 opportunities now fit where 1 and a half did on a desktop screen. Tests check the single row, no attachments on the card, attachments on the page, and attachments still on other posts.
 - **Feed:** the Projects filter is now Opportunities, and "For you" puts open opportunities for your pathway first. The sidebar shows "Opportunities for you" without percentages. Sample projects are now opportunities with the new fields; the equity project is now Unpaid.
 - **Connect is People only:** opportunities live in the Feed, so Connect's Projects view and its Projects and People switch are gone.
 - **Matching opportunities:** with no skills field, skills count when an opportunity's text mentions them as whole words. Members open to "Equity" can see unpaid opportunities. Members to invite are picked from the pathway the opportunity is looking for.
