@@ -1,4 +1,4 @@
-// Specs 05–07 and 12: typed feed and attachments, opportunities, matching, project loop and verified experience.
+// Specs 05–07, 12 and 13: typed feed and attachments, opportunities, updates, matching, project loop and verified experience.
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -53,7 +53,7 @@ module.exports = async (browser, t) => {
   const forYou = await page.$$eval('#feed-list article', x => x.map(e => e.dataset.post));
   t.ok('For you hides blocked projects and ranks good fits first', !forYou.includes('p-footprint-landing') && forYou.includes('p-tableturn') &&
     (forYou.indexOf('p-tableturn') < forYou.indexOf('p-gradeloop') || !forYou.includes('p-gradeloop')));
-  for (const [k, label] of [['work', 'Opportunity'], ['resource', 'Resource'], ['personal', 'Personal project'], ['support', 'Support'], ['community', 'Community']]) {
+  for (const [k, label] of [['work', 'Opportunity'], ['update', 'Update'], ['support', 'Support'], ['resource', 'Resource']]) {
     await page.evaluate(k => setFeedFilter(k), k); await sleep(100);
     const badges = await page.$$eval('#feed-list article', x => x.map(e => e.querySelector('span.shrink-0.inline-flex').textContent.trim()));
     t.ok('filter ' + k + ' shows only ' + label + ' posts', badges.length > 0 && badges.every(b => b === label));
@@ -87,11 +87,33 @@ module.exports = async (browser, t) => {
   await page.evaluate(() => setFeedFilter('work')); await sleep(100);
 
   // ---------- Composer, attachments, viewer ----------
-  await page.evaluate(() => { setFeedFilter('all'); openComposer('community'); }); await sleep(200);
+  // ---------- Updates (spec 13) ----------
+  const filters = await page.$$eval('#feed-filters button', x => x.map(e => e.textContent));
+  t.ok('filters are For you, All, Opportunities, Updates, Support and Resources', filters.join('|') === 'For you|All|Opportunities|Updates|Support|Resources', filters.join('|'));
+  t.ok('no Personal project or Community composer buttons', await page.evaluate(() => !document.querySelector('[data-on-click="openComposer(\'personal\')"], [data-on-click="openComposer(\'community\')"]') && !POST_TYPES.personal && !POST_TYPES.community));
+  await page.evaluate(() => { setFeedFilter('update'); }); await sleep(100);
+  const labels = await page.$$eval('#feed-list article', x => x.map(e => (e.querySelector('p > span') || {}).textContent || ''));
+  t.ok('sample updates show their Career or Project label in words', labels.length === 3 && labels.includes('Career') && labels.every(l => l === 'Career' || l === 'Project'), labels.join());
+  await page.evaluate(() => { setFeedFilter('all'); openComposer('update'); }); await sleep(200);
+  t.ok('an update has no title field', await page.$eval('#cp-title-wrap', e => e.classList.contains('hidden')));
+  t.ok('an update starts as Career, with Project as the other choice', (await page.$$eval('input[name=cp-label]', x => x.map(e => e.value + (e.checked ? '*' : '')).join())) === 'Career*,Project');
+  t.ok('the news box allows up to 1,000 characters and says so', await page.$eval('#cp-body', e => e.maxLength === 1000) && await page.$eval('#cp-body-hint', e => !e.classList.contains('hidden') && e.textContent.includes('1,000')));
+  t.ok('no feedback option on updates', !(await page.$('#cp-feedback')));
   await page.click('#cp-submit'); await sleep(100);
-  t.ok('a community post needs a message', await page.$eval('#cp-body-error', e => !e.classList.contains('hidden')));
-  await page.type('#cp-title', 'Sprint demo recording + notes');
-  t.ok('typing clears the error', await page.$eval('#cp-title-error', e => e.classList.contains('hidden')));
+  t.ok('an update needs your news', (await page.$eval('#cp-body-error', e => !e.classList.contains('hidden') && e.textContent)) === 'Write your news.');
+  await page.click('input[name=cp-label][value=Project] + .chip');
+  await page.type('#cp-body', 'Booking flow demo from today, plus slides and notes.');
+  t.ok('typing clears the error', await page.$eval('#cp-body-error', e => e.classList.contains('hidden')));
+  t.ok('the 1,000-character hint is announced for updates only', await page.$eval('#cp-body', e => e.getAttribute('aria-describedby') === 'cp-body-hint'));
+  await page.click('input[name=cp-type][value=support] + .chip'); await sleep(100);
+  t.ok('other post types neither show nor announce the hint', await page.$eval('#cp-body', e => !e.hasAttribute('aria-describedby') && e.maxLength === 2000) && await page.$eval('#cp-body-hint', e => e.classList.contains('hidden')));
+  await page.type('#cp-title', 'A question typed before switching');
+  await page.evaluate(() => { $('cp-body').value = 'x'.repeat(1500); });
+  await page.click('input[name=cp-type][value=update] + .chip'); await sleep(100);
+  await page.click('#cp-submit'); await sleep(100);
+  t.ok('news over 1,000 characters is refused with a message', (await page.$eval('#cp-body-error', e => e.textContent)) === 'This is 1,500 characters. Cut it to 1,000 or fewer.' && await page.evaluate(() => !demo.posts.length));
+  await page.evaluate(() => { $('cp-body').value = ''; });
+  await page.click('input[name=cp-label][value=Project] + .chip');
   await page.type('#cp-body', 'Booking flow demo from today, plus slides and notes.');
   await (await page.$('#cp-media')).uploadFile(fixture('photo.png'), fixture('clip.webm'));
   await (await page.$('#cp-doc')).uploadFile(path.join(ROOT, 'test-data', 'sample-cv.pdf'), fixture('notes.txt'));
@@ -108,6 +130,8 @@ module.exports = async (browser, t) => {
   t.ok('photo, video, 2 documents, and a link attached', (await page.evaluate(() => cp.attachments.map(a => a.kind).sort().join())) === 'doc,doc,image,link,video');
   await page.click('#cp-submit'); await sleep(900);
   t.ok('new post shows photo, video, and link', await page.$eval('#feed-list article', e => e.dataset.post.startsWith('u-') && e.querySelectorAll('img').length === 1 && e.querySelectorAll('video').length === 1 && e.querySelectorAll('a[target=_blank]').length === 1));
+  t.ok('a posted update shows its label and its text', await page.$eval('#feed-list article', e => e.querySelector('p > span').textContent === 'Project' && e.innerText.includes('Booking flow demo from today')));
+  t.ok("a title typed for another post type isn't saved on an update", await page.evaluate(() => demo.posts[0].title === '' && !document.querySelector('#feed-list article:first-child h3')));
   t.ok('uploaded photo loads from browser storage', await page.$eval('#feed-list article img', e => e.src.startsWith('blob:') && e.naturalWidth > 0));
   await page.$eval('#feed-list article button[data-on-click^="openViewer"]', e => e.click()); await sleep(500);
   t.ok('viewer opens the photo', await page.$eval('#viewer-media', e => e.tagName === 'IMG' && e.src.startsWith('blob:')));
@@ -207,6 +231,18 @@ module.exports = async (browser, t) => {
   t.ok('profile shows verified experience and endorsement counts', (await page.$eval('#verified-list', e => e.innerText)).includes('Freelancer Finance') && /\d/.test(await page.$eval('#skill-tags', e => e.innerText)));
   await page.reload({ waitUntil: 'networkidle0' }); await sleep(300);
   t.ok('verified experience persists after reload', await page.evaluate(() => demo.verified.length === 1));
+  // ---------- Saved Personal project and Community posts load as updates ----------
+  await page.evaluate(() => {
+    demo.posts.push({ id: 'u-old-personal', type: 'personal', author: 'me', ts: Date.now() - 1000, title: 'StudyBuddy v1', body: 'Built a flashcard app.', feedback: true, attachments: [], likes: 0, comments: [] },
+      { id: 'u-old-community', type: 'community', author: 'me', ts: Date.now() - 2000, title: 'Meetup', body: 'Pizza on Friday.', attachments: [], likes: 0, comments: [] });
+    saveDemo();
+  });
+  await page.reload({ waitUntil: 'networkidle0' }); await sleep(400);
+  const old = await page.evaluate(() => ['u-old-personal', 'u-old-community'].map(id => { const p = postById(id); return [p.type, p.label || '', p.title, 'feedback' in p].join(':'); }));
+  t.ok('saved Personal project and Community posts load as updates, keeping their title', old.join() === 'update:Project:StudyBuddy v1:false,update::Meetup:false', old.join());
+  await page.evaluate(() => { switchTab('feed'); setFeedFilter('update'); }); await sleep(200);
+  t.ok('upgraded posts show in the Updates filter', await page.$$eval('#feed-list article', x => ['u-old-personal', 'u-old-community'].every(id => x.some(e => e.dataset.post === id))));
+
   // ---------- Opportunities at 320px wide ----------
   await page.setViewport({ width: 320, height: 700 });
   await page.evaluate(() => { switchTab('feed'); setFeedFilter('work'); }); await sleep(300);
@@ -217,6 +253,9 @@ module.exports = async (browser, t) => {
   await page.keyboard.press('Escape'); await sleep(200);
   await page.evaluate(() => openComposer('work')); await sleep(200);
   t.ok('the opportunity form has no sideways scroll at 320px', await noHorizontalScroll(page) && await page.$eval('#sheet-panel', e => e.scrollWidth <= e.clientWidth));
+  await page.evaluate(() => closeSheet());
+  await page.evaluate(() => { setFeedFilter('update'); openComposer('update'); }); await sleep(200);
+  t.ok('the update form and updates have no sideways scroll at 320px', await noHorizontalScroll(page) && await page.$eval('#sheet-panel', e => e.scrollWidth <= e.clientWidth));
   await page.evaluate(() => closeSheet());
   await page.setViewport({ width: 1440, height: 900 });
 

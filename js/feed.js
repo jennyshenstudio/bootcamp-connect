@@ -1,4 +1,4 @@
-// Bootcamp Connect prototype: typed feed and composer (specs/05-feed.md, specs/12-opportunities.md).
+// Bootcamp Connect prototype: typed feed and composer (specs/05-feed.md, 12-opportunities.md, 13-updates.md).
 // Plain script (shared globals); load order is set in index.html.
 
 let feedFilter = 'foryou';
@@ -6,8 +6,8 @@ const openComments = new Set();
 let cp = null;   // composer draft
 
 const FEED_FILTERS = [
-  ['foryou', 'For you'], ['all', 'All'], ['work', 'Opportunities'], ['resource', 'Resources'],
-  ['personal', 'Personal'], ['support', 'Support'], ['community', 'Community'],
+  ['foryou', 'For you'], ['all', 'All'], ['work', 'Opportunities'], ['update', 'Updates'],
+  ['support', 'Support'], ['resource', 'Resources'],
 ];
 
 function relTime(ts) {
@@ -38,7 +38,6 @@ function forYouScore(post, me) {
   }
   if (post.type === 'resource') return 25 + 15 * overlap(post.tags || [], me.skills.concat(me.learn)).length + recency;
   if (post.type === 'support') return 20 + (postSolved(post) ? 0 : 10) + recency;
-  if (post.type === 'personal') return 20 + (post.feedback ? 10 : 0) + recency;
   return 25 + recency;
 }
 
@@ -58,12 +57,18 @@ function renderFeed() {
   $('feed-hint').textContent = feedFilter === 'foryou' ? 'Opportunities for your pathway first, then posts from your cohort.' : '';
   list.innerHTML = posts.length ? posts.map(p => renderPost(p)).join('')
     : '<div class="card p-8 text-center space-y-2"><p class="font-semibold text-body">Nothing here yet</p><p class="text-subhead text-label-2">Be the first to post in ' + esc((FEED_FILTERS.find(f => f[0] === feedFilter) || [])[1] || 'this section') + '.</p>' +
-      '<button type="button" class="btn btn-primary btn-sm" data-on-click="openComposer(\'' + (POST_TYPES[feedFilter] ? feedFilter : 'community') + '\')">Create a post</button></div>';
+      '<button type="button" class="btn btn-primary btn-sm" data-on-click="openComposer(\'' + (POST_TYPES[feedFilter] ? feedFilter : 'update') + '\')">Create a post</button></div>';
   hydrateAttachments(list);
   $('composer-avatar').outerHTML = myAvatar('w-10 h-10 text-subhead" id="composer-avatar');
 }
 
 function setFeedFilter(f) { feedFilter = f; renderFeed(); }
+
+// Personal project and community posts saved before spec 13 load as updates, keeping their title and text
+function upgradeToUpdate(p) {
+  if (p.type === 'personal') { p.type = 'update'; p.label = 'Project'; delete p.feedback; }
+  else if (p.type === 'community') p.type = 'update';
+}
 
 function refreshPost(id) {
   document.querySelectorAll('[data-post="' + id + '"]').forEach(el => {
@@ -114,7 +119,7 @@ function renderPost(post, { compact = false } = {}) {
   if (post.body && post.type !== 'work') body += '<p class="text-subhead text-label-2 whitespace-pre-line' + (compact ? ' line-clamp-2' : '') + '">' + esc(post.body) + '</p>';
   if (post.type === 'work') body += workBlock(post);
   if (post.type === 'resource' && (post.tags || []).length) body += '<div class="flex flex-wrap gap-1">' + post.tags.map(t => '<span class="bg-fill text-label-2 text-caption px-2 py-0.5 rounded-md">#' + esc(t) + '</span>').join('') + '</div>';
-  if (post.type === 'personal' && post.feedback) body += '<p><span class="text-footnote font-semibold px-2.5 py-0.5 rounded-full bg-applePurple/10 text-purpleText">Feedback wanted</span></p>';
+  if (post.type === 'update' && post.label) body = '<p><span class="text-footnote font-semibold px-2.5 py-0.5 rounded-full bg-fill text-label-2">' + esc(post.label) + '</span></p>' + body;
   if (post.type === 'support') {
     const solved = postSolved(post);
     body += '<div class="flex flex-wrap items-center gap-2"><span class="text-footnote font-semibold px-2.5 py-0.5 rounded-full ' + (solved ? 'bg-appleGreen/15 text-greenText' : 'bg-appleOrange/15 text-orangeText') + '">' + (solved ? 'Solved' : 'Open question') + '</span>' +
@@ -215,18 +220,18 @@ function renderMatchmaker() { if (demo) renderPeople(); }
 function showOpportunities() { switchTab('feed'); setFeedFilter('work'); }
 
 // ----- Composer -----
+// Each post type's wording. No title means the type has none; bodyMax defaults to 2,000 characters.
 const COMPOSER_COPY = {
   work: { title: 'Title', titlePh: 'e.g. Booking page for 3 Bristol restaurants', body: 'About the project', bodyPh: 'What it is and why it matters.' },
   resource: { title: 'Title', titlePh: 'e.g. Unit economics template', body: 'Why it\'s useful', bodyPh: 'What it helped you with and who should read it.' },
-  personal: { title: 'Project name', titlePh: 'e.g. StudySprint v2', body: 'What did you build?', bodyPh: 'What it does, what you learned, and what feedback you want.' },
+  update: { body: "What's your news?", bodyPh: 'For example: a new role, finishing the bootcamp, a project going live, your first paying customer.', bodyMax: 1000 },
   support: { title: 'Your question', titlePh: 'e.g. How should I price a pilot?', body: 'Details', bodyPh: 'Context that helps people answer.' },
-  community: { title: 'Title (optional)', titlePh: 'e.g. Demo Day practice run', body: 'Message', bodyPh: 'Share an update or announcement with the community.' },
 };
 
 function openComposer(type) {
   const me = memberView('me');
   // An opportunity starts looking for the other pathway from yours
-  cp = { type: POST_TYPES[type] ? type : 'community', attachments: [], posted: false, lookingFor: isBizTrack(me.track) ? 'Software Developer' : 'Business Developer' };
+  cp = { type: POST_TYPES[type] ? type : 'update', attachments: [], posted: false, lookingFor: isBizTrack(me.track) ? 'Software Developer' : 'Business Developer' };
   sheetOnClose = discardComposer;
   openSheet(
     '<form id="composer" class="relative p-5 sm:p-7 space-y-4" data-on-submit="submitPost(event)" novalidate>' + sheetClose() +
@@ -235,9 +240,9 @@ function openComposer(type) {
         Object.entries(POST_TYPES).map(([k, t]) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-type" value="' + k + '"' + (k === cp.type ? ' checked' : '') + ' data-on-change="setComposerType(this.value)">' +
           '<span class="chip gap-1.5"><svg class="icon w-4 h-4"><use href="#' + t.icon + '"/></svg>' + t.label + '</span></label>').join('') + '</div></fieldset>' +
       '<div id="cp-before-title" class="space-y-4"></div>' +
-      '<div><label for="cp-title" id="cp-title-label" class="pf-label"></label><input id="cp-title" class="pf-input" maxlength="120"><p id="cp-title-error" class="pf-error hidden"></p></div>' +
+      '<div id="cp-title-wrap"><label for="cp-title" id="cp-title-label" class="pf-label"></label><input id="cp-title" class="pf-input" maxlength="120"><p id="cp-title-error" class="pf-error hidden"></p></div>' +
       '<div id="cp-after-title" class="space-y-4"></div>' +
-      '<div><label for="cp-body" id="cp-body-label" class="pf-label"></label><textarea id="cp-body" rows="4" maxlength="2000" class="pf-input resize-y"></textarea><p id="cp-body-error" class="pf-error hidden"></p></div>' +
+      '<div><label for="cp-body" id="cp-body-label" class="pf-label"></label><textarea id="cp-body" rows="4" maxlength="2000" class="pf-input resize-y"></textarea><p id="cp-body-hint" class="pf-hint hidden"></p><p id="cp-body-error" class="pf-error hidden"></p></div>' +
       '<div id="cp-type-fields" class="space-y-4"></div>' +
       '<section class="space-y-2" aria-label="Attachments">' +
         '<p class="pf-label !mb-0">Attachments <span class="pf-hint font-normal">· up to ' + MAX_ATTACHMENTS + '</span></p>' +
@@ -284,8 +289,16 @@ const linesOf = id => $(id).value.split('\n').map(s => s.replace(/^[-•*]\s*/, 
 function setComposerType(type) {
   cp.type = type;
   const copy = COMPOSER_COPY[type];
-  $('cp-title-label').textContent = copy.title; $('cp-title').placeholder = copy.titlePh;
+  // Updates have no title: the first line does that job (spec 13)
+  $('cp-title-wrap').classList.toggle('hidden', !copy.title);
+  $('cp-title-label').textContent = copy.title || ''; $('cp-title').placeholder = copy.titlePh || '';
   $('cp-body-label').textContent = copy.body; $('cp-body').placeholder = copy.bodyPh;
+  // Only a type with its own limit shows (and announces) it
+  const max = copy.bodyMax || 2000;
+  $('cp-body').maxLength = max;
+  $('cp-body-hint').textContent = copy.bodyMax ? 'Up to ' + max.toLocaleString('en-GB') + ' characters.' : '';
+  $('cp-body-hint').classList.toggle('hidden', !copy.bodyMax);
+  copy.bodyMax ? $('cp-body').setAttribute('aria-describedby', 'cp-body-hint') : $('cp-body').removeAttribute('aria-describedby');
   ['cp-title', 'cp-body'].forEach(id => { $(id).classList.remove('invalid'); $(id + '-error').classList.add('hidden'); });
   const before = $('cp-before-title'), after = $('cp-after-title'), f = $('cp-type-fields');
   before.innerHTML = after.innerHTML = f.innerHTML = '';
@@ -309,8 +322,8 @@ function setComposerType(type) {
   } else if (type === 'resource') {
     f.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label for="cp-kind" class="pf-label">Kind</label><select id="cp-kind" class="pf-input">' + ['Link', 'Doc', 'Video', 'Screenshot', 'Other'].map(k => '<option>' + k + '</option>').join('') + '</select></div>' +
       '<div><label for="cp-tags" class="pf-label">Tags</label><input id="cp-tags" class="pf-input" placeholder="e.g. Pitch decks, SQL"></div></div>';
-  } else if (type === 'personal') {
-    f.innerHTML = '<label class="flex items-center gap-2.5 text-subhead cursor-pointer"><input id="cp-feedback" type="checkbox" class="w-[18px] h-[18px]" checked> I\'d like feedback on this</label>';
+  } else if (type === 'update') {
+    before.innerHTML = choiceGroup('cp-label', "What's it about?", UPDATE_LABELS, 'Career');
   }
 }
 
@@ -406,11 +419,16 @@ function submitPost(e) {
   if (cp.attachments.some(a => a.kind === 'pending')) return attError('Wait for your files to finish adding.');
   ['cp-title', 'cp-body', 'cp-amount', 'cp-town', 'cp-start', 'cp-end', 'cp-duties', 'cp-requirements'].forEach(id => { $(id)?.classList.remove('invalid'); $(id + '-error')?.classList.add('hidden'); });
   const type = cp.type;
-  const title = $('cp-title').value.trim();
+  const copy = COMPOSER_COPY[type];
+  // A hidden title box can still hold text typed for another post type, so ignore it
+  const title = copy.title ? $('cp-title').value.trim() : '';
   const body = $('cp-body').value.trim();
+  const max = copy.bodyMax || 2000;
   const bad = [];
-  if (type !== 'community' && !title) { cpError('cp-title', type === 'support' ? 'Write your question.' : 'Add a title.'); bad.push('cp-title'); }
-  if ((type === 'community' || type === 'work') && !body) { cpError('cp-body', type === 'work' ? 'Say what the project is about.' : 'Write a message.'); bad.push('cp-body'); }
+  if (copy.title && !title) { cpError('cp-title', type === 'support' ? 'Write your question.' : 'Add a title.'); bad.push('cp-title'); }
+  if ((type === 'update' || type === 'work') && !body) { cpError('cp-body', type === 'work' ? 'Say what the project is about.' : 'Write your news.'); bad.push('cp-body'); }
+  // maxlength doesn't shorten text that was already there when switching type, so check here too
+  if (body.length > max) { cpError('cp-body', 'This is ' + body.length.toLocaleString('en-GB') + ' characters. Cut it to ' + max.toLocaleString('en-GB') + ' or fewer.'); bad.push('cp-body'); }
   const post = { id: 'u-' + Date.now().toString(36), type, author: 'me', ts: Date.now(), title, body, attachments: cp.attachments, likes: 0, comments: [] };
   if (type === 'work') {
     const pay = choiceOf('cp-pay'), workplace = choiceOf('cp-workplace');
@@ -432,8 +450,8 @@ function submitPost(e) {
     });
   } else if (type === 'resource') {
     Object.assign(post, { kind: $('cp-kind').value, tags: $('cp-tags').value.split(',').map(s => s.trim()).filter(Boolean).slice(0, 6), saves: 0 });
-  } else if (type === 'personal') {
-    post.feedback = $('cp-feedback').checked;
+  } else if (type === 'update') {
+    post.label = choiceOf('cp-label');
   } else if (type === 'support') {
     post.solved = false;
   }

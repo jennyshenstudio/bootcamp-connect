@@ -24,6 +24,7 @@ function loadDemo() {
   const defaults = { posts: [], postState: {}, applications: {}, projects: {}, projectChats: [], verified: [], endorsements: {}, invites: DEMO_INVITES.map(i => ({ ...i })) };
   for (const k in defaults) if (!(k in demo)) demo[k] = defaults[k];
   demo.posts.filter(p => p.type === 'work').forEach(upgradeOpportunity);
+  demo.posts.forEach(upgradeToUpdate);
 }
 function saveDemo() { return save(demoKey(), demo); }
 

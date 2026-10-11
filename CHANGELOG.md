@@ -11,6 +11,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 ## Unreleased
 
 ### Added
+- **Updates** (spec 13, D041): professional announcements about your career or a project, like a LinkedIn post. Choose Career or Project, write your news (up to 1,000 characters) and add photos, videos, documents or links. No title and no "feedback wanted" option. Each update shows its label in words, and the Feed has an **Updates** filter. Spec 13 and decision D041.
 - **Opportunities** (spec 12, D040): the "Project" post type becomes Opportunity. Posting asks who it's for (Software Developer or Business Developer), title, pay (Paid with a fixed fee in pounds, or Unpaid), commitment (Part-time, Full-time or Contract), workplace (In person, Hybrid or Remote, with a town or city), start and end dates, about the project, responsibilities, minimum requirements and nice to have. Each missing answer says what to fix.
 - **Opportunity page:** See details opens a page laid out like a job listing: at a glance (pay, commitment, workplace, dates and length in weeks), about the project, responsibilities, minimum requirements, nice to have and about the poster, with Apply and Save.
 - **Coloured edge for the pathway:** opportunity cards have a blue edge for Software Developer and a purple edge for Business Developer, and name the pathway first in their facts, so it never relies on colour alone.
@@ -44,6 +45,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Project folder:** the project now lives in `~/code/bootcamp-connect`, next to `~/code/foundation` (D037). `CLAUDE.md` and the setup test point at `../foundation`.
 
 ### Removed
+- The Personal project and Community post types, their filters and composer buttons (D041). Saved posts of those types load as updates, keeping their title and text. The Demo Day and welcome sample posts are gone; a career update from Elena is new.
 - From posting an opportunity: skills, number of people per role, hours per week, industry, deliverable, status, currencies other than pounds and equity (D040).
 - The fit percentage on opportunity cards, the sidebar and the Manage view.
 

@@ -48,6 +48,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D038 | Connect is a networking app: LinkedIn-style requests, all members visible, no match percentage, suggestions from mutual connections and shared context, stage scale | Accepted (built) | Connect, matching, demo content |
 | D039 | Profile built around work to show: guided case studies, facts line, skills proven by work, teammates confirm, AI helper, "Built with" instead of an AI badge, JSON Resume shape | Accepted (built) | Profile, AI, matching, demo content |
 | D040 | Opportunities replace projects in the Feed: Paid or Unpaid, commitment, workplace, dates, job-listing layout, coloured edge for the pathway, short application; Connect is People only | Accepted (built) | Feed, projects, matching, Connect, demo content |
+| D041 | Updates replace Personal project and Community posts: Career or Project, professional announcements with attachments, no title or feedback option | Accepted (built) | Feed, demo content |
 
 ## Entries
 
@@ -332,3 +333,15 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Risks:** without skills, "For you" can only order by pathway, pay type, workplace and skills mentioned in the text. Unpaid opportunities from businesses, and Unpaid with Full-time, can make a volunteer count as a worker owed the minimum wage (GOV.UK "Volunteer opportunities, rights and expenses"); the owner chose to allow both for the demo, so they need a legal check before real members use the live site. Equity stays in the profile's "Open to" list until the profile is revisited.
 - **Reviewed:** 2026-10-11, checked in session: reversible while the app is in alpha with made-up data, so no separate review. The minimum wage risk was raised with the owner, who chose to proceed for the demo.
 - **Affects:** Feed, projects, matching, Connect, demo content.
+
+### D041 Updates replace Personal project and Community posts
+- **Date:** 2026-10-11 · **Status:** Accepted (built), approved by the owner · **Spec:** `specs/13-updates.md`
+- **Context:** second Feed post type worked through with the owner (after D040). The owner wants professional announcements about work, career or projects, like LinkedIn posts, and a Feed without loose posts or random links.
+- **Decision:**
+  - A new **Update** post type, labelled Career or Project, with up to 1,000 characters and the usual attachments. No title and no "feedback wanted" option.
+  - The Personal project and Community post types, filters and composer buttons are removed. Saved posts of those types load as updates.
+  - Cohort announcements such as Demo Day sign-ups leave the sample Feed.
+- **Options considered:** the names News (suggests links to news articles), Progress, Milestone and Catch-up (owner chose Update); a "feedback wanted" option (rejected by the owner: updates are announcements); a third label, Cohort (not taken: the owner removed community posts); following a project's updates as a thread (parked); Brainstorm, an idea shared for a group chat on a set date (parked until Support and Resource are reworked).
+- **Risks:** with community posts gone, there's no place for cohort-wide announcements; revisit if the demo needs one. Members asking for feedback now use Support (a question).
+- **Reviewed:** 2026-10-11, checked in session: reversible while the app is in alpha with made-up data, so no separate review.
+- **Affects:** Feed, demo content.
