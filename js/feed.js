@@ -264,7 +264,19 @@ function renderFeedSidebar() {
     sections.join('');
   const needs = a.toReview + a.invites.length + a.unread.length + a.todoNeeds;
   $('activity-count').textContent = needs ? needs + (needs === 1 ? ' thing needs' : ' things need') + ' you' : 'All caught up';
+  placeActivity();
 }
+
+// A short summary sticks under the header. A tall one scrolls with the page until its last section
+// is in view, then stays there (as X and Facebook do), so everything can be reached without its own scrollbar.
+function placeActivity() {
+  const box = $('feed-sidebar');
+  if (!box) return;
+  const header = 80, gap = 16;
+  const top = Math.min(header, innerHeight - box.offsetHeight - gap);
+  box.style.setProperty('--activity-top', top + 'px');
+}
+addEventListener('resize', placeActivity);
 
 // Phones: the summary sits behind a bar above the Feed
 function toggleActivity() {

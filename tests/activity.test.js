@@ -94,16 +94,19 @@ module.exports = async (browser, t) => {
   await page.evaluate(() => deleteDraft(demo.drafts[0].id)); await sleep(200);
   t.ok('Delete removes a draft and the Drafts section', await page.evaluate(() => demo.drafts.length === 0) && !(await headings()).includes('Drafts'));
 
-  // ---------- A sidebar taller than the window scrolls on its own ----------
+  // ---------- A tall sidebar scrolls with the page, then stays ----------
   await page.evaluate(() => { openComposer('update'); $('cp-body').value = 'A draft to make the sidebar long'; closeSheet(); }); await sleep(300);
   await page.setViewport({ width: 1440, height: 700 });
-  await page.evaluate(() => { switchTab('feed'); window.scrollTo(0, 2000); }); await sleep(300);
-  const side = await page.$eval('#feed-sidebar', e => { const r = e.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, scrolls: e.scrollHeight > e.clientHeight, overflow: getComputedStyle(e).overflowY }; });
-  t.ok('the sidebar stays in view when the Feed scrolls', side.top >= 0 && side.top <= 100, JSON.stringify(side));
-  t.ok('a sidebar taller than the window fits it and scrolls on its own', side.bottom <= 700 && side.scrolls && side.overflow === 'auto', JSON.stringify(side));
-  await page.$eval('#feed-sidebar', e => { e.scrollTop = e.scrollHeight; }); await sleep(100);
-  t.ok('the last section can be scrolled into view', await page.$eval('#feed-sidebar section:last-child', e => e.getBoundingClientRect().bottom <= innerHeight));
-  await page.evaluate(() => deleteDraft(demo.drafts[0].id)); await sleep(100);
+  await page.evaluate(() => { switchTab('feed'); window.scrollTo(0, 0); }); await sleep(300);
+  const tall = await page.$eval('#feed-sidebar', e => ({ h: e.offsetHeight, overflow: getComputedStyle(e).overflowY }));
+  t.ok('the sidebar has no scrollbar of its own', tall.h > 700 && tall.overflow === 'visible', JSON.stringify(tall));
+  await page.evaluate(() => window.scrollTo(0, 3000)); await sleep(300);
+  const after = await page.$eval('#feed-sidebar', e => { const r = e.getBoundingClientRect(); const last = e.querySelector('section:last-child').getBoundingClientRect(); return { top: r.top, bottom: r.bottom, lastBottom: last.bottom }; });
+  t.ok('scrolling the page brings the last section into view, and the sidebar stays there', after.lastBottom <= 700 && after.bottom > 600, JSON.stringify(after));
+  await page.evaluate(() => deleteDraft(demo.drafts[0].id)); await page.setViewport({ width: 1440, height: 1600 }); await sleep(200);
+  await page.evaluate(() => { placeActivity(); window.scrollTo(0, 2000); }); await sleep(300);
+  const short = await page.$eval('#feed-sidebar', e => Math.round(e.getBoundingClientRect().top));
+  t.ok('a sidebar shorter than the window stays under the header', short === 80, String(short));
 
   // ---------- Phones ----------
   await page.setViewport({ width: 390, height: 800 });

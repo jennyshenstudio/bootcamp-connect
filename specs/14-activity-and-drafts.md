@@ -18,6 +18,8 @@ A header card ("Your activity", your photo, name and pathway), then these sectio
 
 Order: as above, except that **To do comes first** until your profile has a headline.
 
+**Scrolling (computers):** a summary shorter than the window stays under the header. A taller one scrolls down with the page until its last section is in view, then stays there. It has no scrollbar of its own.
+
 **On phones** the summary is hidden behind a **Your activity** bar above the Feed, which says how many things need you (applicants to review, invitations, unread conversations and to-dos) and opens or closes the summary.
 
 ## Drafts
