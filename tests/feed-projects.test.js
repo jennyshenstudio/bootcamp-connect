@@ -55,7 +55,7 @@ module.exports = async (browser, t) => {
     (forYou.indexOf('p-tableturn') < forYou.indexOf('p-gradeloop') || !forYou.includes('p-gradeloop')));
   for (const [k, label] of [['work', 'Opportunity'], ['update', 'Update'], ['support', 'Support'], ['resource', 'Resource']]) {
     await page.evaluate(k => setFeedFilter(k), k); await sleep(100);
-    const badges = await page.$$eval('#feed-list article', x => x.map(e => e.querySelector('span.shrink-0.inline-flex').textContent.trim()));
+    const badges = await page.$$eval('#feed-list article', x => x.map(e => e.querySelector('div.shrink-0 > span.inline-flex').textContent.trim()));
     t.ok('filter ' + k + ' shows only ' + label + ' posts', badges.length > 0 && badges.every(b => b === label));
   }
   await page.evaluate(() => setFeedFilter('work')); await sleep(100);
@@ -244,6 +244,21 @@ module.exports = async (browser, t) => {
   const delId = await page.evaluate(() => demo.posts[0].id);
   const menuBtn = '[data-post="' + delId + '"] [data-post-menu] > button';
   t.ok('your own posts have a "…" button, closed, and other posts don\'t', (await page.$eval(menuBtn, b => b.getAttribute('aria-expanded') + '|' + b.getAttribute('aria-label'))) === 'false|More options for this post' && !(await page.$('[data-post="p-tableturn"] [data-post-menu]')));
+  // D048: in the card's top-right corner, after the post type, on every width
+  const corner = () => page.evaluate(() => [...document.querySelectorAll('#feed-list [data-post-menu] > button')].map(b => {
+    const card = b.closest('article').getBoundingClientRect(), r = b.getBoundingClientRect();
+    const header = b.closest('article').firstElementChild;
+    const rightmost = [...header.querySelectorAll('button, span')].every(e => e === b || e.getBoundingClientRect().right <= r.right + 0.5);
+    return { id: b.closest('article').dataset.post, inHeader: header.contains(b), rightmost, gap: Math.round(card.right - r.right), noOverflow: b.closest('article').scrollWidth <= b.closest('article').clientWidth };
+  }));
+  const wide = await corner();
+  t.ok('the "…" button sits in the card\'s top-right corner', wide.length >= 2 && wide.every(c => c.inHeader && c.rightmost && c.gap <= 21 && c.noOverflow), JSON.stringify(wide));
+  await page.setViewport({ width: 320, height: 800 }); await sleep(200);
+  const narrow = await corner();
+  t.ok('it stays in the corner at 320px wide', narrow.length >= 2 && narrow.every(c => c.inHeader && c.rightmost && c.gap <= 21 && c.noOverflow), JSON.stringify(narrow));
+  await page.setViewport({ width: 1440, height: 900 }); await sleep(200);
+  t.ok('the Feed has no description or hint line under its title and filters', await page.evaluate(() => !$('feed-hint') && !document.querySelector('#tab-feed > div > p, #tab-feed h2 + p')));
+  t.ok('the card\'s button row has no "…" button', await page.$$eval('#feed-list [data-post-menu]', ms => ms.every(m => !m.closest('.border-t'))));
   await page.click(menuBtn); await sleep(100);
   const menu = await page.$eval(menuBtn, b => { const m = $(b.getAttribute('aria-controls')); return { open: b.getAttribute('aria-expanded'), shown: !m.classList.contains('hidden'), items: [...m.querySelectorAll('button')].map(x => x.textContent), focus: document.activeElement.textContent }; });
   t.ok('the "…" button opens Edit and Delete, with focus on Edit', menu.open === 'true' && menu.shown && menu.items.join() === 'Edit,Delete' && menu.focus === 'Edit', JSON.stringify(menu));
@@ -282,6 +297,10 @@ module.exports = async (browser, t) => {
   const mine = await card(myPost);
   t.ok('a posted opportunity shows its pathway, fee, commitment, workplace and dates', mine.cls.includes('border-l-applePurple') &&
     ['Business Developer', '£500, fixed', 'Contract', 'Hybrid · Leeds', '2 Nov – 30 Nov 2026'].every(x => mine.facts.includes(x)), JSON.stringify(mine.facts));
+  t.ok('your opportunity\'s card has Manage in its button row and the "…" button in its top-right corner', await page.$eval('[data-post="' + myPost + '"]', e => !!e.firstElementChild.querySelector('[data-post-menu]') && !e.querySelector('.border-t [data-post-menu]') && e.querySelector('.border-t').innerText.includes('Manage')));
+  await page.evaluate(id => openOpportunity(id), myPost); await sleep(200);
+  t.ok('your opportunity\'s page has the "…" button at the end of its buttons, after Save', await page.$eval('#opp-save', b => b.nextElementSibling?.hasAttribute('data-post-menu') && !b.nextElementSibling.nextElementSibling));
+  await page.evaluate(() => closeSheet()); await sleep(200);
   t.ok('responsibilities are saved one per line', await page.evaluate(id => postById(id).responsibilities.length === 2, myPost));
   await sleep(5600);
   const apps = await page.evaluate(id => projectApplicantList(postById(id)).map(a => a.id), myPost);

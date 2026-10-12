@@ -218,10 +218,7 @@
 
       <!-- TAB 1: FEED (specs/05-feed.md) -->
       <section id="tab-feed" class="space-y-5">
-        <div>
-          <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Feed</h2>
-          <p class="text-subhead text-label-2">Opportunities to build your portfolio, plus resources, questions and news from your cohort.</p>
-        </div>
+        <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Feed</h2>
         <!-- Your activity on phones: a bar that opens the summary (specs/14-activity-and-drafts.md) -->
         <button type="button" id="activity-toggle" class="lg:hidden card w-full px-4 py-3 flex items-center justify-between gap-3 text-left" aria-expanded="false" aria-controls="feed-sidebar" data-on-click="toggleActivity()">
           <span><span class="block font-semibold text-body">Your activity</span><span id="activity-count" class="block text-footnote text-label-2"></span></span>
@@ -238,7 +235,6 @@
             </div>
             <!-- Filters -->
             <div id="feed-filters" class="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1" role="toolbar" aria-label="Filter posts"></div>
-            <p id="feed-hint" class="text-footnote text-label-2 -mt-2"></p>
             <div id="feed-list" class="space-y-4"></div>
           </div>
           <!-- Scrolls with the page, then stays once its last section is in view (top set by placeActivity in js/feed.js) -->

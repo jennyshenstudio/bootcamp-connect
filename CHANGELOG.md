@@ -33,6 +33,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Licence:** `LICENSE` makes the code "all rights reserved" (D031). It can be read on GitHub but not copied or reused without permission.
 
 ### Changed
+- **The "…" menu is in the top-right corner** of your own posts (D048), after the post type, on every screen width. It's no longer in the button row. Its menu has a solid background, so the post's text no longer shows through it.
 - **Your activity fits one screen** (D046): Needs you (applicants to review, invitations, unread conversations, projects to mark complete), In progress (applications and projects), Your profile (how complete it is, with the next step) and a one-line drafts link that opens the drafts list. The header card and New for you are gone. Lists show a few rows, then "N more". It now ends about 610px down a 1440×900 window, where it used to run to about 1,070px.
 - **See details only when there's more** (D045): updates, questions and resources show See details only when their text runs past 3 lines or they have hidden attachments. Opportunities always have it.
 - **Compact Feed cards** (D044): the post box is a single box ("Share an update, question, resource or opportunity…"); the form asks for the type, so the 4 type buttons under it are gone. On cards, photos and videos sit in a frame 220px tall (tiles side by side for 2 or more), documents and other links wait in See details with a count ("2 attachments"), a resource's main link stays as one line, and text stops after 3 lines. Posts open a details view with the full text, every attachment and the comments. Opportunity photos are back on the card in the small frame.
@@ -54,6 +55,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Project folder:** the project now lives in `~/code/bootcamp-connect`, next to `~/code/foundation` (D037). `CLAUDE.md` and the setup test point at `../foundation`.
 
 ### Removed
+- **Feed hint lines** (D048): the description under the Feed title and the line under the filters for For you.
 - The old Feed sidebar cards (Opportunities for you, Your projects, Verified experience count), replaced by Your activity (D042).
 - The Personal project and Community post types, their filters and composer buttons (D041). Saved posts of those types load as updates, keeping their title and text. The Demo Day and welcome sample posts are gone; a career update from Elena is new.
 - From posting an opportunity: skills, number of people per role, hours per week, industry, deliverable, status, currencies other than pounds and equity (D040).

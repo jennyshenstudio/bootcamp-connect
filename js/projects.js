@@ -65,7 +65,7 @@ function opportunityActions(post) {
   const app = demo.applications[post.id];
   if (isMine(post)) {
     const pending = projectApplicantList(post).filter(a => a.status === 'applied').length;
-    return '<button type="button" class="btn btn-primary btn-sm" data-on-click="openManage(\'' + post.id + '\')">Manage' + (pending ? ' <span class="nav-badge !bg-white !text-blueText">' + pending + '</span>' : '') + '</button>' + postMenu(post);
+    return '<button type="button" class="btn btn-primary btn-sm" data-on-click="openManage(\'' + post.id + '\')">Manage' + (pending ? ' <span class="nav-badge !bg-white !text-blueText">' + pending + '</span>' : '') + '</button>';
   }
   if (onTeam(post) && status === 'in-progress') {
     return '<button type="button" class="btn btn-gray btn-sm" data-on-click="goToChat(\'' + (post.chatId || projectState(post).chatId) + '\')"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Project chat</button>' +
@@ -108,7 +108,7 @@ function openOpportunity(postId, { focusSave = false } = {}) {
       '<p>' + pathwayChip(post) + '</p>' +
       '<h2 id="sheet-title" class="text-title2 font-bold">' + esc(post.title) + '</h2>' + blockerNote +
       '<div class="flex flex-wrap gap-2">' + actions +
-        '<button id="opp-save" type="button" class="btn btn-gray btn-sm" data-on-click="toggleSaveOpportunity(\'' + post.id + '\')" aria-pressed="' + saved + '"><svg class="icon w-4 h-4"><use href="#i-bookmark"/></svg>' + (saved ? 'Saved' : 'Save') + '</button></div>' +
+        '<button id="opp-save" type="button" class="btn btn-gray btn-sm" data-on-click="toggleSaveOpportunity(\'' + post.id + '\')" aria-pressed="' + saved + '"><svg class="icon w-4 h-4"><use href="#i-bookmark"/></svg>' + (saved ? 'Saved' : 'Save') + '</button>' + postMenu(post) + '</div>' +
     '</div>' +
     '<section class="space-y-1.5"><h3 class="font-semibold text-body">At a glance</h3><dl class="entry grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-subhead">' +
       glance.map(([k, v]) => '<dt class="text-label-2">' + k + '</dt><dd class="font-semibold">' + esc(v) + '</dd>').join('') + '</dl></section>' +

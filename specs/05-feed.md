@@ -26,8 +26,8 @@ All posts: author (opens profile), type badge, time, like, comments.
 - Documents and any other links wait in the post's details. The card says how many ("2 attachments").
 - **See details** sits at the right of the likes row when the card can't show everything: always on opportunities (their page has more), and on other posts only when their text runs past 3 lines or they have hidden attachments (D045). An opportunity opens its page (spec 12); any other post opens its details: the full text, every attachment and the comments, where you can comment.
 
-## Editing and deleting your posts (D045, D047)
-- Your own posts have a **"…"** button (on the card, in the details and on your opportunity's page, next to Manage). It opens **Edit** and **Delete**; Escape or clicking elsewhere closes it.
+## Editing and deleting your posts (D045, D047, D048)
+- Your own posts have a **"…"** button in the top-right corner of the card and of the details, after the post type (D048). On your opportunity's page it comes last, after Save. It opens **Edit** and **Delete**; Escape or clicking elsewhere closes it.
 - **Edit** opens the post form filled in, titled "Edit your [update, question, resource or opportunity]", with **Save changes**.
 - The post type can't change. Closing without saving leaves the post as it was and makes no draft.
 - Saving keeps the post's place, likes, comments and applicants, and the post shows "Edited" next to its time.

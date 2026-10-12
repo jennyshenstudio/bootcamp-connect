@@ -54,7 +54,6 @@ function renderFeed() {
   }
   $('feed-filters').innerHTML = FEED_FILTERS.map(([k, label]) =>
     '<button type="button" class="chip whitespace-nowrap' + (feedFilter === k ? ' chip-active' : '') + '" data-on-click="setFeedFilter(\'' + k + '\')" aria-pressed="' + (feedFilter === k) + '">' + label + '</button>').join('');
-  $('feed-hint').textContent = feedFilter === 'foryou' ? 'Opportunities for your pathway first, then posts from your cohort.' : '';
   list.innerHTML = posts.length ? posts.map(p => renderPost(p)).join('')
     : '<div class="card p-8 text-center space-y-2"><p class="font-semibold text-body">Nothing here yet</p><p class="text-subhead text-label-2">Be the first to post in ' + esc((FEED_FILTERS.find(f => f[0] === feedFilter) || [])[1] || 'this section') + '.</p>' +
       '<button type="button" class="btn btn-primary btn-sm" data-on-click="openComposer(\'' + (POST_TYPES[feedFilter] ? feedFilter : 'update') + '\')">Create a post</button></div>';
@@ -88,7 +87,11 @@ function authorBlock(post) {
       '<div class="min-w-0"><button type="button" class="font-semibold text-subhead hover:underline text-left" data-on-click="' + open + '">' + esc(memberName(a, true)) + '</button>' +
       '<p class="text-footnote text-label-2">' + esc(shortTrack(memberTrack(a)) || 'Member') + ' · ' + esc(post.ts ? relTime(post.ts) : post.time) + (post.editedAt ? ' · Edited' : '') + '</p></div>' +
     '</div>' +
-    '<span class="shrink-0 inline-flex items-center gap-1 text-footnote font-semibold px-2.5 py-1 rounded-full ' + t.cls + '"><svg class="icon w-3.5 h-3.5"><use href="#' + t.icon + '"/></svg>' + t.label + '</span>' +
+    // Your own posts have their "…" menu in the top-right corner, after the type (D048)
+    '<div class="shrink-0 flex items-center gap-2">' +
+      '<span class="inline-flex items-center gap-1 text-footnote font-semibold px-2.5 py-1 rounded-full ' + t.cls + '"><svg class="icon w-3.5 h-3.5"><use href="#' + t.icon + '"/></svg>' + t.label + '</span>' +
+      postMenu(post) +
+    '</div>' +
   '</div>';
 }
 
@@ -115,7 +118,7 @@ function cardActions(post, saveButton) {
   const hidden = hiddenAttachments(post);
   return '<div class="flex flex-wrap items-center gap-2 ml-auto">' +
     (hidden ? '<span class="inline-flex items-center gap-1 text-footnote text-label-2 px-1"><svg class="icon w-4 h-4"><use href="#i-doc"/></svg>' + hidden + ' attachment' + (hidden === 1 ? '' : 's') + '</span>' : '') +
-    saveButton + (post.type === 'work' ? opportunityActions(post) : postMenu(post)) +
+    saveButton + (post.type === 'work' ? opportunityActions(post) : '') +
     // An opportunity's page always has more. Other posts only need See details when files are hidden or the text is cut off (checkMore)
     '<button type="button" class="btn btn-gray btn-sm' + (post.type === 'work' || hidden ? '' : ' hidden" data-check-more="1') + '" data-on-click="openPost(\'' + post.id + '\')">See details</button></div>';
 }
@@ -140,7 +143,7 @@ function postMenu(post) {
   const id = 'post-menu-' + (++postMenuCount);
   return '<div class="relative" data-post-menu>' +
     '<button type="button" class="btn btn-gray btn-sm !w-9 !px-0" aria-label="More options for this post" aria-expanded="false" aria-controls="' + id + '" data-on-click="togglePostMenu(this)">…</button>' +
-    '<div id="' + id + '" class="hidden absolute right-0 bottom-full mb-2 z-10 card !rounded-2xl p-1.5 min-w-[160px] flex flex-col">' +
+    '<div id="' + id + '" class="hidden absolute right-0 top-full mt-2 z-10 card !bg-[var(--surface)] !rounded-2xl p-1.5 min-w-[160px] flex flex-col">' +
       '<button type="button" class="btn btn-plain btn-sm justify-start" data-on-click="editPost(\'' + post.id + '\')">Edit</button>' +
       (canDelete(post) ? '<button type="button" class="btn btn-plain btn-sm justify-start !text-redText" data-on-click="confirmDeletePost(\'' + post.id + '\')">Delete</button>' : '') +
     '</div></div>';
@@ -245,7 +248,7 @@ function renderPost(post, { compact = false, full = false } = {}) {
       (full ? '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="focusField(\'comment-full-' + post.id + '\')">'
         : '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="toggleComments(\'' + post.id + '\')" aria-expanded="' + openComments.has(post.id) + '">') +
         '<svg class="icon w-[18px] h-[18px]"><use href="#i-chat"/></svg><span class="tabular-nums">' + comments.length + '</span><span class="sr-only"> comments</span></button>' +
-      (full ? saveButton + (isMine(post) ? '<div class="' + (saveButton ? '' : 'ml-auto') + '">' + postMenu(post) + '</div>' : '') : cardActions(post, saveButton)) +
+      (full ? saveButton : cardActions(post, saveButton)) +
     '</div>' +
     (full || openComments.has(post.id) ? commentsBlock(post, comments, full) : '');
 

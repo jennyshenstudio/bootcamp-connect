@@ -54,7 +54,8 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D044 | Compact Feed cards: no type buttons under the post box; photos and videos in a small frame; documents and other links in See details, with a count; text up to 3 lines; See details on every post | Accepted (built) | Feed |
 | D045 | Edit your own posts (type fixed, "Edited" shown); See details only when the card can't show everything | Accepted (built) | Feed, posts |
 | D046 | Your activity fits one screen: Needs you, In progress, profile progress and a drafts line; no header card or New for you | Accepted (built) | Feed |
-| D047 | Delete your own posts, after confirming; Edit and Delete in a "…" menu; opportunities only while open | Accepted (built) | Feed, posts |
+| D047 | Delete your own posts, after confirming; Edit and Delete in a "…" menu; opportunities only while open | Accepted (built); menu position superseded by D048 | Feed, posts |
+| D048 | The "…" menu sits in the card's top-right corner; no description or hint lines on the Feed | Accepted (built) | Feed |
 
 ## Entries
 
@@ -426,3 +427,15 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Risks:** on the live site, deleting a post others have commented on removes their comments too; that's a decision for the online safety rules before beta (D034).
 - **Reviewed:** 2026-10-12, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review.
 - **Affects:** Feed, posts.
+
+### D048 The "…" menu in the top-right corner, and no Feed hint lines
+- **Date:** 2026-10-12 · **Status:** Accepted (built), the owner's request and choice · **Spec:** `specs/05-feed.md`
+- **Context:** the owner asked for the "…" menu to always be on the far right of a card, and for the Feed's hint lines to go. None of the 10 Feed references from the gap analysis has a description under the title or a hint under the filters (D044).
+- **Decision:**
+  - On a card, the "…" menu sits in the top-right corner, after the post type, and opens downwards. It's no longer in the button row, so on your opportunity the row has Manage and See details. In a post's details it's in the same corner; on your opportunity's page it comes last, after Save.
+  - The menu has a solid background: inside a glass card its own blur doesn't work, so the text behind showed through.
+  - The Feed has no description under its title and no hint under the filters.
+- **Options considered:** last in the button row (keeps it next to the other buttons, but when the row wraps on a phone it isn't in the corner). The owner chose the top-right corner, the usual place on LinkedIn, X and Facebook.
+- **Risks:** at 320px wide the name and time beside the avatar get narrower and wrap onto more lines. To look at in the phone pass.
+- **Reviewed:** 2026-10-12, checked in session: a small layout change, easy to undo, so no separate review.
+- **Affects:** Feed.
