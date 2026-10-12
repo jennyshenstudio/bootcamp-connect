@@ -7,32 +7,29 @@ module.exports = async (browser, t) => {
   const headings = () => page.$$eval('#feed-sidebar h3', x => x.map(e => e.textContent));
   const sidebarText = () => page.$eval('#feed-sidebar', e => e.innerText);
 
-  // ---------- A new member ----------
+  // ---------- A new member (D046) ----------
   await page.evaluate(() => switchTab('feed')); await sleep(300);
   let h = await headings();
-  t.ok('a new member sees To do first', h[0] === 'To do', h.join('|'));
+  t.ok('a new member sees their profile first, then Needs you and In progress', h.join('|') === 'Your profile|Needs you|In progress', h.join('|'));
   const firstText = await sidebarText();
-  t.ok('To do lists unfinished profile steps and applying to a first opportunity', firstText.includes('Add a profile photo') && firstText.includes('Apply to your first opportunity'), firstText);
-  t.ok('To do has at most 3 items', (await page.$$eval('#feed-sidebar section:first-of-type li', x => x.length)) <= 3);
-  t.ok('the header says Your activity with your name and pathway', (await page.$eval('#feed-sidebar h2', e => e.textContent)) === 'Your activity' && (await sidebarText()).includes('Software Developer'));
+  t.ok('Your profile shows how complete it is and the next step', /0%/.test(firstText) && firstText.includes('Next: add a profile photo'), firstText);
+  t.ok('no header card and no New for you (the Feed already has For you)', !(await page.$('#feed-sidebar h2')) && !firstText.includes('New for you'));
+  t.ok('Needs you merges invitations and unread conversations', firstText.includes('2 invitations to connect') && /\d+ conversations with new messages/.test(firstText));
+  t.ok('In progress shows a project in progress with its end date', firstText.includes('In progress · ends 20 Nov'));
+  t.ok('the sidebar fits a 1440×900 window without scrolling', await page.$eval('#feed-sidebar', e => e.getBoundingClientRect().bottom <= 900));
 
   // ---------- A member with a headline and some activity ----------
   await page.evaluate(() => updateProfile(currentAccount(), { headline: 'Full-stack developer', skills: ['React', 'Node.js'], openTo: ['Paid', 'Unpaid'] }));
   await page.evaluate(() => { renderFeedSidebar(); }); await sleep(100);
   h = await headings();
-  t.ok('sections show in order: New for you, Current, People to get back to, To do', h.join('|') === 'New for you|Current|People to get back to|To do', h.join('|'));
-  const text = await sidebarText();
-  t.ok('New for you shows opportunities for your pathway with pay and commitment', text.includes('TableTurn') && text.includes('£950, fixed · Part-time') && !text.includes('Landing page copy'));
-  t.ok('Current shows a project in progress with its end date', text.includes('In progress · Ends 20 Nov'));
-  t.ok('People to get back to shows invitations and unread conversations', text.includes('2 invitations to connect') && /\d+ new/.test(text));
-  await page.$eval('#feed-sidebar button[data-on-click^="openOpportunity"]', b => b.click()); await sleep(300);
-  t.ok('a New for you item opens the opportunity page', (await page.$eval('#sheet-title', e => e.textContent)).length > 0 && await page.evaluate(() => $('sheet').dataset.person.startsWith('opportunity:')));
-  await page.keyboard.press('Escape'); await sleep(200);
+  t.ok('with a headline, Needs you comes first and the profile last', h.join('|') === 'Needs you|In progress|Your profile', h.join('|'));
+  await page.$eval('#feed-sidebar button[data-on-click="switchTab(\'matching\')"]', b => b.click()); await sleep(300);
+  t.ok('an invitations row opens Connect', await page.$eval('#tab-matching', e => !e.classList.contains('hidden')));
+  await page.evaluate(() => switchTab('feed')); await sleep(200);
   await page.evaluate(() => openApply('p-tableturn')); await sleep(200);
   await page.type('#apply-note', 'Keen to help.'); await page.click('#sheet button[type=submit]'); await sleep(300);
-  t.ok('an application shows under Current as waiting', (await sidebarText()).includes('Applied · Waiting to hear from Diego'));
-  t.ok('applying removes it from New for you and from To do', !(await page.$$eval('#feed-sidebar section', x => x.find(s => s.querySelector('h3').textContent === 'New for you')?.innerText || '')).includes('TableTurn') &&
-    !(await sidebarText()).includes('Apply to your first opportunity'));
+  t.ok('an application shows under In progress as waiting', (await sidebarText()).includes('Applied · waiting for Diego'));
+  t.ok('the sidebar count matches what Needs you lists', await page.evaluate(() => $('activity-count').textContent === activityData().count + ' things need you'));
   await sleep(2600); // the demo poster accepts
 
   // ---------- Drafts ----------
@@ -46,8 +43,12 @@ module.exports = async (browser, t) => {
   await page.type('#cp-body', 'Our booking page is live for 3 restaurants.');
   await page.keyboard.press('Escape'); await sleep(300);
   t.ok('closing the form with something written saves a draft, and says so', await page.evaluate(() => demo.drafts.length === 1) && (await page.$eval('#toast', e => e.textContent)).includes('Saved as a draft'));
-  t.ok('the draft shows under Drafts with its type and first words', (await headings()).includes('Drafts') && (await sidebarText()).includes('Update · Our booking page is live'));
-  t.ok('a draft says when it was saved, in words', (await sidebarText()).includes('Saved just now'));
+  t.ok('drafts take one line in the sidebar', (await sidebarText()).includes('1 draft'));
+  await page.$eval('#feed-sidebar button[data-on-click="openDrafts()"]', b => b.click()); await sleep(200);
+  const draftsSheet = await page.$eval('#sheet-panel', e => e.innerText);
+  t.ok('the drafts line opens Drafts, with each type and first words', draftsSheet.includes('Drafts') && draftsSheet.includes('Update · Our booking page is live'));
+  t.ok('a draft says when it was saved, in words', draftsSheet.includes('Saved just now'));
+  await page.evaluate(() => closeSheet()); await sleep(200);
   t.ok('saved times read naturally', (await page.evaluate(() => [savedAgo(Date.now() - 5 * 60000), savedAgo(Date.now() - 3 * 3600000)].join())) === '5 minutes ago,3 hours ago');
 
   await page.evaluate(() => { openComposer('work'); }); await sleep(200);
@@ -86,24 +87,22 @@ module.exports = async (browser, t) => {
   const applied = await page.evaluate(() => {
     demo.applications['p-refill'] = { status: 'applied', note: 'Hi', at: Date.now() };
     setProject(postById('p-refill'), { status: 'in-progress' });
-    return (currentRow(postById('p-refill')).match(/Applied · Waiting to hear from Priya/) || [])[0] || '';
+    return (progressRow(postById('p-refill')).match(/Applied · waiting for Priya/) || [])[0] || '';
   });
-  t.ok("an opportunity you've only applied to stays 'Applied' even once it has started", applied === 'Applied · Waiting to hear from Priya');
-  const needs = await page.evaluate(() => { const a = activityData(); return { todo: a.todo.map(x => x.label), todoNeeds: a.todoNeeds }; });
-  t.ok("'Apply to your first opportunity' is a suggestion, not counted as needing you", !needs.todo.includes('Apply to your first opportunity') || needs.todoNeeds < needs.todo.length, JSON.stringify(needs));
+  t.ok("an opportunity you've only applied to stays 'Applied' even once it has started", applied === 'Applied · waiting for Priya');
+  const lists = await page.evaluate(() => {
+    activityOpen.clear();
+    const rows = n => Array.from({ length: n }, (_, i) => activityRow('showOpportunities()', 'Row ' + i));
+    const short = activityList('needs', rows(4)), long = activityList('needs', rows(6));
+    activityOpen.add('needs');
+    const opened = activityList('needs', rows(6));
+    activityOpen.clear();
+    return { short: (short.match(/<li>/g) || []).length, long: (long.match(/<li>/g) || []).length, more: long.includes('3 more'), opened: (opened.match(/<li>/g) || []).length };
+  });
+  t.ok('a list shows up to 4 rows, then "N more" opens the rest', lists.short === 4 && lists.long === 4 && lists.more && lists.opened === 6, JSON.stringify(lists));
   await page.evaluate(() => deleteDraft(demo.drafts[0].id)); await sleep(200);
-  t.ok('Delete removes a draft and the Drafts section', await page.evaluate(() => demo.drafts.length === 0) && !(await headings()).includes('Drafts'));
-
-  // ---------- A tall sidebar scrolls with the page, then stays ----------
-  await page.evaluate(() => { openComposer('update'); $('cp-body').value = 'A draft to make the sidebar long'; closeSheet(); }); await sleep(300);
-  await page.setViewport({ width: 1440, height: 700 });
-  await page.evaluate(() => { switchTab('feed'); window.scrollTo(0, 0); }); await sleep(300);
-  const tall = await page.$eval('#feed-sidebar', e => ({ h: e.offsetHeight, overflow: getComputedStyle(e).overflowY }));
-  t.ok('the sidebar has no scrollbar of its own', tall.h > 700 && tall.overflow === 'visible', JSON.stringify(tall));
-  await page.evaluate(() => window.scrollTo(0, 3000)); await sleep(300);
-  const after = await page.$eval('#feed-sidebar', e => { const r = e.getBoundingClientRect(); const last = e.querySelector('section:last-child').getBoundingClientRect(); return { top: r.top, bottom: r.bottom, lastBottom: last.bottom }; });
-  t.ok('scrolling the page brings the last section into view, and the sidebar stays there', after.lastBottom <= 700 && after.bottom > 600, JSON.stringify(after));
-  await page.evaluate(() => deleteDraft(demo.drafts[0].id)); await page.setViewport({ width: 1440, height: 1600 }); await sleep(200);
+  t.ok('Delete removes a draft and the drafts line', await page.evaluate(() => demo.drafts.length === 0) && !(await sidebarText()).includes('draft'));
+  await page.setViewport({ width: 1440, height: 1600 }); await sleep(200);
   await page.evaluate(() => { placeActivity(); window.scrollTo(0, 2000); }); await sleep(300);
   const short = await page.$eval('#feed-sidebar', e => Math.round(e.getBoundingClientRect().top));
   t.ok('a sidebar shorter than the window stays under the header', short === 80, String(short));

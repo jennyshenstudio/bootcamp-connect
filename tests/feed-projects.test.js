@@ -86,6 +86,16 @@ module.exports = async (browser, t) => {
   await page.evaluate(() => openPost('p-tableturn')); await sleep(300);
   t.ok("an opportunity's See details opens its page", (await page.$$eval('#sheet-panel h3', x => x.map(e => e.textContent))).includes('At a glance'));
   await page.evaluate(() => closeSheet()); await sleep(200);
+  // D045: See details only when the card can't show everything
+  await page.evaluate(() => setFeedFilter('all')); await sleep(200);
+  const details = id => page.$eval('[data-post="' + id + '"] button[data-on-click^="openPost"]', b => !b.classList.contains('hidden'));
+  t.ok('a short question with nothing hidden has no See details', !(await details('p-pricing-help')));
+  t.ok('a resource whose link shows on the card has no See details', !(await details('p-rls')));
+  t.ok('an update whose text runs past 3 lines has See details', await details('u-elena-client'));
+  t.ok('a post with hidden documents has See details', await details('p-unit-econ'));
+  t.ok('opportunities always have See details', await details('p-refill'));
+  await page.setViewport({ width: 1440, height: 900 }); await sleep(100);
+  await page.evaluate(() => setFeedFilter('work')); await sleep(200);
   await page.evaluate(() => openOpportunity('p-tableturn')); await sleep(300);
   t.ok('the opportunity page shows its attachments', !!(await page.$('#sheet-panel img[alt="tableturn-mockup.png"]')));
   const sections = await page.$$eval('#sheet-panel h3', x => x.map(e => e.textContent));
@@ -153,6 +163,21 @@ module.exports = async (browser, t) => {
   t.ok('a new post shows its photo and video side by side, and counts its 2 documents and link', await page.$eval('#feed-list article', e => e.dataset.post.startsWith('u-') && e.querySelectorAll('img').length === 1 && e.querySelectorAll('video').length === 1 && !e.querySelector('a[target=_blank]') && e.innerText.includes('3 attachments')));
   t.ok('See details shows the documents and the link', await page.evaluate(() => { openPost(demo.posts[0].id); const t = $('sheet-panel').innerText; closeSheet(); return t.includes('notes.txt') && t.includes('Stripe Checkout docs'); }));
   t.ok('a posted update shows its label and its text', await page.$eval('#feed-list article', e => e.querySelector('p > span').textContent === 'Project' && e.innerText.includes('Booking flow demo from today')));
+  // D045: editing your own posts
+  const ownId = await page.evaluate(() => demo.posts[0].id);
+  t.ok('your own posts have Edit, other people\'s don\'t', await page.evaluate(id => !!document.querySelector('[data-post="' + id + '"] button[data-on-click^="editPost"]') && !document.querySelector('[data-post="p-tableturn"] button[data-on-click^="editPost"]'), ownId));
+  await page.evaluate(id => { postState(id).liked = true; postState(id).comments.push({ from: 'me', text: 'First!', ts: Date.now() }); editPost(id); }, ownId); await sleep(300);
+  const form = await page.evaluate(() => ({ title: $('sheet-title').textContent, body: $('cp-body').value, label: choiceOf('cp-label'), types: $('cp-type-group').classList.contains('hidden'), draft: $('cp-draft').classList.contains('hidden'), files: cp.attachments.length, submit: $('cp-submit').textContent }));
+  t.ok('Edit opens the form filled in, with its files, and the type fixed', form.title === 'Edit your update' && form.body.includes('Booking flow demo from today') && form.label === 'Project' && form.types && form.draft && form.files === 5 && form.submit === 'Save changes', JSON.stringify(form));
+  const draftsBefore = await page.evaluate(() => demo.drafts.length);
+  await page.evaluate(() => { $('cp-body').value = 'Changed but not saved'; closeSheet(); }); await sleep(200);
+  t.ok('closing an edit without saving leaves the post as it was and makes no draft', await page.evaluate(([id, n]) => postById(id).body.includes('Booking flow demo from today') && !postById(id).editedAt && demo.drafts.length === n, [ownId, draftsBefore]));
+  await page.evaluate(id => editPost(id), ownId); await sleep(300);
+  await page.evaluate(() => { $('cp-body').value = 'Booking flow demo from today, now with deposits.'; });
+  await page.click('#cp-submit'); await sleep(400);
+  const edited = await page.evaluate(id => ({ p: postById(id), first: demo.posts[0].id, card: document.querySelector('[data-post="' + id + '"]').innerText }), ownId);
+  t.ok('saving an edit changes the post in place and keeps its likes, comments and files', edited.first === ownId && edited.p.body === 'Booking flow demo from today, now with deposits.' && edited.p.attachments.length === 5 && await page.evaluate(id => postState(id).liked && postComments(postById(id)).length === 1, ownId));
+  t.ok('an edited post says Edited next to its time', edited.card.includes('· Edited'));
   t.ok("a title typed for another post type isn't saved on an update", await page.evaluate(() => demo.posts[0].title === '' && !document.querySelector('#feed-list article:first-child h3')));
   t.ok('uploaded photo loads from browser storage', await page.$eval('#feed-list article img', e => e.src.startsWith('blob:') && e.naturalWidth > 0));
   await page.$eval('#feed-list article button[data-on-click^="openViewer"]', e => e.click()); await sleep(500);
@@ -232,6 +257,11 @@ module.exports = async (browser, t) => {
   await sleep(5600);
   const apps = await page.evaluate(id => projectApplicantList(postById(id)).map(a => a.id), myPost);
   t.ok('members on the right pathway apply', apps.length >= 2 && await page.evaluate(ids => ids.every(id => person(id).track === 'Business Developer'), apps), apps.join());
+  await page.evaluate(id => editPost(id), myPost); await sleep(300);
+  const oppForm = await page.evaluate(() => ({ title: $('sheet-title').textContent, looking: choiceOf('cp-looking'), pay: choiceOf('cp-pay'), fee: $('cp-amount').value, place: choiceOf('cp-workplace'), town: $('cp-town').value, townShown: !$('cp-town-wrap').classList.contains('hidden'), start: $('cp-start').value, duties: $('cp-duties').value }));
+  t.ok('editing an opportunity restores every field', oppForm.title === 'Edit your opportunity' && oppForm.looking === 'Business Developer' && oppForm.pay === 'Paid' && oppForm.fee === '500' && oppForm.place === 'Hybrid' && oppForm.town === 'Leeds' && oppForm.townShown && oppForm.start === '2026-11-02' && oppForm.duties === 'Shape the pricing page\nPitch the pilot to one pharmacy', JSON.stringify(oppForm));
+  await page.evaluate(() => { $('cp-amount').value = '600'; }); await page.click('#cp-submit'); await sleep(400);
+  t.ok('an edited opportunity keeps its applicants and shows the new fee', (await page.evaluate(id => projectApplicantList(postById(id)).length, myPost)) === apps.length && (await card(myPost)).facts.includes('£600, fixed'));
   await page.evaluate(id => openManage(id), myPost); await sleep(200);
   const manage = await page.$eval('#sheet-panel', e => e.innerText);
   t.ok('Manage shows each applicant\'s message and relevant work, with no fit percentage', manage.includes('Relevant work:') && manage.includes('"') && !manage.includes('% fit'));

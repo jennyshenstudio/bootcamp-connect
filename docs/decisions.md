@@ -49,9 +49,11 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D039 | Profile built around work to show: guided case studies, facts line, skills proven by work, teammates confirm, AI helper, "Built with" instead of an AI badge, JSON Resume shape | Accepted (built) | Profile, AI, matching, demo content |
 | D040 | Opportunities replace projects in the Feed: Paid or Unpaid, commitment, workplace, dates, job-listing layout, coloured edge for the pathway, short application; Connect is People only | Accepted (built) | Feed, projects, matching, Connect, demo content |
 | D041 | Updates replace Personal project and Community posts: Career or Project, professional announcements with attachments, no title or feedback option | Accepted (built) | Feed, demo content |
-| D042 | The Feed sidebar becomes "Your activity" (new, current, people, to do, drafts; empty sections hidden); drafts saved automatically | Accepted (built) | Feed, posts |
+| D042 | The Feed sidebar becomes "Your activity" (new, current, people, to do, drafts; empty sections hidden); drafts saved automatically | Accepted (built); sidebar sections superseded by D046 | Feed, posts |
 | D043 | Opportunity cards have one row of buttons (with likes and comments) and show their attachments on the opportunity page, not the card | Accepted (built); attachments rule superseded by D044 | Feed |
 | D044 | Compact Feed cards: no type buttons under the post box; photos and videos in a small frame; documents and other links in See details, with a count; text up to 3 lines; See details on every post | Accepted (built) | Feed |
+| D045 | Edit your own posts (type fixed, "Edited" shown); See details only when the card can't show everything | Accepted (built) | Feed, posts |
+| D046 | Your activity fits one screen: Needs you, In progress, profile progress and a drafts line; no header card or New for you | Accepted (built) | Feed |
 
 ## Entries
 
@@ -362,7 +364,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Affects:** Feed, posts.
 
 ### D043 Shorter opportunity cards
-- **Date:** 2026-10-11 · **Status:** Accepted (built), chosen by the owner from 3 mock-ups · **Spec:** `specs/12-opportunities.md`
+- **Date:** 2026-10-11 · **Status:** Accepted (built), chosen by the owner from 3 mock-ups. The attachments rule is superseded by D044 (photos are back on the card in a small frame) · **Spec:** `specs/12-opportunities.md`
 - **Context:** a gap analysis of the desktop Feed against 14 feed screens from 10 products (LinkedIn, Peerlist, Fishbowl, Blind, Reddit, Circle, Product Hunt, Threads, X, Bluesky; screenshots from Lazyweb). Every reference card has one row of buttons. Ours had 3 rows on opportunity cards: Apply and See details, the attachments, then likes and comments. The owner has said the Feed feels cluttered, and wants the desktop app improved first.
 - **Decision:**
   - An opportunity's buttons (Apply, Applied, Manage, Project chat, Mark complete, See details) sit on the right of the row with likes and comments.
@@ -370,4 +372,43 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Options considered:** A, keep the card as it is (do nothing); B, move the buttons into the likes row but keep attachments on the card (saves one row; the TableTurn card stays tall); C, B and attachments on the page (chosen: about 3 opportunities fit where 1 and a half did, as on LinkedIn and Peerlist, where files and Apply live on the job's own page).
 - **Risks:** the Feed loses the TableTurn preview image, so it looks more text-heavy; a member has to open See details to see files. On phones the buttons can wrap onto a second line; the owner is leaving phones for later.
 - **Reviewed:** 2026-10-11, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review. Partly changes D012 (attachments on every post type) for opportunity cards only.
+- **Affects:** Feed.
+
+### D044 Compact Feed cards
+- **Date:** 2026-10-11 · **Status:** Accepted (built), the owner's direction, approved from screenshots · **Spec:** `specs/05-feed.md`, `specs/12-opportunities.md`, `specs/13-updates.md`
+- **Context:** continuing the desktop Feed gap analysis (D043). The owner wants a compact Feed with only the necessary information on each card. None of the 10 reference products has type buttons under the post box, and LinkedIn, X and Threads crop images to a fixed frame on the card.
+- **Decision:**
+  - The post box has no type buttons; the form asks for the type. The box says "Share an update, question, resource or opportunity…" so questions are still mentioned.
+  - Photos and videos always show on the card, in a frame 220px tall (tiles side by side for 2 or more, "+N" after 3, cropped from the top). Clicking opens the viewer.
+  - Documents and other links show only in See details; the card counts them ("2 attachments"). A resource's main link stays on the card as one line, because the link is the resource.
+  - Text on cards stops after 3 lines.
+  - Every post has See details (narrowed by D045 to posts where the card can't show everything). Opportunities open their page; other posts open a details view with the full text, every attachment and the comments.
+- **Options considered:** the owner chose to keep the resource link on the card (not hide it), to treat videos like photos (not hide them) and to show a count of hidden attachments (not just See details). Showing everything on the card as before (do nothing) was rejected: the owner finds the Feed cluttered. The 3-line limit was Claude's suggestion; the owner kept it.
+- **Risks:** people may miss documents behind See details; the count is there for that. Cropping can hide part of a photo; the viewer shows it whole.
+- **Reviewed:** 2026-10-11, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review. Replaces D043's attachments rule and changes where D012's attachments show.
+- **Affects:** Feed.
+
+### D045 Editing posts, and See details only when needed
+- **Date:** 2026-10-12 · **Status:** Accepted (built), the owner's request, approved from screenshots · **Spec:** `specs/05-feed.md`
+- **Context:** the owner asked for editing of your own posts, and for See details to show only when there's more than the card shows.
+- **Decision:**
+  - Your own posts have Edit. It reuses the post form (the same code that reopens drafts), filled in. The post type can't change, because an opportunity may already have applicants. Saving keeps the post's place, likes, comments and applicants, and marks it "Edited" next to its time (the owner chose to show it). Closing without saving changes nothing and makes no draft.
+  - See details shows on opportunities always (their page has responsibilities and requirements), and on other posts only when their text runs past 3 lines (measured on screen) or they have hidden attachments.
+- **Options considered:** no "Edited" label (rejected by the owner: people who applied should see that an opportunity changed); letting the type change (rejected: applications could be left without an opportunity); deciding "more text" by counting characters (rejected: it depends on the window width).
+- **Risks:** an opportunity's pay or dates can change after people apply; "Edited" shows that it changed, but not what. A history of edits is a later decision.
+- **Reviewed:** 2026-10-12, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review.
+- **Affects:** Feed, posts.
+
+### D046 Your activity fits one screen
+- **Date:** 2026-10-12 · **Status:** Accepted (built), chosen by the owner from 3 options · **Spec:** `specs/14-activity-and-drafts.md`
+- **Context:** the owner wants the sidebar to fit one screen without scrolling, and to hold what members can't get from the Feed. It was about 1,070px tall on a 1440×900 window.
+- **Decision:**
+  - **Needs you** merges everything waiting on you that lived on different tabs: applicants to review, invitations, unread conversations and projects to mark complete.
+  - **In progress** shows your applications and projects that aren't finished.
+  - **Your profile** shows a completeness bar and the single next step (this closes the gap analysis's "no progress shown" point).
+  - **Drafts** take one line that opens the drafts list.
+  - The header card and **New for you** go: the top bar shows who you are, and the Feed's For you filter already shows new opportunities. Lists show up to 4 rows (In progress: 3), then "N more".
+- **Options considered:** keeping the same sections with at most 2 items each (not chosen); talking it through more, for example an assistant that suggests next steps (not chosen for now; D020's Project Kickstart is still parked); do nothing (rejected by the owner: the sidebar scrolled).
+- **Risks:** without New for you, a member who never uses the For you filter sees fewer opportunities in the sidebar; In progress offers "Find an opportunity" when empty. Opening "N more" can make the sidebar taller than a small window again.
+- **Reviewed:** 2026-10-12, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review. Supersedes D042's sidebar sections; D042's drafts stay.
 - **Affects:** Feed.

@@ -59,6 +59,7 @@ function renderFeed() {
     : '<div class="card p-8 text-center space-y-2"><p class="font-semibold text-body">Nothing here yet</p><p class="text-subhead text-label-2">Be the first to post in ' + esc((FEED_FILTERS.find(f => f[0] === feedFilter) || [])[1] || 'this section') + '.</p>' +
       '<button type="button" class="btn btn-primary btn-sm" data-on-click="openComposer(\'' + (POST_TYPES[feedFilter] ? feedFilter : 'update') + '\')">Create a post</button></div>';
   hydrateAttachments(list);
+  checkMore(list);
   $('composer-avatar').outerHTML = myAvatar('w-10 h-10 text-subhead" id="composer-avatar');
 }
 
@@ -74,7 +75,7 @@ function refreshPost(id) {
   document.querySelectorAll('[data-post="' + id + '"]').forEach(el => {
     el.outerHTML = renderPost(postById(id), { compact: el.dataset.compact === '1', full: el.dataset.full === '1' });
   });
-  document.querySelectorAll('[data-post="' + id + '"]').forEach(el => hydrateAttachments(el));
+  document.querySelectorAll('[data-post="' + id + '"]').forEach(el => { hydrateAttachments(el); checkMore(el.parentElement); });
 }
 
 function authorBlock(post) {
@@ -85,7 +86,7 @@ function authorBlock(post) {
     '<div class="flex items-center gap-3 min-w-0">' +
       '<button type="button" class="tap rounded-full shrink-0" data-on-click="' + open + '" aria-label="View ' + esc(memberName(a, true)) + '\'s profile">' + memberAvatar(a, 'w-10 h-10 text-subhead') + '</button>' +
       '<div class="min-w-0"><button type="button" class="font-semibold text-subhead hover:underline text-left" data-on-click="' + open + '">' + esc(memberName(a, true)) + '</button>' +
-      '<p class="text-footnote text-label-2">' + esc(shortTrack(memberTrack(a)) || 'Member') + ' · ' + esc(post.ts ? relTime(post.ts) : post.time) + '</p></div>' +
+      '<p class="text-footnote text-label-2">' + esc(shortTrack(memberTrack(a)) || 'Member') + ' · ' + esc(post.ts ? relTime(post.ts) : post.time) + (post.editedAt ? ' · Edited' : '') + '</p></div>' +
     '</div>' +
     '<span class="shrink-0 inline-flex items-center gap-1 text-footnote font-semibold px-2.5 py-1 rounded-full ' + t.cls + '"><svg class="icon w-3.5 h-3.5"><use href="#' + t.icon + '"/></svg>' + t.label + '</span>' +
   '</div>';
@@ -114,9 +115,22 @@ function cardActions(post, saveButton) {
   const hidden = hiddenAttachments(post);
   return '<div class="flex flex-wrap items-center gap-2 ml-auto">' +
     (hidden ? '<span class="inline-flex items-center gap-1 text-footnote text-label-2 px-1"><svg class="icon w-4 h-4"><use href="#i-doc"/></svg>' + hidden + ' attachment' + (hidden === 1 ? '' : 's') + '</span>' : '') +
-    saveButton + (post.type === 'work' ? opportunityActions(post) : '') +
-    '<button type="button" class="btn btn-gray btn-sm" data-on-click="openPost(\'' + post.id + '\')">See details</button></div>';
+    saveButton + (post.type === 'work' ? opportunityActions(post) : editButton(post)) +
+    // An opportunity's page always has more. Other posts only need See details when files are hidden or the text is cut off (checkMore)
+    '<button type="button" class="btn btn-gray btn-sm' + (post.type === 'work' || hidden ? '' : ' hidden" data-check-more="1') + '" data-on-click="openPost(\'' + post.id + '\')">See details</button></div>';
 }
+
+// Show See details on cards whose text runs past its 3 lines. Measured on screen, so it follows the window width.
+function checkMore(root) {
+  root.querySelectorAll('[data-check-more]').forEach(btn => {
+    const text = btn.closest('article').querySelector('[data-clamp]');
+    btn.classList.toggle('hidden', !text || text.scrollHeight <= text.clientHeight + 1);
+  });
+}
+addEventListener('resize', () => { const list = $('feed-list'); if (list) checkMore(list); });
+
+// Only on your own posts (D045)
+const editButton = post => isMine(post) ? '<button type="button" class="btn btn-gray btn-sm" data-on-click="editPost(\'' + post.id + '\')">Edit</button>' : '';
 
 // A post's details: all its text, attachments and comments. Opportunities have their own page (D044)
 function openPost(id) {
@@ -136,7 +150,7 @@ function renderPost(post, { compact = false, full = false } = {}) {
   let body = '';
   if (post.title) body += '<h3 class="font-semibold text-body">' + esc(post.title) + '</h3>';
   // On a card, a blank line between paragraphs would use up one of its 3 lines
-  if (post.body && post.type !== 'work') body += '<p class="text-subhead text-label-2 whitespace-pre-line' + (compact ? ' line-clamp-2' : full ? '' : ' line-clamp-3') + '">' + esc(full ? post.body : post.body.replace(/\n\s*\n/g, '\n')) + '</p>';
+  if (post.body && post.type !== 'work') body += '<p class="text-subhead text-label-2 whitespace-pre-line' + (compact ? ' line-clamp-2' : full ? '' : ' line-clamp-3') + '"' + (full ? '' : ' data-clamp="1"') + '>' + esc(full ? post.body : post.body.replace(/\n\s*\n/g, '\n')) + '</p>';
   if (post.type === 'work') body += workBlock(post);
   if (post.type === 'resource' && (post.tags || []).length) body += '<div class="flex flex-wrap gap-1">' + post.tags.map(t => '<span class="bg-fill text-label-2 text-caption px-2 py-0.5 rounded-md">#' + esc(t) + '</span>').join('') + '</div>';
   if (post.type === 'update' && post.label) body = '<p><span class="text-footnote font-semibold px-2.5 py-0.5 rounded-full bg-fill text-label-2">' + esc(post.label) + '</span></p>' + body;
@@ -159,7 +173,7 @@ function renderPost(post, { compact = false, full = false } = {}) {
       (full ? '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="focusField(\'comment-full-' + post.id + '\')">'
         : '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="toggleComments(\'' + post.id + '\')" aria-expanded="' + openComments.has(post.id) + '">') +
         '<svg class="icon w-[18px] h-[18px]"><use href="#i-chat"/></svg><span class="tabular-nums">' + comments.length + '</span><span class="sr-only"> comments</span></button>' +
-      (full ? saveButton : cardActions(post, saveButton)) +
+      (full ? saveButton + (isMine(post) ? '<div class="' + (saveButton ? '' : 'ml-auto') + '">' + editButton(post) + '</div>' : '') : cardActions(post, saveButton)) +
     '</div>' +
     (full || openComments.has(post.id) ? commentsBlock(post, comments, full) : '');
 
@@ -214,42 +228,58 @@ function scrollToPost(id) {
   setTimeout(() => el.classList.remove('ring-4', 'ring-appleBlue/40'), 1600);
 }
 
-// ----- Your activity (spec 14) -----
-// A summary of where you stand. Each section only shows when it has something in it.
+// ----- Your activity (spec 14, D046) -----
+// What the Feed can't show you: what's waiting on you, where your work stands, your profile and your drafts.
+// It fits one screen: each list shows a few rows, then a "more" row that opens the rest.
+const ACTIVITY_LIMITS = { needs: 4, progress: 3 };
+const activityOpen = new Set();   // lists the member has opened in full
+
 function activityData() {
-  const me = memberView('me');
   const work = allPosts().filter(p => p.type === 'work');
-  const fresh = work.filter(p => !isMine(p) && !onTeam(p) && !demo.applications[p.id] && projectStatus(p) === 'open')
-    .map(p => ({ p, fit: projectFit(p, me) })).filter(x => !x.fit.blocked).sort((a, b) => b.fit.score - a.fit.score).slice(0, 3).map(x => x.p);
   const applied = p => demo.applications[p.id] && demo.applications[p.id].status === 'applied';
-  const current = work.filter(p => projectStatus(p) !== 'completed' && (isMine(p) || onTeam(p) || applied(p)));
-  const toReview = current.filter(isMine).reduce((n, p) => n + projectApplicantList(p).filter(a => a.status === 'applied').length, 0);
+  const pending = p => projectApplicantList(p).filter(a => a.status === 'applied').length;
   const invites = (demo.invites || []).filter(i => person(i.from) && !demo.connected[i.from]);
   const unread = allChats().filter(c => demo.unread[c.id]).sort((a, b) => chatSortKey(b) - chatSortKey(a));
-  const profile = profileOf(currentAccount());
-  const todo = strengthChecks(profile).filter(c => !c[1]).slice(0, 2).map(([label, , , section]) => ({ label, action: "openProfileSection('" + section + "')" }));
   const today = new Date().toLocaleDateString('en-CA');   // YYYY-MM-DD in local time
-  work.filter(p => onTeam(p) && projectStatus(p) === 'in-progress' && p.end && p.end < today)
-    .forEach(p => todo.push({ label: 'Mark ' + shortTitle(p) + ' complete', action: "openComplete('" + p.id + "')" }));
-  const needs = todo.length;
-  if (!Object.keys(demo.applications).length) todo.push({ label: 'Apply to your first opportunity', action: 'showOpportunities()' });
-  return { fresh, current, toReview, invites, unread, todo: todo.slice(0, 3), todoNeeds: Math.min(needs, 3), drafts: demo.drafts, newMember: !profile.headline };
+  const needs = [];
+  work.filter(p => isMine(p) && projectStatus(p) === 'open' && pending(p)).forEach(p =>
+    needs.push({ n: pending(p), action: "openManage('" + p.id + "')", main: pending(p) + ' applicant' + (pending(p) === 1 ? '' : 's') + ' to review', sub: shortTitle(p) }));
+  if (invites.length) needs.push({ n: invites.length, action: "switchTab('matching')", main: invites.length + ' invitation' + (invites.length === 1 ? '' : 's') + ' to connect', sub: 'Connect' });
+  if (unread.length === 1) needs.push({ n: 1, action: "goToChat('" + unread[0].id + "')", main: chatTitle(unread[0]), sub: demo.unread[unread[0].id] + ' new message' + (demo.unread[unread[0].id] === 1 ? '' : 's') });
+  else if (unread.length) needs.push({ n: unread.length, action: "switchTab('chat')", main: unread.length + ' conversations with new messages', sub: 'Messages' });
+  work.filter(p => onTeam(p) && projectStatus(p) === 'in-progress' && p.end && p.end < today).forEach(p =>
+    needs.push({ n: 1, action: "openComplete('" + p.id + "')", main: 'Mark ' + shortTitle(p) + ' complete', sub: 'Ended ' + fmtDay(p.end) }));
+  const progress = work.filter(p => projectStatus(p) !== 'completed' && (onTeam(p) || applied(p) || (isMine(p) && !pending(p))));
+  const profile = profileOf(currentAccount());
+  const checks = strengthChecks(profile);
+  return {
+    needs, progress, drafts: demo.drafts, newMember: !profile.headline,
+    profilePct: checks.reduce((sum, [, done, weight]) => sum + (done ? weight : 0), 0),
+    nextStep: checks.find(c => !c[1]),
+    count: needs.reduce((n, x) => n + x.n, 0),
+  };
 }
 
 function activityRow(action, main, sub) {
-  return '<li><button type="button" class="w-full text-left rounded-xl px-2 py-2 hover:bg-fill" data-on-click="' + action + '">' +
-    '<span class="block font-semibold text-subhead line-clamp-2">' + esc(main) + '</span>' + (sub ? '<span class="block text-footnote text-label-2">' + esc(sub) + '</span>' : '') + '</button></li>';
+  return '<li><button type="button" class="w-full text-left rounded-xl px-2 py-1.5 hover:bg-fill" data-on-click="' + action + '">' +
+    '<span class="block font-semibold text-subhead line-clamp-1">' + esc(main) + '</span>' + (sub ? '<span class="block text-footnote text-label-2 truncate">' + esc(sub) + '</span>' : '') + '</button></li>';
 }
 const activityCard = (title, body) => '<section class="card p-4 space-y-1"><h3 class="font-semibold text-body px-1">' + title + '</h3>' + body + '</section>';
 
-function currentRow(p) {
-  if (!isMine(p) && !onTeam(p)) return activityRow("openOpportunity('" + p.id + "')", p.title, 'Applied · Waiting to hear from ' + memberName(p.author));
+// A few rows, then "N more" to show the rest of the list
+function activityList(key, rows) {
+  const limit = ACTIVITY_LIMITS[key];
+  const shown = activityOpen.has(key) || rows.length <= limit ? rows : rows.slice(0, limit - 1);
+  const rest = rows.length - shown.length;
+  return '<ul>' + shown.join('') + (rest ? '<li><button type="button" class="btn btn-plain btn-sm" data-on-click="showAllActivity(\'' + key + '\')">' + rest + ' more</button></li>' : '') + '</ul>';
+}
+function showAllActivity(key) { activityOpen.add(key); renderFeedSidebar(); }
+
+function progressRow(p) {
+  if (!isMine(p) && !onTeam(p)) return activityRow("openOpportunity('" + p.id + "')", p.title, 'Applied · waiting for ' + memberName(p.author));
+  if (isMine(p) && projectStatus(p) === 'open') return activityRow("openOpportunity('" + p.id + "')", p.title, 'Your post · no applicants yet');
   const chatId = p.chatId || projectState(p).chatId;
-  if (isMine(p) && projectStatus(p) === 'open') {
-    const n = projectApplicantList(p).filter(a => a.status === 'applied').length;
-    return activityRow("openManage('" + p.id + "')", p.title, 'Your post · ' + n + ' applicant' + (n === 1 ? '' : 's') + ' to review');
-  }
-  return activityRow(chatId ? "goToChat('" + chatId + "')" : "openManage('" + p.id + "')", p.title, 'In progress' + (p.end ? ' · Ends ' + fmtDay(p.end) : ''));
+  return activityRow(chatId ? "goToChat('" + chatId + "')" : "openManage('" + p.id + "')", p.title, 'In progress' + (p.end ? ' · ends ' + fmtDay(p.end) : ''));
 }
 
 // "just now", "5 minutes ago", "3 hours ago" or a date, to read naturally after "Saved"
@@ -270,27 +300,31 @@ function draftRow(d) {
       '<button type="button" class="btn btn-plain btn-sm !text-redText" data-on-click="deleteDraft(\'' + d.id + '\')">Delete</button></div></li>';
 }
 
+// Drafts open in a sheet, so the sidebar only needs one line for them
+function openDrafts() {
+  if (!demo.drafts.length) return closeSheet();
+  openSheet('<div class="relative p-5 sm:p-7 space-y-3">' + sheetClose() + '<h2 id="sheet-title" class="text-title3 font-bold pr-10">Drafts</h2>' +
+    '<ul class="divide-y divide-[var(--hairline)]">' + demo.drafts.map(draftRow).join('') + '</ul></div>', 'drafts');
+  $('sheet-close').focus();
+}
+
 function renderFeedSidebar() {
   const box = $('feed-sidebar');
   if (!box || !demo) return;
   const a = activityData();
-  const acc = currentAccount() || {};
-  const sections = [];
-  if (a.fresh.length) sections.push(activityCard('New for you', '<ul>' + a.fresh.map(p => activityRow("openOpportunity('" + p.id + "')", p.title, memberName(p.author) + ' · ' + payLabel(p.pay) + ' · ' + p.commitment)).join('') + '</ul>' +
-    '<button type="button" class="btn btn-plain btn-sm" data-on-click="showOpportunities()">See all opportunities</button>'));
-  if (a.current.length) sections.push(activityCard('Current', '<ul>' + a.current.map(currentRow).join('') + '</ul>'));
-  if (a.invites.length || a.unread.length) sections.push(activityCard('People to get back to', '<ul>' +
-    (a.invites.length ? activityRow("switchTab('matching')", a.invites.length + ' invitation' + (a.invites.length === 1 ? '' : 's') + ' to connect', 'Open Connect') : '') +
-    a.unread.slice(0, 2).map(c => activityRow("goToChat('" + c.id + "')", chatTitle(c), demo.unread[c.id] + ' new')).join('') +
-    (a.unread.length > 2 ? activityRow("switchTab('chat')", (a.unread.length - 2) + ' more conversation' + (a.unread.length === 3 ? '' : 's') + ' with new messages', 'Open Messages') : '') + '</ul>'));
-  const todo = a.todo.length ? activityCard('To do', '<ul>' + a.todo.map(t => activityRow(t.action, t.label)).join('') + '</ul>') : '';
-  if (todo) a.newMember ? sections.unshift(todo) : sections.push(todo);
-  if (a.drafts.length) sections.push(activityCard('Drafts', '<ul class="divide-y divide-[var(--hairline)]">' + a.drafts.map(draftRow).join('') + '</ul>'));
-  box.innerHTML = '<div class="card p-4 flex items-center gap-3">' + myAvatar('w-10 h-10 text-subhead') +
-      '<div class="min-w-0"><h2 class="font-semibold text-body">Your activity</h2><p class="text-footnote text-label-2 truncate">' + esc(memberName('me', true) + (acc.track ? ' · ' + acc.track : '')) + '</p></div></div>' +
-    sections.join('');
-  const needs = a.toReview + a.invites.length + a.unread.length + a.todoNeeds;
-  $('activity-count').textContent = needs ? needs + (needs === 1 ? ' thing needs' : ' things need') + ' you' : 'All caught up';
+  const needs = activityCard('Needs you', a.needs.length ? activityList('needs', a.needs.map(x => activityRow(x.action, x.main, x.sub)))
+    : '<p class="px-1 text-subhead text-label-2">You\'re all caught up.</p>');
+  const progress = activityCard('In progress', a.progress.length ? activityList('progress', a.progress.map(progressRow))
+    : '<ul>' + activityRow('showOpportunities()', 'Find an opportunity', 'Apply to work on a real project') + '</ul>');
+  const profile = a.nextStep ? '<section class="card p-4 space-y-2"><div class="flex items-baseline justify-between px-1"><h3 class="font-semibold text-body">Your profile</h3><span class="text-subhead font-semibold tabular-nums">' + a.profilePct + '%</span></div>' +
+    '<div class="mx-1 h-1.5 rounded-full bg-fill overflow-hidden"><div id="activity-bar" class="h-full rounded-full bg-appleBlue"></div></div>' +
+    '<ul>' + activityRow("openProfileSection('" + a.nextStep[3] + "')", 'Next: ' + a.nextStep[0].charAt(0).toLowerCase() + a.nextStep[0].slice(1)) + '</ul></section>' : '';
+  const drafts = a.drafts.length ? '<button type="button" class="card w-full px-4 py-3 flex items-center justify-between text-left" data-on-click="openDrafts()">' +
+    '<span class="font-semibold text-subhead">' + a.drafts.length + ' draft' + (a.drafts.length === 1 ? '' : 's') + '</span><svg class="icon w-4 h-4 text-label-2"><use href="#i-chevron"/></svg></button>' : '';
+  // A new member sees their profile first, until it has a headline
+  box.innerHTML = (a.newMember ? profile + needs + progress : needs + progress + profile) + drafts;
+  if ($('activity-bar')) $('activity-bar').style.width = a.profilePct + '%';
+  $('activity-count').textContent = a.count ? a.count + (a.count === 1 ? ' thing needs' : ' things need') + ' you' : 'All caught up';
   placeActivity();
 }
 
@@ -332,7 +366,7 @@ function openComposer(type) {
   openSheet(
     '<form id="composer" class="relative p-5 sm:p-7 space-y-4" data-on-submit="submitPost(event)" novalidate>' + sheetClose() +
       '<h2 id="sheet-title" class="text-title3 font-bold pr-10">Create a post</h2>' +
-      '<fieldset><legend class="pf-label">Post type</legend><div class="flex flex-wrap gap-2">' +
+      '<fieldset id="cp-type-group"><legend class="pf-label">Post type</legend><div class="flex flex-wrap gap-2">' +
         Object.entries(POST_TYPES).map(([k, t]) => '<label class="cursor-pointer"><input type="radio" class="peer sr-only" name="cp-type" value="' + k + '"' + (k === cp.type ? ' checked' : '') + ' data-on-change="setComposerType(this.value)">' +
           '<span class="chip gap-1.5"><svg class="icon w-4 h-4"><use href="#' + t.icon + '"/></svg>' + t.label + '</span></label>').join('') + '</div></fieldset>' +
       '<div id="cp-before-title" class="space-y-4"></div>' +
@@ -476,7 +510,8 @@ function addComposerLink() {
 const draftOf = id => demo.drafts.find(d => d.id === id);
 function removeComposerAtt(id) {
   const att = cp.attachments.find(a => a.id === id);
-  const inDraft = cp.draftId && (draftOf(cp.draftId) || { attachments: [] }).attachments.some(a => a.id === id);
+  const kept = cp.editId ? postById(cp.editId).attachments || [] : (draftOf(cp.draftId) || { attachments: [] }).attachments;
+  const inDraft = kept.some(a => a.id === id);
   if (att && att.kind !== 'link' && !inDraft) idbDelete(id);
   cp.attachments = cp.attachments.filter(a => a.id !== id);
   renderComposerAtts();
@@ -548,6 +583,12 @@ function saveDraft() {
 
 // Closing the form keeps anything written as a draft, so nothing is lost (spec 14)
 function discardComposer() {
+  if (cp && cp.editId && !cp.posted) {
+    const kept = postById(cp.editId).attachments || [];
+    cp.attachments.filter(a => a.kind !== 'link' && a.kind !== 'pending' && !kept.some(k => k.id === a.id)).forEach(a => idbDelete(a.id));
+    cp = null;
+    return;
+  }
   if (cp && !cp.posted && !cp.kept && $('composer')) {
     if (composerHasContent()) {
       if (storeDraft()) { renderFeedSidebar(); showToast(DRAFT_SAVED); }
@@ -561,19 +602,62 @@ function discardComposer() {
   cp = null;
 }
 
+// Fill the open form from saved choices (by name) and fields (by id)
+function fillComposer({ radios = {}, values = {} }) {
+  // Choices first, since some of them show or hide fields (fee, town)
+  Object.entries(radios).forEach(([name, value]) => {
+    const input = document.querySelector('#composer input[name="' + name + '"][value="' + value + '"]');
+    if (input && !input.checked) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
+  });
+  Object.entries(values).forEach(([fid, value]) => { if ($(fid) && value != null) $(fid).value = value; });
+  renderComposerAtts();
+}
+
 function continueDraft(id) {
   const d = demo.drafts.find(x => x.id === id);
   if (!d) return;
   openComposer(d.type);
   cp.draftId = d.id;
   cp.attachments = d.attachments.slice();
-  // Choices first, since some of them show or hide fields (fee, town)
-  Object.entries(d.radios || {}).forEach(([name, value]) => {
-    const input = document.querySelector('#composer input[name="' + name + '"][value="' + value + '"]');
-    if (input && !input.checked) { input.checked = true; input.dispatchEvent(new Event('change', { bubbles: true })); }
-  });
-  Object.entries(d.values || {}).forEach(([fid, value]) => { if ($(fid)) $(fid).value = value; });
-  renderComposerAtts();
+  fillComposer(d);
+}
+
+// ----- Editing your own posts (D045) -----
+// The same form, filled in. The type can't change: an opportunity may already have applicants.
+function editPost(id) {
+  const post = postById(id);
+  if (!post || !isMine(post)) return;
+  openComposer(post.type);
+  cp.editId = id;
+  cp.attachments = (post.attachments || []).slice();
+  const radios = {}, values = { 'cp-title': post.title, 'cp-body': post.body };
+  if (post.type === 'work') {
+    cp.lookingFor = post.lookingFor;
+    Object.assign(radios, { 'cp-looking': post.lookingFor, 'cp-pay': post.pay.type, 'cp-commitment': post.commitment, 'cp-workplace': post.workplace });
+    Object.assign(values, { 'cp-amount': post.pay.amount, 'cp-town': post.town, 'cp-start': post.start, 'cp-end': post.end,
+      'cp-duties': (post.responsibilities || []).join('\n'), 'cp-requirements': (post.requirements || []).join('\n'), 'cp-nice': (post.niceToHave || []).join('\n') });
+  } else if (post.type === 'update') radios['cp-label'] = post.label;
+  else if (post.type === 'resource') Object.assign(values, { 'cp-kind': post.kind, 'cp-tags': (post.tags || []).join(', ') });
+  fillComposer({ radios, values });
+  $('cp-type-group').classList.add('hidden');
+  $('sheet-title').textContent = 'Edit your ' + POST_TYPES[post.type].label.toLowerCase();
+  $('cp-draft').classList.add('hidden');
+  $('cp-submit').textContent = 'Save changes';
+}
+
+// Keeps who posted it, when, its likes, comments and applicants; marks it Edited
+function saveEdit(changes) {
+  const post = postById(cp.editId);
+  const before = { ...post };
+  ['id', 'type', 'author', 'ts', 'likes', 'comments', 'status', 'team', 'applicants', 'saves', 'solved'].forEach(k => delete changes[k]);
+  Object.assign(post, changes, { editedAt: Date.now() });
+  cp.posted = true;
+  if (!saveDemo()) { Object.keys(post).forEach(k => delete post[k]); Object.assign(post, before); cp.posted = false; return attError("Couldn't save. This browser's storage is full."); }
+  dropRemovedFiles(before.attachments, post.attachments);
+  closeSheet();
+  renderFeed();
+  renderFeedSidebar();
+  showToast('Changes saved');
 }
 
 function deleteDraft(id) {
@@ -583,6 +667,7 @@ function deleteDraft(id) {
   demo.drafts = demo.drafts.filter(x => x.id !== id);
   saveDemo();
   renderFeedSidebar();
+  if ($('sheet').dataset.person === 'drafts' && !$('sheet').classList.contains('hidden')) openDrafts();
   showToast('Draft deleted');
 }
 
@@ -634,6 +719,7 @@ function submitPost(e) {
     post.solved = false;
   }
   if (bad.length) { $(bad[0]).scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  if (cp.editId) return saveEdit(post);
 
   demo.posts.unshift(post);
   const drafts = demo.drafts, draft = draftOf(cp.draftId);

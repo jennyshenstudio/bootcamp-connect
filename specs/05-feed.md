@@ -24,7 +24,12 @@ All posts: author (opens profile), type badge, time, like, comments.
 - The post box is one box: "Share an update, question, resource or opportunity…". The form asks for the post type; there are no type buttons under the box.
 - A Feed card shows only what's needed: photos and videos in a frame 220px tall (side by side as tiles when there are 2 or more, with "+N" after 3, cropped from the top), a resource's main link as one line, and text up to 3 lines.
 - Documents and any other links wait in the post's details. The card says how many ("2 attachments").
-- Every card has **See details** at the right of the likes row. An opportunity opens its page (spec 12); any other post opens its details: the full text, every attachment and the comments, where you can comment.
+- **See details** sits at the right of the likes row when the card can't show everything: always on opportunities (their page has more), and on other posts only when their text runs past 3 lines or they have hidden attachments (D045). An opportunity opens its page (spec 12); any other post opens its details: the full text, every attachment and the comments, where you can comment.
+
+## Editing your posts (D045)
+- Your own posts have **Edit** (on the card, in the details and on your opportunity's page, next to Manage). It opens the post form filled in, titled "Edit your [type]", with **Save changes**.
+- The post type can't change. Closing without saving leaves the post as it was and makes no draft.
+- Saving keeps the post's place, likes, comments and applicants, and the post shows "Edited" next to its time.
 - Viewer: photos and videos with previous/next (buttons, arrow keys, swipe), PDFs rendered page by page (first 20 pages), other document types show their details.
 - Prototype limit: the published claude.ai page's shared file storage is editor-only and makes a page organisation-internal, so uploads stay in each viewer's browser.
 
@@ -40,3 +45,4 @@ All posts: author (opens profile), type badge, time, like, comments.
 4. Required fields are enforced per type (e.g. a project needs roles with skills, a deliverable, and a fee when paid).
 5. Posts, attachments, likes, saves, comments, and solved status persist after a reload.
 6. Feed cards show photos and videos in a frame 220px tall, a resource's main link as one line, text up to 3 lines and a count of other attachments; See details shows the full post with every attachment and its comments (D044).
+7. You can edit your own posts; an edited post keeps its likes, comments and applicants and says Edited (D045).

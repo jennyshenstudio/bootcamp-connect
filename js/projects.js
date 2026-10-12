@@ -65,7 +65,7 @@ function opportunityActions(post) {
   const app = demo.applications[post.id];
   if (isMine(post)) {
     const pending = projectApplicantList(post).filter(a => a.status === 'applied').length;
-    return '<button type="button" class="btn btn-primary btn-sm" data-on-click="openManage(\'' + post.id + '\')">Manage' + (pending ? ' <span class="nav-badge !bg-white !text-blueText">' + pending + '</span>' : '') + '</button>';
+    return '<button type="button" class="btn btn-primary btn-sm" data-on-click="openManage(\'' + post.id + '\')">Manage' + (pending ? ' <span class="nav-badge !bg-white !text-blueText">' + pending + '</span>' : '') + '</button>' + editButton(post);
   }
   if (onTeam(post) && status === 'in-progress') {
     return '<button type="button" class="btn btn-gray btn-sm" data-on-click="goToChat(\'' + (post.chatId || projectState(post).chatId) + '\')"><svg class="icon w-4 h-4"><use href="#i-chat"/></svg>Project chat</button>' +
