@@ -29,6 +29,8 @@ const DEMO_PEOPLE = [
     id: 'sarah', first: 'Sarah', last: 'Jenkins', colors: ['#FF9F0A', '#FF375F'], connected: true,
     track: 'Business Developer', headline: 'Building an AI tax and savings planner for freelancers',
     location: 'Manchester, UK', setting: 'Hybrid', available: '2026-10-15',
+    // Pinned to the top of her profile page (spec 15)
+    pinned: [{ kind: 'work', title: 'Freelancer Finance waitlist' }, { kind: 'post', id: 'p-finance' }],
     stage: 'Running a business (under a year)', currently: 'Growing the Freelancer Finance waitlist',
     education: [{ school: 'Northgate University', course: 'BA Marketing', start: '2014', end: '2017' }],
     about: 'Freelance marketer for six years, which is how I learned the hard way that Self Assessment is terrifying. Now building the tool I wish I had. 62 people on the waitlist and counting.',
@@ -49,6 +51,7 @@ const DEMO_PEOPLE = [
     id: 'marcus', first: 'Marcus', last: 'Johnson', colors: ['#0A84FF', '#30D158'], connected: true,
     track: 'Software Developer', headline: 'Full-stack developer · ex-Army logistics · loves clean APIs',
     location: 'Birmingham, UK', setting: 'Hybrid', available: '2026-10-20',
+    pinned: [{ kind: 'work', title: 'Freelancer Finance sign-in and billing' }, { kind: 'post', id: 'p-rls' }],
     stage: 'Learning (in bootcamp)', currently: 'Building auth and payments for Freelancer Finance',
     education: [{ school: 'Kingsbridge College', course: 'HND Computing', start: '2015', end: '2017' }],
     about: 'Eight years running logistics in the British Army taught me to keep systems boring and reliable. Now I build them in TypeScript. Happy to pair, review code, or take on paid side projects.',

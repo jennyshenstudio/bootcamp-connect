@@ -43,6 +43,7 @@ module.exports = async (browser, t) => {
   await page.$eval('#pf-website', e => { e.value = ''; e.dispatchEvent(new Event('input', { bubbles: true })); });
   await page.click('#profile-form button[type=submit]'); await sleep(300);
   t.ok('profile saves and the banner hides', (await page.$eval('#toast', e => e.textContent)) === 'Profile saved' && !(await visible(page, 'profile-banner')));
+  t.ok('saving returns to your profile page (spec 15)', await visible(page, 'profile-page') && !(await visible(page, 'profile-edit')) && (await page.$eval('#profile-name', e => e.textContent)) === 'Alex Chen');
   t.ok('links are normalised to https', (await page.$eval('#pf-linkedin', e => e.value)) === 'https://linkedin.com/in/alexchen');
   t.ok('header avatar shows the photo', !!(await page.$eval('#user-avatar', e => e.style.backgroundImage)));
 
@@ -67,14 +68,14 @@ module.exports = async (browser, t) => {
   t.ok('an old profile loads without losing anything, and its projects become work to show',
     old.headline === 'Old headline' && old.about === 'Old about' && old.exp === 1 && old.skills === 'React,Financial modelling' && old.learn === 'SQL' &&
     old.linkedin === 'https://linkedin.com/in/old' && old.work.join() === 'Old project|old.example|Built it|A short description', JSON.stringify(old));
-  await page.evaluate(() => switchTab('profile')); await sleep(200);
+  await page.evaluate(() => editMyProfile()); await sleep(200);
   await page.click('#profile-form button[type=submit]'); await sleep(300);
   const saved = await page.evaluate(() => currentAccount().profile);
   t.ok('saving stores the profile in the JSON Resume shape', saved.basics.label === 'Old headline' && saved.work[0].position === 'Barista' && saved.projects[0].name === 'Old project' &&
     saved.skills[1].name === 'Financial modelling' && saved.bootcampConnect.goals[0] === 'Paid work' && saved.basics.profiles[0].network === 'LinkedIn');
 
   await page.setViewport({ width: 390, height: 844 });
-  await page.evaluate(() => switchTab('profile')); await sleep(200);
+  await page.evaluate(() => editMyProfile()); await sleep(200);
   t.ok('profile has no sideways scroll on a phone', await noHorizontalScroll(page));
   await page.close();
 };

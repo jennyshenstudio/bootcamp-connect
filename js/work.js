@@ -296,6 +296,7 @@ function confirmTeammate(pieceId, id) {
     workExtras[uid].teammates.forEach(t => { if (t.id === id) t.confirmed = true; });
     renderTeammates(uid);
   });
+  refreshProfilePages();
   showToast(person(id).first + ' confirmed your work on ' + piece.title);
 }
 
@@ -603,23 +604,24 @@ function teammateLine(w, ownerId) {
   if (w.by !== ownerId) return '<p class="text-footnote text-label-2">Added by ' + esc(fullName(workAuthor(w.by))) + ', and confirmed</p>';
   return confirmed.length ? '<p class="text-footnote text-greenText font-semibold inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-check"/></svg>Confirmed by ' + esc(confirmed.join(' and ')) + '</p>' : '';
 }
-function workCardHtml(p, w, n) {
+function workCardHtml(p, w, n, extra = '', titleTag = 'h4') {
   return '<article class="entry !p-0 overflow-hidden" data-piece="' + n + '">' +
     (w.screenshot ? '<img src="' + w.screenshot + '" alt="Screenshot of ' + esc(w.title) + '" class="w-full max-h-48 object-cover object-top border-b border-hairline">' : '') +
     '<div class="p-4 space-y-1.5">' +
-      '<h4 class="font-semibold text-body">' + esc(w.title) + '</h4>' +
+      '<' + titleTag + ' class="font-semibold text-body">' + esc(w.title) + '</' + titleTag + '>' +
       (factsLine(w.facts) ? '<p class="text-footnote text-label-2">' + esc(factsLine(w.facts)) + '</p>' : '') +
       '<p class="text-subhead line-clamp-2">' + esc(w.summary || w.result || w.did) + '</p>' +
       teammateLine(w, p.id) +
       workLinks(w) +
-      '<button type="button" class="btn btn-gray btn-sm" data-on-click="openWork(\'' + p.id + '\', ' + n + ')" aria-label="Read more about ' + esc(w.title) + '">Read more</button>' +
+      '<div class="flex flex-wrap gap-1"><button type="button" class="btn btn-gray btn-sm" data-on-click="openWork(\'' + p.id + '\', ' + n + ')" aria-label="Read more about ' + esc(w.title) + '">Read more</button>' + extra + '</div>' +
     '</div>' +
   '</article>';
 }
-function workSectionHtml(p, all) {
+// On the profile page the section's heading is an h2, and your own pieces get a Pin button (spec 15)
+function workSectionHtml(p, all, { tag = 'h3', extra = null } = {}) {
   if (!all.length) return '';
-  const list = all.map((w, n) => workCardHtml(p, w, n));
-  return '<section class="space-y-2"><h3 class="font-semibold text-body">Work to show</h3>' +
+  const list = all.map((w, n) => workCardHtml(p, w, n, extra ? extra(w, n) : '', tag === 'h2' ? 'h3' : 'h4'));
+  return '<section class="space-y-2"><' + tag + ' class="' + (tag === 'h2' ? 'text-title3 font-bold' : 'font-semibold text-body') + '">Work to show</' + tag + '>' +
     '<div class="space-y-3">' + list.slice(0, WORK_ON_PROFILE).join('') + '</div>' +
     (list.length > WORK_ON_PROFILE ? '<details class="group/more"><summary class="list-none cursor-pointer inline-flex items-center gap-1 text-subhead font-semibold text-blueText min-h-[44px]"><svg class="icon w-4 h-4 transition group-open/more:rotate-90" aria-hidden="true"><use href="#i-chevron"/></svg>Show all work (' + list.length + ')</summary>' +
       '<div class="space-y-3 pt-1">' + list.slice(WORK_ON_PROFILE).join('') + '</div></details>' : '') +
@@ -638,7 +640,7 @@ function openWork(personId, n) {
   const answer = (label, v) => v ? '<div class="space-y-0.5"><h4 class="text-footnote font-semibold text-label-2">' + label + '</h4><p class="text-subhead">' + esc(v) + '</p></div>' : '';
   openSheet(sheetClose() +
     '<div class="p-6 sm:p-7 space-y-4">' +
-      '<button type="button" class="btn btn-plain btn-sm -ml-2" data-on-click="openPerson(\'' + personId + '\')"><svg class="icon w-4 h-4 rotate-180"><use href="#i-chevron"/></svg>Back to ' + (personId === 'me' ? 'your profile' : esc(p.first) + '\'s profile') + '</button>' +
+      '<button type="button" class="btn btn-plain btn-sm -ml-2" data-on-click="closeSheet()"><svg class="icon w-4 h-4 rotate-180"><use href="#i-chevron"/></svg>Back to ' + (personId === 'me' ? 'your profile' : esc(p.first) + '\'s profile') + '</button>' +
       '<div class="pr-10"><h2 id="sheet-title" class="text-title2 font-bold">' + esc(w.title) + '</h2>' +
       (factsLine(w.facts) ? '<p class="text-subhead text-label-2">' + esc(factsLine(w.facts)) + '</p>' : '') + '</div>' +
       (w.screenshot ? '<img src="' + w.screenshot + '" alt="Screenshot of ' + esc(w.title) + '" class="w-full rounded-xl border border-hairline">' : '') +
@@ -663,7 +665,7 @@ function skillGroups(p, all) {
   });
   return { groups, pieces };
 }
-function skillsSectionHtml(p, all) {
+function skillsSectionHtml(p, all, tag = 'h3') {
   const { groups, pieces } = skillGroups(p, all);
   const chip = (s, kind) => {
     const n = pieces(s).length;
@@ -672,7 +674,7 @@ function skillsSectionHtml(p, all) {
       : '<span class="chip !cursor-default !min-h-[32px] !text-footnote">' + label + '</span>';
   };
   const group = (title, hint, list, kind) => list.length ? '<div class="space-y-1.5"><p class="text-footnote font-semibold">' + title + ' <span class="font-normal text-label-2">· ' + hint + '</span></p><div class="flex flex-wrap gap-1.5">' + list.map(s => chip(s, kind)).join('') + '</div></div>' : '';
-  return '<section class="space-y-3"><h3 class="font-semibold text-body">Skills</h3>' +
+  return '<section class="space-y-3"><' + tag + ' class="' + (tag === 'h2' ? 'text-title3 font-bold' : 'font-semibold text-body') + '">Skills</' + tag + '>' +
     group('Confirmed', 'by a teammate or a finished project', groups.confirmed, 'confirmed') +
     group('Proven', 'used in work to show', groups.proven, 'proven') +
     group('Listed', 'not shown in work yet', groups.listed, 'listed') +

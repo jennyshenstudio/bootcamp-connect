@@ -116,12 +116,12 @@ module.exports = async (browser, t) => {
   t.ok('a mutual connection counts, with a reason', score.mutualRise === 1 && /mutual connection/.test(score.mutualReason));
 
   await page.evaluate(() => openPerson('elena')); await sleep(200);
-  const sheet = await page.$eval('#sheet-panel', e => e.innerText);
-  const why = await page.$eval('#sheet-panel .entry', e => e.innerText);
-  t.ok('profile sheet shows reasons without a percentage, the stage evidence line, verified experience and skills to learn',
+  const sheet = await page.$eval('#person-page', e => e.innerText);
+  const why = await page.$eval('#person-page aside', e => e.innerText);
+  t.ok('profile page shows reasons without a percentage, the stage evidence line, verified experience and skills to learn',
     why.includes('Why you might connect') && !why.includes('%') && sheet.includes('Available from 1 Nov') && sheet.includes('Exploring an idea · ') && !/cohort/i.test(sheet) && sheet.includes('Verified experience') && sheet.includes('Currently learning'), sheet.slice(0, 400));
-  await page.keyboard.press('Escape');
-  t.ok('Escape closes the sheet', await page.$eval('#sheet', e => e.classList.contains('hidden')));
+  await page.evaluate(() => [...document.querySelectorAll('#person-page button')].find(b => b.textContent === 'Back to Connect').click()); await sleep(200);
+  t.ok('Back returns to Connect', await page.evaluate(() => currentTab === 'matching' && !$('person-page').innerHTML));
 
   await page.evaluate(() => messagePerson('aisha')); await sleep(300);
   t.ok('Message opens a new direct message', (await page.evaluate(() => openChatId)) === 'd-aisha' && await visible(page, 'tab-chat'));

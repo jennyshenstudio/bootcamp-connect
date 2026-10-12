@@ -215,14 +215,14 @@ function ignoreInvite(id) {
 function refreshPersonViews(id) {
   const hadFocus = document.activeElement && document.activeElement.closest && document.activeElement.closest('#people-view');
   renderPeople();
-  if (!$('sheet').classList.contains('hidden') && $('sheet').dataset.person === id) openPerson(id, { keepFocus: true });
+  if (currentTab === 'person' && $('person-page').dataset.person === id) refreshProfilePages();
   if (!hadFocus) return;
   const card = document.querySelector('#people-view [data-invite="' + id + '"], #people-grid [data-person="' + id + '"], #people-suggested [data-person="' + id + '"]');
   const target = card ? card.querySelector('.mt-auto button:last-child, .justify-end button:last-child') : ($('people-invites-title') || $('people-suggested-title'));
   if (target) { if (!target.matches('button')) target.setAttribute('tabindex', '-1'); target.focus(); }
 }
 
-// ----- Profile viewer (sheet) -----
+// ----- Sheets -----
 let sheetOnClose = null;   // optional cleanup when a sheet closes (e.g. discard an unposted draft)
 
 function openSheet(html, key, { wide = false } = {}) {
@@ -242,6 +242,7 @@ function closeSheet() {
   document.body.classList.remove('overflow-hidden');
   if (sheetReturnFocus && document.contains(sheetReturnFocus)) sheetReturnFocus.focus();
   sheetReturnFocus = null;
+  if (profileRefreshPending) refreshProfilePages();   // changes made in the sheet show on the page underneath (spec 15)
 }
 
 function sheetClose() {
@@ -259,71 +260,6 @@ function profileView(id) {
   };
 }
 
-// The profile sheet, in the order of spec 11
-function openPerson(id, { keepFocus = false } = {}) {
-  const p = profileView(id);
-  const mine = id === 'me';
-  const m = mine ? null : suggestionFor(id);
-  const work = workFor(p);
-  const groups = mine ? [] : DEMO_CHATS.filter(c => c.type === 'group' && c.members.includes(id));
-  const dates = e => [fmtMonth(e.start), e.current ? 'Present' : fmtMonth(e.end)].filter(Boolean).join(' – ');
-  const section = (title, body) => '<section class="space-y-2"><h3 class="font-semibold text-body">' + title + '</h3>' + body + '</section>';
-  const link = (label, url) => url ? '<li><a href="' + esc(hrefOf(url)) + '" target="_blank" rel="noopener" class="text-subhead font-semibold text-blueText hover:underline">' + label + '<span class="sr-only"> (opens in new tab)</span></a></li>' : '';
-  const links = link('LinkedIn', p.linkedin) + link(p.track === 'Business Developer' ? 'Portfolio' : 'GitHub', p.code) + link('Website', p.website);
-  const available = p.available ? new Date(p.available + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
-  const html =
-    '<div class="relative">' +
-      '<div class="h-24 sm:h-28 rounded-t-[inherit]" style="background:linear-gradient(135deg,' + p.colors[0] + ',' + p.colors[1] + ')"></div>' +
-      '<div class="sm:hidden absolute top-2 left-1/2 -translate-x-1/2 w-9 h-[5px] rounded-full bg-white/70"></div>' +
-      sheetClose() +
-    '</div>' +
-    '<div class="relative px-5 sm:px-7 pb-7 -mt-12 space-y-5">' +
-      '<div class="space-y-3">' +
-        (mine ? myAvatar('w-24 h-24 text-title1 ring-4 ring-[var(--surface)]') : personAvatar(p, 'w-24 h-24 text-title1 ring-4 ring-[var(--surface)]')) +
-        '<div>' +
-          '<h2 id="sheet-title" class="text-title2 font-bold tracking-[-0.01em]">' + esc(fullName(p).trim() || 'Your name') + '</h2>' +
-          '<p class="text-subhead text-label-2">' + esc(p.headline) + '</p>' +
-          (p.currently ? '<p class="text-subhead mt-1"><span class="font-semibold">Currently working on:</span> ' + esc(p.currently) + '</p>' : '') +
-        '</div>' +
-        '<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">' + trackBadge(p.track) +
-          (p.location ? '<span class="text-footnote text-label-2 inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-pin"/></svg>' + esc([p.location, p.setting].filter(Boolean).join(' · ')) + '</span>' : '') +
-          (available ? '<span class="text-footnote text-label-2">Available from ' + esc(available) + '</span>' : '') +
-        '</div>' +
-        '<p class="text-footnote text-label-2">' + esc(stageEvidence(p)) + '</p>' +
-        '<div class="flex flex-wrap gap-2">' + (mine ? '<button type="button" class="btn btn-secondary btn-sm" data-on-click="editMyProfile()">Edit your profile</button>' : connectButton(p, '')) + '</div>' +
-      '</div>' +
-      (m && m.reasons.length ? '<div class="entry !bg-appleGreen/10 space-y-1.5">' +
-        '<p class="font-semibold text-subhead">Why you might connect</p>' +
-        '<ul class="space-y-1">' + m.reasons.slice(0, 3).map(r => '<li class="flex items-start gap-2 text-footnote text-label-2"><svg class="icon w-4 h-4 text-greenText mt-px shrink-0"><use href="#i-check"/></svg>' + esc(r) + '</li>').join('') + '</ul>' +
-      '</div>' : '') +
-      workSectionHtml(p, work) +
-      (p.about ? section('About', '<p class="text-subhead text-label-2">' + esc(p.about) + '</p>') : '') +
-      ((p.skills || []).length || (p.learn || []).length ? skillsSectionHtml(p, work) : '') +
-      ((p.experience || []).length ? section('Experience', '<ul class="space-y-3">' + p.experience.map(e =>
-        '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(e.title) + '</p><p class="text-footnote text-label-2">' + esc([e.company, dates(e)].filter(Boolean).join(' · ')) + '</p>' +
-        (e.desc ? '<p class="text-footnote text-label-2 mt-1">' + esc(e.desc) + '</p>' : '') + '</li>').join('') + '</ul>') : '') +
-      ((p.education || []).length ? section('Education', '<ul class="space-y-2">' + p.education.map(e =>
-        '<li class="entry !p-3.5"><p class="font-semibold text-subhead">' + esc(e.school) + '</p><p class="text-footnote text-label-2">' + esc([e.course, [e.start, e.end].filter(Boolean).join(' – ')].filter(Boolean).join(' · ')) + '</p></li>').join('') + '</ul>') : '') +
-      (p.verified.length ? section('Verified experience', '<ul class="space-y-3">' + p.verified.map(v => verifiedEntryHtml({ ...v, start: '', with: v.with }, wid => wid === 'me' ? memberName('me') : person(wid).first)).join('') + '</ul>') : '') +
-      section('Available for',
-        ((p.goals || []).length ? '<div class="flex flex-wrap gap-1.5">' + p.goals.map(g => '<span class="px-2.5 py-1 rounded-full bg-appleBlue/10 text-blueText text-footnote font-semibold">' + esc(g) + '</span>').join('') + '</div>' : '') +
-        '<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-footnote">' +
-          (p.openTo && p.openTo.length ? '<dt class="text-label-2">Open to</dt><dd>' + esc(p.openTo.map(k => PAY_TYPES[k].label).join(', ')) + '</dd>' : '') +
-          (p.hours ? '<dt class="text-label-2">Hours per week</dt><dd>' + esc(p.hours) + '</dd>' : '') +
-          (p.idea ? '<dt class="text-label-2">Idea status</dt><dd>' + esc(p.idea) + '</dd>' : '') +
-          ((p.industries || []).length ? '<dt class="text-label-2">Industries</dt><dd>' + esc(p.industries.join(', ')) + '</dd>' : '') +
-        '</dl>') +
-      (links ? section('Links', '<ul class="space-y-1">' + links + '</ul>') : '') +
-      (groups.length ? section('Group chats together', '<div class="flex flex-wrap gap-2">' + groups.map(g =>
-        '<button type="button" class="chip !text-footnote gap-1.5" data-on-click="openChatFromSheet(\'' + g.id + '\')"><svg class="icon w-4 h-4"><use href="#i-users"/></svg>' + esc(g.name) + '</button>').join('') + '</div>') : '') +
-      '<p class="text-footnote text-label-2 pt-2 border-t border-hairline">Members can use AI to help write their profiles.</p>' +
-    '</div>';
-  openSheet(html, id);
-  if (!keepFocus) $('sheet-close').focus();
-}
-
-function editMyProfile() { closeSheet(); switchTab('profile'); }
-function openChatFromSheet(chatId) { closeSheet(); goToChat(chatId); }
 
 function openMembers(chatId) {
   const chat = allChats().find(c => c.id === chatId);

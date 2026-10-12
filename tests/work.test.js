@@ -6,30 +6,30 @@ module.exports = async (browser, t) => {
   await signUp(page);
   await page.evaluate(() => switchTab('profile')); await sleep(200);
 
-  // Sample profiles: sections in the order of spec 11
+  // Sample profiles: a page with sections in the order of spec 15
   await page.evaluate(() => openPerson('marcus')); await sleep(200);
-  const headings = await page.$$eval('#sheet-panel section > h3', x => x.map(e => e.textContent));
-  const order = ['Work to show', 'About', 'Skills', 'Experience', 'Education', 'Verified experience', 'Available for'];
-  t.ok('profile sections follow the spec 11 order', order.every((h, i) => headings.indexOf(h) === headings.indexOf(order[0]) + i), headings.join(' | '));
-  const marcus = await page.$eval('#sheet-panel', e => e.innerText);
+  const headings = await page.$$eval('#person-page article > .grid > div:first-child h2', x => x.map(e => e.textContent));
+  const order = ['Pinned', 'About', 'Work to show', 'Posts', 'Skills', 'Experience', 'Education', 'Verified experience'];
+  t.ok('profile sections follow the spec 15 order', headings.join() === order.filter(h => headings.includes(h)).join() && ['Pinned', 'Work to show', 'Posts', 'Skills', 'Experience'].every(h => headings.includes(h)), headings.join(' | '));
+  const marcus = await page.$eval('#person-page', e => e.innerText);
   t.ok('the top of the profile shows currently working on and stage, and no cohort', marcus.includes('Currently working on:') && marcus.includes('Learning (in bootcamp) · ') && !/cohort/i.test(marcus));
   t.ok('a piece of work shows its facts line and teammate confirmation', marcus.includes('Contributed · team of 4 to 6 · 1 to 3 months · Live') && marcus.includes('Confirmed by Sarah Jenkins'));
   t.ok('every profile says members can use AI to help write it', marcus.includes('Members can use AI to help write their profiles.'));
   t.ok('no AI badge on profiles or work', !/AI badge|Written with AI|AI-written/i.test(marcus));
 
   // Skills: confirmed, proven or listed, in words
-  const groups = await page.$$eval('#sheet-panel section p.text-footnote.font-semibold', x => x.map(e => e.textContent));
+  const groups = await page.$$eval('#person-page section p.text-footnote.font-semibold', x => x.map(e => e.textContent));
   t.ok('skills are grouped as confirmed, proven and listed, in words', groups.some(g => g.startsWith('Confirmed')) && groups.some(g => g.startsWith('Listed')), groups.join(' | '));
   const listed = await page.evaluate(() => { const { groups } = skillGroups(person('marcus'), workFor(person('marcus'))); return groups; });
   t.ok('a skill used in confirmed work is confirmed; one not in any work is listed', listed.confirmed.includes('TypeScript') && listed.listed.includes('Docker'), JSON.stringify(listed));
-  await page.evaluate(() => document.querySelector('#sheet-panel [data-skill="TypeScript"]').click()); await sleep(100);
+  await page.evaluate(() => document.querySelector('#person-page [data-skill="TypeScript"]').click()); await sleep(100);
   t.ok('selecting a skill shows the work behind it', (await page.$eval('#skill-work', e => e.innerText)).includes('Work using TypeScript') && (await page.$eval('#skill-work', e => e.innerText)).includes('Convoy Planner'));
 
   // Viewer order (D023): a developer sees code links straight away
-  const devView = await page.$eval('#sheet-panel [data-piece="0"]', e => ({ code: !!e.querySelector('a[href*="github.com"]') && !e.querySelector('details a[href*="github.com"]'), built: e.innerText.includes('Built with:') }));
+  const devView = await page.$eval('#person-page [data-piece="0"]', e => ({ code: !!e.querySelector('a[href*="github.com"]') && !e.querySelector('details a[href*="github.com"]'), built: e.innerText.includes('Built with:') }));
   t.ok('a Software Developer viewer sees the code link and Built with beside each piece', devView.code && devView.built);
   await page.evaluate(() => { const a = currentAccount(); a.track = 'Business Developer'; saveAccount(a); openPerson('marcus'); }); await sleep(200);
-  const bizView = await page.$eval('#sheet-panel [data-piece="0"]', e => {
+  const bizView = await page.$eval('#person-page [data-piece="0"]', e => {
     const d = e.querySelector('details');
     return { closed: d && !d.open, inside: !!(d && d.querySelector('a[href*="github.com"]')) && d.innerText.includes('Technical details'), liveFirst: e.querySelector('a').textContent.startsWith('See it live') };
   });
@@ -38,19 +38,20 @@ module.exports = async (browser, t) => {
 
   // Read more: the full case study, and back
   await page.evaluate(() => openPerson('marcus')); await sleep(200);
-  await page.evaluate(() => document.querySelector('#sheet-panel [data-piece="0"] button[aria-label^="Read more"]').click()); await sleep(200);
+  await page.evaluate(() => document.querySelector('#person-page [data-piece="0"] button[aria-label^="Read more"]').click()); await sleep(200);
   const study = await page.$eval('#sheet-panel', e => e.innerText);
   t.ok('Read more shows the full case study', study.includes('What was the problem?') && study.includes('What did they do?') && study.includes('What happened?') && study.includes('Skills used'));
   await page.evaluate(() => [...document.querySelectorAll('#sheet-panel button')].find(b => b.textContent.startsWith('Back to')).click()); await sleep(200);
-  t.ok('Back returns to the profile', (await page.$eval('#sheet-title', e => e.textContent)) === 'Marcus Johnson');
+  t.ok('Back returns to the profile', await page.$eval('#sheet', e => e.classList.contains('hidden')) && (await page.$eval('#profile-name', e => e.textContent)) === 'Marcus Johnson');
   await page.keyboard.press('Escape'); await sleep(100);
 
   // Work tagged by someone else shows on the teammate's profile
   await page.evaluate(() => openPerson('elena')); await sleep(200);
-  t.ok('confirmed work by a teammate appears on their profile too', (await page.$eval('#sheet-panel', e => e.innerText)).includes('Added by Sarah Jenkins, and confirmed'));
+  t.ok('confirmed work by a teammate appears on their profile too', (await page.$eval('#person-page', e => e.innerText)).includes('Added by Sarah Jenkins, and confirmed'));
   await page.keyboard.press('Escape'); await sleep(100);
 
   // The editor: new fields, guided questions, facts, skills, teammates
+  await page.evaluate(() => editMyProfile()); await sleep(200);
   t.ok('the editing page says members can use AI to help write profiles', (await page.$eval('#profile-form', e => e.innerText)).includes('Members can use AI to help write their profiles.'));
   t.ok('Claude buttons are hidden when Claude isn\'t available', !(await page.$$eval('[data-work] [data-ai-only]', x => x.some(e => !e.classList.contains('hidden')))));
   await page.type('#pf-headline', 'Full-stack developer · ex-teacher');
@@ -112,11 +113,11 @@ module.exports = async (browser, t) => {
   t.ok('the teammate confirms after a moment', await page.evaluate(() => profileOf(currentAccount()).work[0].teammates[0].confirmed === true) &&
     (await page.$eval('[data-work] [data-mates]', e => e.innerText)).includes('Confirmed'));
   await page.evaluate(() => openPerson('tom')); await sleep(200);
-  t.ok('your confirmed work shows on your teammate\'s profile', (await page.$eval('#sheet-panel', e => e.innerText)).includes('Added by Maya Okafor, and confirmed'));
+  t.ok('your confirmed work shows on your teammate\'s profile', (await page.$eval('#person-page', e => e.innerText)).includes('Added by Maya Okafor, and confirmed'));
   await page.keyboard.press('Escape');
 
   await page.evaluate(() => openPerson('me')); await sleep(200);
-  const me = await page.$eval('#sheet-panel', e => e.innerText);
+  const me = await page.$eval('#profile-page', e => e.innerText);
   t.ok('your full profile shows the new fields and the piece of work', me.includes('Currently working on: Building a budgeting app') && !/cohort/i.test(me) && me.includes('University of Ashworth') && me.includes('SplitHouse') && me.includes('Confirmed by Tom Nguyen'));
   t.ok('skills used in your work show as proven or confirmed', await page.evaluate(() => { const p = profileView('me'); return skillGroups(p, workFor(p)).groups.confirmed.includes('React'); }));
   await page.keyboard.press('Escape');
@@ -137,14 +138,15 @@ module.exports = async (browser, t) => {
   t.ok('links written in capitals still work', await page.evaluate(() => hrefOf('HTTPS://example.com/app') === 'https://example.com/app'));
 
   // Up to 6 pieces; the first 3 show, the rest behind Show all work
+  await page.evaluate(() => editMyProfile()); await sleep(200);
   for (let i = 0; i < 5; i++) await page.evaluate(n => addWork({ ...emptyWork(), title: 'Piece ' + n, result: 'Result ' + n }), i);
   t.ok('up to 6 pieces: the Add button is disabled at 6', (await page.$eval('#work-count', e => e.textContent)) === '6/6' && await page.$eval('#work-add', b => b.disabled));
   await page.evaluate(() => addWork({ ...emptyWork(), title: 'Seventh' })); await sleep(100);
   t.ok('a seventh piece is refused with a message', (await page.$$eval('[data-work]', x => x.length)) === 6 && (await page.$eval('#toast', e => e.textContent)).includes('up to 6'));
-  await page.evaluate(() => openPerson('me')); await sleep(200);
-  const shown = await page.$$eval('#sheet-panel section:first-of-type > .space-y-3 > article', x => x.length);
-  t.ok('the first 3 show on the profile, and Show all work has the rest', shown === 3 && (await page.$eval('#sheet-panel', e => e.innerText)).includes('Show all work (6)'));
-  await page.keyboard.press('Escape');
+  await page.click('#profile-form button[type=submit]'); await sleep(300);
+  const shown = await page.$$eval('#profile-page [data-piece]', x => x.filter(e => !e.closest('details')).length);
+  t.ok('the first 3 show on the profile, and Show all work has the rest', shown === 3 && (await page.$eval('#profile-page', e => e.innerText)).includes('Show all work (6)'));
+  await page.evaluate(() => editMyProfile()); await sleep(200);
   await page.evaluate(() => { const els = document.querySelectorAll('[data-work]'); [...els].slice(1).forEach(el => el.remove()); updateWorkCount(); });
 
   await page.setViewport({ width: 320, height: 640 }); await sleep(200);

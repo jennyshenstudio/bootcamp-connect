@@ -11,6 +11,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 ## Unreleased
 
 ### Added
+- **Profile page** (spec 15, D050): selecting a member opens their profile as a page, like LinkedIn, instead of a pop-up. A top card with their photo, headline, track, stage, location and connections; then Pinned, About, Work to show, Posts, Skills, Experience, Education and Verified experience; and beside it Why you might connect, the CV, Available for, Links and Group chats together. Back returns to where you were.
+- **Your page:** the Profile tab shows your own page, with Edit profile opening the form. Save profile or Cancel returns to your page. A new member still starts on the form.
+- **Pin** up to 3 pieces of work or posts to the top of your page.
+- **View CV:** a CV made from the profile, with Print or save as PDF. No email address or phone number.
+- **Saved:** resources and opportunities you've saved, on your own page, only for you.
+- **Spec 15** and decision D050.
 - **Delete your posts** (D047): your own posts have a "…" menu with Edit and Delete. Delete asks first and says it can't be undone; for an opportunity with applicants it says their applications will be removed. Opportunities can only be deleted while open.
 - **Edit your posts** (D045): your own posts have Edit (now in the "…" menu), on the card, in the details and on your opportunity's page. It opens the post form filled in; the type can't change. Saving keeps the post's place, likes, comments and applicants, and it says "Edited" next to its time. Closing without saving changes nothing.
 - **Your activity** (spec 14, D042): the column beside the Feed is now a summary of where you stand: New for you (opportunities for your pathway), Current (your opportunities: applicants to review, in progress with its end date, applied and waiting), People to get back to (invitations and unread conversations), To do (profile steps, projects to mark complete, applying to a first opportunity) and Drafts. Empty sections are hidden, and To do comes first until your profile has a headline. On phones, a Your activity bar above the Feed says how many things need you and opens the summary.

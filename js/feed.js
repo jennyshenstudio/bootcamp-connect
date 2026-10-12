@@ -60,6 +60,7 @@ function renderFeed() {
   hydrateAttachments(list);
   checkMore(list);
   $('composer-avatar').outerHTML = myAvatar('w-10 h-10 text-subhead" id="composer-avatar');
+  refreshProfilePages();   // a profile page shows posts, pins and saves too (spec 15)
 }
 
 function setFeedFilter(f) { feedFilter = f; renderFeed(); }
@@ -77,10 +78,15 @@ function refreshPost(id) {
   document.querySelectorAll('[data-post="' + id + '"]').forEach(el => { hydrateAttachments(el); checkMore(el.parentElement); });
 }
 
+// A post's type in words, with its icon and colour. Also on profile pages (spec 15)
+function typeChip(post, pad = 'py-0.5') {
+  const t = POST_TYPES[post.type];
+  return '<span class="inline-flex items-center gap-1 text-footnote font-semibold px-2.5 ' + pad + ' rounded-full ' + t.cls + '"><svg class="icon w-3.5 h-3.5"><use href="#' + t.icon + '"/></svg>' + t.label + '</span>';
+}
+
 function authorBlock(post) {
   const a = post.author;
-  const open = a === 'me' ? 'switchTab(\'profile\')' : 'openPerson(\'' + a + '\')';
-  const t = POST_TYPES[post.type];
+  const open = 'openPerson(\'' + a + '\')';
   return '<div class="flex items-start justify-between gap-3">' +
     '<div class="flex items-center gap-3 min-w-0">' +
       '<button type="button" class="tap rounded-full shrink-0" data-on-click="' + open + '" aria-label="View ' + esc(memberName(a, true)) + '\'s profile">' + memberAvatar(a, 'w-10 h-10 text-subhead') + '</button>' +
@@ -89,7 +95,7 @@ function authorBlock(post) {
     '</div>' +
     // Your own posts have their "…" menu in the top-right corner, after the type (D048)
     '<div class="shrink-0 flex items-center gap-2">' +
-      '<span class="inline-flex items-center gap-1 text-footnote font-semibold px-2.5 py-1 rounded-full ' + t.cls + '"><svg class="icon w-3.5 h-3.5"><use href="#' + t.icon + '"/></svg>' + t.label + '</span>' +
+      typeChip(post, 'py-1') +
       postMenu(post) +
     '</div>' +
   '</div>';
@@ -198,13 +204,15 @@ function deletePost(id) {
     return showToast("Couldn't delete the post. This browser's storage is full.");
   }
   (post.attachments || []).filter(a => a.kind !== 'link').forEach(a => idbDelete(a.id));
+  const unpinned = unpinDeletedPost(id);
   openComments.delete(id);
   closeSheet();
   renderFeed();
   renderFeedSidebar();
-  // The post's card is gone, so keyboard focus goes to the post box
-  document.querySelector('#tab-feed .card button')?.focus();
-  showToast('Post deleted');
+  // The post's card is gone, so keyboard focus goes to the post box, or on a profile page to its Posts heading
+  if (currentTab === 'feed') document.querySelector('#tab-feed .card button')?.focus();
+  else ($('posts-title') || $('profile-name'))?.focus();
+  showToast(unpinned ? 'Post deleted' : "Post deleted, but it couldn't be unpinned because this browser's storage is full.");
 }
 
 // A post's details: all its text, attachments and comments. Opportunities have their own page (D044)
@@ -273,8 +281,8 @@ function commentsBlock(post, comments, full = false) {
   '</div>';
 }
 
-function toggleLike(id) { const ps = postState(id); ps.liked = !ps.liked; saveDemo(); refreshPost(id); }
-function toggleSave(id) { const ps = postState(id); ps.saved = !ps.saved; saveDemo(); refreshPost(id); showToast(ps.saved ? 'Saved' : 'Removed from saved'); }
+function toggleLike(id) { const ps = postState(id); ps.liked = !ps.liked; saveDemo(); refreshPost(id); refreshProfilePages(); }
+function toggleSave(id) { const ps = postState(id); ps.saved = !ps.saved; saveDemo(); refreshPost(id); refreshProfilePages(); showToast(ps.saved ? 'Saved' : 'Removed from saved'); }
 function markSolved(id) { postState(id).solved = true; saveDemo(); refreshPost(id); showToast('Marked as solved'); }
 function toggleComments(id) {
   openComments.has(id) ? openComments.delete(id) : openComments.add(id);
@@ -545,7 +553,7 @@ function onPayTypeChange(input) { $('cp-amount-wrap').classList.toggle('hidden',
 function onWorkplaceChange(input) { $('cp-town-wrap').classList.toggle('hidden', input.value === 'Remote'); }
 
 // Open Profile and scroll to one of its sections once the tab has rendered
-function openProfileSection(section) { switchTab('profile'); setTimeout(() => goToSection(section), 50); }
+function openProfileSection(section) { profileMode = 'edit'; switchTab('profile'); setTimeout(() => goToSection(section), 50); }
 
 async function addComposerFiles(files) {
   attError('');

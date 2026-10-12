@@ -347,3 +347,14 @@ h1, h2, h3 { text-wrap: balance; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* Printing a CV (specs/15-profile-page.md): printCv() adds .printing-cv, so only the CV prints, on white, with no buttons.
+   Any other print is left as the browser does it. */
+@media print {
+  body.printing-cv::before, .printing-cv #app-dashboard, .printing-cv #auth-screen, .printing-cv #toast,
+  .printing-cv #sheet > div:first-child, .printing-cv #sheet-close, .printing-cv .cv-actions { display: none !important; }
+  body.printing-cv { background: #fff !important; color: #000 !important; }
+  .printing-cv #sheet { position: static !important; display: block !important; padding: 0 !important; }
+  .printing-cv #sheet-panel { max-height: none !important; overflow: visible !important; box-shadow: none !important; border: 0 !important; background: #fff !important; max-width: none !important; }
+  .printing-cv #sheet-panel * { color: #000 !important; }
+}

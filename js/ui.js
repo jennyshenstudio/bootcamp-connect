@@ -2,8 +2,11 @@
 // Plain script (shared globals); load order is set in index.html.
 
 // ---------- App ----------
+// 'person' is someone else's profile page (spec 15): not a tab of its own, so no tab button lights up
+let currentTab = 'feed';
 function switchTab(tabName) {
-  ['feed', 'matching', 'chat', 'profile'].forEach(tab => {
+  currentTab = tabName;
+  ['feed', 'matching', 'chat', 'profile', 'person'].forEach(tab => {
     document.getElementById('tab-' + tab).classList.toggle('hidden', tab !== tabName);
   });
   document.querySelectorAll('[data-tab]').forEach(btn => {
@@ -16,6 +19,9 @@ function switchTab(tabName) {
   if (tabName === 'chat') { window.scrollTo(0, 0); fitChatShell(); ensureChatSelection(); }
   if (tabName === 'matching') renderMatchmaker();
   if (tabName === 'feed') { renderFeed(); renderFeedSidebar(); }
+  // Only the page on screen is drawn, so the two profile pages never repeat each other's ids
+  if (tabName === 'person') renderPersonPage(); else $('person-page').innerHTML = '';
+  if (tabName === 'profile') renderProfileTab(); else $('profile-page').innerHTML = '';
 }
 
 function upvotePost(btn) {

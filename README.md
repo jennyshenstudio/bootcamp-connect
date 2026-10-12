@@ -21,7 +21,7 @@ A community and matching hub where bootcamp Software Developer and Business Deve
 | `docs/deployment.md` | Building, deploying, and installing the app. |
 | `tests/` | Browser tests (`npm install`, then `npm test`). Needs Google Chrome. |
 | `test-data/` | Sample CV for a made-up member (Maya Okafor) as PDF, Word, and HTML, for testing the profile import. |
-| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. `05-feed.md`, `06-matching.md`, `07-project-loop.md`: experience-first platform. `08-installable-app.md`: web and phone app. `12-opportunities.md`: opportunities in the Feed. `13-updates.md`: updates in the Feed. `14-activity-and-drafts.md`: Your activity and drafts. |
+| `specs/` | Feature specs. `01-auth.md`: sign-up, log in, and track selection. `02-profile.md`: one-page profile setup. `03-profile-import.md`: import from CV or LinkedIn. `04-connections-messages.md`: demo community. `05-feed.md`, `06-matching.md`, `07-project-loop.md`: experience-first platform. `08-installable-app.md`: web and phone app. `12-opportunities.md`: opportunities in the Feed. `13-updates.md`: updates in the Feed. `14-activity-and-drafts.md`: Your activity and drafts. `15-profile-page.md`: the profile page. |
 
 ## Prototype features
 
@@ -39,6 +39,7 @@ Bootcamp Connect is **experience first**: members join real opportunities (paid 
 - One-page profile setup: photo, headline, track, location, About, links, work experience, skills, projects, and what you're looking for, with a live preview card and profile strength meter
 - Import from a CV or LinkedIn profile PDF (PDF, .docx, or text): extracts experience, skills, projects, and more, with a review step before anything is added. Uses Claude on the published claude.ai page, or a built-in reader when opened as a local file
 - New sign-ups land on profile setup; returning members land on the Project Feed
+- Profile pages, like LinkedIn: pinned work and posts, posts, a CV made from the profile, and Saved on your own page
 - Demo community: 8 sample members with full profiles, a Connect tab for finding people with connection requests and profile view, 3 group chats and direct messages with unread badges, typing indicators, and replies (written by Claude on the published page)
 - Project feed with upvotes
 - Installable on phones and computers (Add to Home Screen) and works offline once opened, when published from `dist/`

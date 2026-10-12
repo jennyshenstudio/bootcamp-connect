@@ -57,6 +57,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D047 | Delete your own posts, after confirming; Edit and Delete in a "…" menu; opportunities only while open | Accepted (built); menu position superseded by D048 | Feed, posts |
 | D048 | The "…" menu sits in the card's top-right corner; no description or hint lines on the Feed | Accepted (built) | Feed |
 | D049 | No cohort: no Cohort or Alumni filter, no cohort on profiles or cards, and no cohort reason in suggestions | Accepted (built) | Connect, profile, matching, demo content |
+| D050 | The profile is a page (LinkedIn style): pinned work and posts, posts, a CV made from the profile, Saved on your own page; the Profile tab shows your page with Edit profile | Accepted (built) | Profile, Feed, Connect |
 
 ## Entries
 
@@ -453,3 +454,17 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Risks:** members can no longer find people from their own intake directly; mutual connections and shared companies and schools partly cover that. Less personal data to hold on the live site.
 - **Reviewed:** 2026-10-12, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review.
 - **Affects:** Connect, profile, matching, demo content. Changes parts of D038 and D039.
+
+### D050 The profile is a page
+- **Date:** 2026-10-12 · **Status:** Accepted (built), the owner's choices · **Spec:** `specs/15-profile-page.md`
+- **Context:** the owner wanted a LinkedIn-style page for each member, with their info, pinned projects, a CV and their posts. The profile opened in a pop-up sheet with none of those. Researched 10 desktop profiles on Lazyweb (LinkedIn, Peerlist, Contra, GitHub, Remote, Wellfound, X and others) and drew 3 layouts on a design canvas (https://claude.ai/artifact/3ZzMxMRMojuVidngSduYf3).
+- **Decision:**
+  - Layout A: one long page with a top card, a main column (Pinned, About, Work to show, Posts, Skills, Experience, Education, Verified experience) and a side column (Why you might connect, Saved, CV, Available for, Links, Group chats together). It replaces the profile sheet.
+  - The Profile tab shows your own page with Edit profile, which opens the existing form. Save or Cancel returns to the page. While you're editing, the tab stays on the form, so your page only shows what's saved. A new member starts on the form.
+  - Pin up to 3 pieces of work or posts. Pins save straight away.
+  - The CV is made from the profile, with no email address or phone number, and printed or saved as PDF from the browser. Members don't upload a CV for others to download. Uploading a CV to fill in the profile stays.
+  - Saved resources and opportunities show on your own page, only to you. This fills the gap the owner noted: Save had nowhere to see your saves.
+- **Options considered:** B, header and tabs (Overview, Work, Posts, CV), which was recommended because it shows the most before scrolling; C, a side column and tabs. The owner chose A. CV options: an uploaded file (more personal data) or both. Pins: work only. Saved: a Feed filter, or later.
+- **Risks:** the page is long on phones. Printing may be blocked inside the claude.ai preview. Pins and saved posts are personal data for the live site's privacy notice. Your work is pinned by its lasting id, so renaming keeps the pin; sample members' pins use titles.
+- **Reviewed:** 2026-10-12, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review.
+- **Affects:** Profile, Feed, Connect. Changes how spec 11's profile is shown.

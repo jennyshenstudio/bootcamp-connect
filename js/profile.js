@@ -70,6 +70,7 @@ function toResume(d, account) {
     bootcampConnect: {
       stage: d.stage || '', currently: d.currently || '', setting: d.setting || '', learn: d.learn || [],
       openTo: d.openTo || [], goals: d.goals || [], hours: d.hours || '', idea: d.idea || '', available: d.available || '',
+      pinned: d.pinned || [],
     },
   };
 }
@@ -94,6 +95,7 @@ function profileOf(account) {
     skills: (p.skills || []).map(s => britishSkill(s.name)), industries: (p.interests || []).map(i => i.name),
     stage: x.stage || '', currently: x.currently || '', setting: x.setting || '', learn: (x.learn || []).map(britishSkill),
     openTo: x.openTo || [], goals: x.goals || [], hours: x.hours || '', idea: x.idea || '', available: x.available || '',
+    pinned: x.pinned || [],
   };
 }
 
@@ -311,6 +313,7 @@ function collectProfile() {
     industries: getChecked('pf-industries'),
     available: $('pf-available').value,
     photo: photoData,
+    pinned: myPins(),   // pinned from the profile page (spec 15), not in the form
   };
 }
 
@@ -452,6 +455,10 @@ function saveProfile(e) {
   renderUser(account);
   renderPeople();
   $('profile-banner').classList.add('hidden');
-  showToast('Profile saved');
   scheduleTeammateConfirmations(profile.work);
+  // Back to your page (spec 15)
+  profileMode = 'page';
+  switchTab('profile');
+  focusPageTitle();
+  showToast('Profile saved');
 }

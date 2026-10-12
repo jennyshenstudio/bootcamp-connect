@@ -311,8 +311,10 @@
         </div>
       </section>
 
-      <!-- TAB 4: PROFILE SETUP (specs/02-profile.md) -->
-      <section id="tab-profile" class="space-y-5 hidden">
+      <!-- TAB 4: PROFILE: your page (specs/15-profile-page.md), or the form after Edit profile (specs/02-profile.md, 11) -->
+      <section id="tab-profile" class="hidden">
+        <div id="profile-page" class="hidden"></div>
+        <div id="profile-edit" class="space-y-5">
 
         <!-- Onboarding banner (new sign-ups) -->
         <div id="profile-banner" class="hidden card !bg-appleBlue/10 px-5 py-4 flex items-start gap-3">
@@ -323,9 +325,12 @@
           </div>
         </div>
 
-        <div>
-          <h2 class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em]">Your Profile</h2>
-          <p class="text-subhead text-label-2">This is what other members see in the Feed and in Connect.</p>
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 id="profile-edit-title" tabindex="-1" class="text-title1 sm:text-largetitle font-bold tracking-[-0.02em] focus:outline-none">Edit your profile</h2>
+            <p class="text-subhead text-label-2">This is what other members see on your profile page, in the Feed and in Connect.</p>
+          </div>
+          <button type="button" id="profile-cancel" class="btn btn-gray btn-sm" data-on-click="cancelEditProfile()">Cancel</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
@@ -624,7 +629,6 @@
               <div id="pv-skills" class="flex flex-wrap gap-1"></div>
               <p id="pv-looking" class="text-footnote text-label-2"></p>
               <p id="pv-verified" class="text-footnote text-greenText font-semibold inline-flex items-center gap-1"></p>
-              <button type="button" class="btn btn-secondary btn-sm w-full" data-on-click="openPerson('me')">See your full profile</button>
             </div>
 
             <div class="card p-5 space-y-3">
@@ -640,6 +644,12 @@
             </div>
           </aside>
         </div>
+        </div>
+      </section>
+
+      <!-- Someone else's profile page (specs/15-profile-page.md) -->
+      <section id="tab-person" class="hidden">
+        <div id="person-page"></div>
       </section>
 
     </main>
@@ -684,6 +694,7 @@
   <script src="js/chat.js"></script>
   <script src="js/projects.js"></script>
   <script src="js/feed.js"></script>
+  <script src="js/profile-page.js"></script>
   <script src="js/app.js"></script>
   <script src="js/pwa.js"></script>
 </body>

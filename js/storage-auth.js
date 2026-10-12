@@ -179,6 +179,8 @@ function enterDashboard(account, { animate = true, isNew = false } = {}) {
   loadProfileForm(account);
   initDemo();
   document.getElementById('profile-banner').classList.toggle('hidden', !isNew);
+  // A new member starts on the form; everyone else's Profile tab shows their page (spec 15)
+  profileMode = isNew ? 'edit' : 'page';
   switchTab(isNew ? 'profile' : 'feed');
 
   const auth = document.getElementById('auth-screen');
