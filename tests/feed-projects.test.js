@@ -237,6 +237,35 @@ module.exports = async (browser, t) => {
   t.ok('accepted: on the team with a project chat', acc.team.includes('me') && !!acc.chat && acc.chat.messages[0].from === 'system');
   t.ok('card offers Project chat and Mark complete', await page.$eval('[data-post="p-tableturn"]', e => e.innerText.includes('Project chat') && e.innerText.includes('Mark complete')));
 
+  // ---------- D047: the "…" menu and deleting your own posts ----------
+  await page.evaluate(() => { setFeedFilter('all'); openComposer('support'); }); await sleep(200);
+  await page.type('#cp-title', 'Which payment provider for deposits?');
+  await page.click('#cp-submit'); await sleep(400);
+  const delId = await page.evaluate(() => demo.posts[0].id);
+  const menuBtn = '[data-post="' + delId + '"] [data-post-menu] > button';
+  t.ok('your own posts have a "…" button, closed, and other posts don\'t', (await page.$eval(menuBtn, b => b.getAttribute('aria-expanded') + '|' + b.getAttribute('aria-label'))) === 'false|More options for this post' && !(await page.$('[data-post="p-tableturn"] [data-post-menu]')));
+  await page.click(menuBtn); await sleep(100);
+  const menu = await page.$eval(menuBtn, b => { const m = $(b.getAttribute('aria-controls')); return { open: b.getAttribute('aria-expanded'), shown: !m.classList.contains('hidden'), items: [...m.querySelectorAll('button')].map(x => x.textContent), focus: document.activeElement.textContent }; });
+  t.ok('the "…" button opens Edit and Delete, with focus on Edit', menu.open === 'true' && menu.shown && menu.items.join() === 'Edit,Delete' && menu.focus === 'Edit', JSON.stringify(menu));
+  await page.keyboard.press('Escape'); await sleep(100);
+  t.ok('Escape closes the menu and returns to its button', await page.$eval(menuBtn, b => b.getAttribute('aria-expanded') === 'false' && document.activeElement === b));
+  await page.click(menuBtn); await sleep(100);
+  await page.click('#feed-filters'); await sleep(100);
+  t.ok('clicking elsewhere closes the menu', await page.$eval(menuBtn, b => b.getAttribute('aria-expanded') === 'false'));
+  await page.click(menuBtn); await sleep(100);
+  await page.$eval(menuBtn, b => [...$(b.getAttribute('aria-controls')).querySelectorAll('button')].find(x => x.textContent === 'Delete').click()); await sleep(200);
+  const dialog = await page.$eval('#sheet-panel', e => ({ text: e.innerText, focus: document.activeElement.id }));
+  t.ok('Delete asks first, says it can\'t be undone, and starts on Cancel', dialog.text.includes('Delete this question?') && dialog.text.includes("This can't be undone.") && dialog.focus === 'delete-cancel', JSON.stringify(dialog));
+  await page.click('#delete-cancel'); await sleep(200);
+  t.ok('Cancel keeps the post', await page.evaluate(id => !!postById(id), delId));
+  await page.evaluate(id => { postState(id).liked = true; confirmDeletePost(id); }, delId); await sleep(200);
+  await page.click('#delete-confirm'); await sleep(300);
+  t.ok('Delete removes the post, its likes and comments, and says so', await page.evaluate(id => !postById(id) && !demo.postState[id] && !document.querySelector('[data-post="' + id + '"]'), delId) && (await page.$eval('#toast', e => e.textContent)) === 'Post deleted');
+  t.ok('after deleting, keyboard focus goes to the post box', await page.evaluate(() => document.activeElement.textContent.includes('Share an update')));
+  await page.reload({ waitUntil: 'networkidle0' }); await sleep(400);
+  t.ok('a deleted post stays deleted after a reload', await page.evaluate(id => !postById(id), delId));
+  await page.evaluate(() => { switchTab('feed'); setFeedFilter('work'); }); await sleep(200);
+
   // ---------- Own opportunity: applicants, manage, start ----------
   await page.evaluate(() => openComposer('work')); await sleep(100);
   await page.type('#cp-title', 'Pricing page and pilot pitch for RefillRadar');
@@ -267,7 +296,11 @@ module.exports = async (browser, t) => {
   t.ok('Manage shows each applicant\'s message and relevant work, with no fit percentage', manage.includes('Relevant work:') && manage.includes('"') && !manage.includes('% fit'));
   await page.evaluate((id, who) => respondToApplicant(id, who, true), myPost, apps[0]); await sleep(200);
   t.ok('accepted applicant joins the team', await page.evaluate((id, who) => projectTeam(postById(id)).includes(who), myPost, apps[0]));
+  await page.evaluate(id => confirmDeletePost(id), myPost); await sleep(200);
+  t.ok('deleting an opportunity with applicants says their applications will be removed', /\d+ (people have|person has) applied\. Their applications will be removed\./.test(await page.$eval('#sheet-panel', e => e.innerText)));
+  await page.click('#delete-cancel'); await sleep(200);
   await page.evaluate(id => startProject(id), myPost); await sleep(400);
+  t.ok('an opportunity that has started has Edit but no Delete', await page.evaluate(id => { const html = postMenu(postById(id)); return html.includes('editPost') && !html.includes('confirmDeletePost'); }, myPost) && await page.evaluate(id => { deletePost(id); return !!postById(id); }, myPost));
   t.ok('starting the project opens its team chat', await page.evaluate(id => openChatId === projectState(postById(id)).chatId, myPost) && (await page.$eval('#thread-body', e => e.innerText)).includes('Project started'));
 
   // ---------- Complete: verified experience ----------

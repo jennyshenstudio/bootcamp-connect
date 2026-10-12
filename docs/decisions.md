@@ -54,6 +54,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D044 | Compact Feed cards: no type buttons under the post box; photos and videos in a small frame; documents and other links in See details, with a count; text up to 3 lines; See details on every post | Accepted (built) | Feed |
 | D045 | Edit your own posts (type fixed, "Edited" shown); See details only when the card can't show everything | Accepted (built) | Feed, posts |
 | D046 | Your activity fits one screen: Needs you, In progress, profile progress and a drafts line; no header card or New for you | Accepted (built) | Feed |
+| D047 | Delete your own posts, after confirming; Edit and Delete in a "…" menu; opportunities only while open | Accepted (built) | Feed, posts |
 
 ## Entries
 
@@ -412,3 +413,16 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Risks:** without New for you, a member who never uses the For you filter sees fewer opportunities in the sidebar; In progress offers "Find an opportunity" when empty. Opening "N more" can make the sidebar taller than a small window again.
 - **Reviewed:** 2026-10-12, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review. Supersedes D042's sidebar sections; D042's drafts stay.
 - **Affects:** Feed.
+
+### D047 Deleting your own posts
+- **Date:** 2026-10-12 · **Status:** Accepted (built), the owner's request and choices · **Spec:** `specs/05-feed.md`
+- **Context:** the owner asked for a delete option on your own posts, after Edit (D045).
+- **Decision:**
+  - Edit and Delete sit in one "…" menu on your own posts (on the card, in the details and on your opportunity's page), so the card gains one button, not two. It's a disclosure: the button says whether it's open, and Escape or clicking elsewhere closes it.
+  - Delete asks first ("Delete this question? This can't be undone."), with Cancel focused. For an opportunity with applicants, it says their applications will be removed.
+  - Deleting removes the post, its likes, comments, project record and stored files.
+  - Opportunities can only be deleted while open: an opportunity in progress or finished has a team chat and gives verified experience, which depend on it.
+- **Options considered:** Edit and Delete as two buttons (easier to find, but adds to every card); Delete inside the Edit form (harder to find); deleting any opportunity at any time (would break verified experience); deleting with an Undo message instead of asking first (not chosen: asking first is the usual pattern for something that can't be undone). The owner chose the menu and open-only.
+- **Risks:** on the live site, deleting a post others have commented on removes their comments too; that's a decision for the online safety rules before beta (D034).
+- **Reviewed:** 2026-10-12, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review.
+- **Affects:** Feed, posts.

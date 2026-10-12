@@ -26,10 +26,13 @@ All posts: author (opens profile), type badge, time, like, comments.
 - Documents and any other links wait in the post's details. The card says how many ("2 attachments").
 - **See details** sits at the right of the likes row when the card can't show everything: always on opportunities (their page has more), and on other posts only when their text runs past 3 lines or they have hidden attachments (D045). An opportunity opens its page (spec 12); any other post opens its details: the full text, every attachment and the comments, where you can comment.
 
-## Editing your posts (D045)
-- Your own posts have **Edit** (on the card, in the details and on your opportunity's page, next to Manage). It opens the post form filled in, titled "Edit your [type]", with **Save changes**.
+## Editing and deleting your posts (D045, D047)
+- Your own posts have a **"…"** button (on the card, in the details and on your opportunity's page, next to Manage). It opens **Edit** and **Delete**; Escape or clicking elsewhere closes it.
+- **Edit** opens the post form filled in, titled "Edit your [update, question, resource or opportunity]", with **Save changes**.
 - The post type can't change. Closing without saving leaves the post as it was and makes no draft.
 - Saving keeps the post's place, likes, comments and applicants, and the post shows "Edited" next to its time.
+- **Delete** asks first: "Delete this [question]? This can't be undone.", starting on Cancel. For an opportunity with applicants it says their applications will be removed. Deleting removes the post, its likes, comments and files.
+- An opportunity can only be deleted while it's open. Once it's in progress or finished, its team chat and verified experience depend on it, so the menu has Edit only.
 - Viewer: photos and videos with previous/next (buttons, arrow keys, swipe), PDFs rendered page by page (first 20 pages), other document types show their details.
 - Prototype limit: the published claude.ai page's shared file storage is editor-only and makes a page organisation-internal, so uploads stay in each viewer's browser.
 
@@ -46,3 +49,4 @@ All posts: author (opens profile), type badge, time, like, comments.
 5. Posts, attachments, likes, saves, comments, and solved status persist after a reload.
 6. Feed cards show photos and videos in a frame 220px tall, a resource's main link as one line, text up to 3 lines and a count of other attachments; See details shows the full post with every attachment and its comments (D044).
 7. You can edit your own posts; an edited post keeps its likes, comments and applicants and says Edited (D045).
+8. You can delete your own posts after confirming; opportunities only while open (D047).

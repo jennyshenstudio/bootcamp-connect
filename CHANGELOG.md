@@ -11,7 +11,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 ## Unreleased
 
 ### Added
-- **Edit your posts** (D045): your own posts have Edit, on the card, in the details and on your opportunity's page. It opens the post form filled in; the type can't change. Saving keeps the post's place, likes, comments and applicants, and it says "Edited" next to its time. Closing without saving changes nothing.
+- **Delete your posts** (D047): your own posts have a "…" menu with Edit and Delete. Delete asks first and says it can't be undone; for an opportunity with applicants it says their applications will be removed. Opportunities can only be deleted while open.
+- **Edit your posts** (D045): your own posts have Edit (now in the "…" menu), on the card, in the details and on your opportunity's page. It opens the post form filled in; the type can't change. Saving keeps the post's place, likes, comments and applicants, and it says "Edited" next to its time. Closing without saving changes nothing.
 - **Your activity** (spec 14, D042): the column beside the Feed is now a summary of where you stand: New for you (opportunities for your pathway), Current (your opportunities: applicants to review, in progress with its end date, applied and waiting), People to get back to (invitations and unread conversations), To do (profile steps, projects to mark complete, applying to a first opportunity) and Drafts. Empty sections are hidden, and To do comes first until your profile has a headline. On phones, a Your activity bar above the Feed says how many things need you and opens the summary.
 - **Drafts:** Save draft in the post form, and closing the form with anything written or attached saves a draft too, with a message. Continue reopens it exactly as it was, posting it removes it, and Delete removes it and its files. If the browser's storage is full, it says so instead.
 - **Spec 14** and decision D042.

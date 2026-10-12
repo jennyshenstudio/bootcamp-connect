@@ -115,7 +115,7 @@ function cardActions(post, saveButton) {
   const hidden = hiddenAttachments(post);
   return '<div class="flex flex-wrap items-center gap-2 ml-auto">' +
     (hidden ? '<span class="inline-flex items-center gap-1 text-footnote text-label-2 px-1"><svg class="icon w-4 h-4"><use href="#i-doc"/></svg>' + hidden + ' attachment' + (hidden === 1 ? '' : 's') + '</span>' : '') +
-    saveButton + (post.type === 'work' ? opportunityActions(post) : editButton(post)) +
+    saveButton + (post.type === 'work' ? opportunityActions(post) : postMenu(post)) +
     // An opportunity's page always has more. Other posts only need See details when files are hidden or the text is cut off (checkMore)
     '<button type="button" class="btn btn-gray btn-sm' + (post.type === 'work' || hidden ? '' : ' hidden" data-check-more="1') + '" data-on-click="openPost(\'' + post.id + '\')">See details</button></div>';
 }
@@ -129,8 +129,80 @@ function checkMore(root) {
 }
 addEventListener('resize', () => { const list = $('feed-list'); if (list) checkMore(list); });
 
-// Only on your own posts (D045)
-const editButton = post => isMine(post) ? '<button type="button" class="btn btn-gray btn-sm" data-on-click="editPost(\'' + post.id + '\')">Edit</button>' : '';
+// ----- Your own posts: a "…" menu with Edit and Delete (D045, D047) -----
+// Opportunities that have started can't be deleted: their team chat and verified experience depend on them.
+// What each post type is called in a sentence ("Edit your question", "Delete this opportunity?")
+const POST_NOUNS = { work: 'opportunity', update: 'update', support: 'question', resource: 'resource' };
+const canDelete = post => post.type !== 'work' || projectStatus(post) === 'open';
+let postMenuCount = 0;   // the same post can be on its card and in a sheet, so each menu gets its own id
+function postMenu(post) {
+  if (!isMine(post)) return '';
+  const id = 'post-menu-' + (++postMenuCount);
+  return '<div class="relative" data-post-menu>' +
+    '<button type="button" class="btn btn-gray btn-sm !w-9 !px-0" aria-label="More options for this post" aria-expanded="false" aria-controls="' + id + '" data-on-click="togglePostMenu(this)">…</button>' +
+    '<div id="' + id + '" class="hidden absolute right-0 bottom-full mb-2 z-10 card !rounded-2xl p-1.5 min-w-[160px] flex flex-col">' +
+      '<button type="button" class="btn btn-plain btn-sm justify-start" data-on-click="editPost(\'' + post.id + '\')">Edit</button>' +
+      (canDelete(post) ? '<button type="button" class="btn btn-plain btn-sm justify-start !text-redText" data-on-click="confirmDeletePost(\'' + post.id + '\')">Delete</button>' : '') +
+    '</div></div>';
+}
+function closePostMenus() {
+  document.querySelectorAll('[data-post-menu] [aria-expanded="true"]').forEach(b => { b.setAttribute('aria-expanded', 'false'); $(b.getAttribute('aria-controls'))?.classList.add('hidden'); });
+}
+function togglePostMenu(btn) {
+  const open = btn.getAttribute('aria-expanded') !== 'true';
+  closePostMenus();
+  if (!open) return;
+  btn.setAttribute('aria-expanded', 'true');
+  const menu = $(btn.getAttribute('aria-controls'));
+  menu.classList.remove('hidden');
+  menu.querySelector('button').focus();
+}
+// Clicking elsewhere closes the menu; Escape closes it (and not the sheet behind it) and returns to its button
+document.addEventListener('click', e => { if (!e.target.closest('[data-post-menu]')) closePostMenus(); });
+document.addEventListener('keydown', e => {
+  const btn = e.key === 'Escape' && e.target.closest && e.target.closest('[data-post-menu]')?.querySelector('[aria-expanded="true"]');
+  if (!btn) return;
+  e.stopPropagation();
+  closePostMenus();
+  btn.focus();
+}, true);
+
+// Deleting asks first, because it can't be undone
+function confirmDeletePost(id) {
+  closePostMenus();
+  const post = postById(id);
+  if (!post || !isMine(post) || !canDelete(post)) return;
+  const n = post.type === 'work' ? projectApplicantList(post).length : 0;
+  openSheet('<div class="relative p-5 sm:p-7 space-y-4">' + sheetClose() +
+    '<h2 id="sheet-title" class="text-title3 font-bold pr-10">Delete this ' + POST_NOUNS[post.type] + '?</h2>' +
+    '<p class="text-subhead text-label-2">' + (n ? n + (n === 1 ? ' person has' : ' people have') + ' applied. Their applications will be removed. ' : '') + 'This can\'t be undone.</p>' +
+    '<div class="flex flex-wrap justify-end gap-2"><button type="button" id="delete-cancel" class="btn btn-gray btn-sm" data-on-click="closeSheet()">Cancel</button>' +
+    '<button type="button" id="delete-confirm" class="btn btn-gray btn-sm !text-redText" data-on-click="deletePost(\'' + id + '\')">Delete</button></div></div>', 'delete:' + id);
+  $('delete-cancel').focus();
+}
+
+function deletePost(id) {
+  const post = demo.posts.find(p => p.id === id);
+  if (!post || !isMine(post) || !canDelete(post)) return closeSheet();
+  const before = { posts: demo.posts, state: demo.postState[id], project: demo.projects[id] };
+  demo.posts = demo.posts.filter(p => p !== post);
+  delete demo.postState[id];
+  delete demo.projects[id];
+  if (!saveDemo()) {
+    demo.posts = before.posts;
+    if (before.state) demo.postState[id] = before.state;
+    if (before.project) demo.projects[id] = before.project;
+    return showToast("Couldn't delete the post. This browser's storage is full.");
+  }
+  (post.attachments || []).filter(a => a.kind !== 'link').forEach(a => idbDelete(a.id));
+  openComments.delete(id);
+  closeSheet();
+  renderFeed();
+  renderFeedSidebar();
+  // The post's card is gone, so keyboard focus goes to the post box
+  document.querySelector('#tab-feed .card button')?.focus();
+  showToast('Post deleted');
+}
 
 // A post's details: all its text, attachments and comments. Opportunities have their own page (D044)
 function openPost(id) {
@@ -173,7 +245,7 @@ function renderPost(post, { compact = false, full = false } = {}) {
       (full ? '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="focusField(\'comment-full-' + post.id + '\')">'
         : '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="toggleComments(\'' + post.id + '\')" aria-expanded="' + openComments.has(post.id) + '">') +
         '<svg class="icon w-[18px] h-[18px]"><use href="#i-chat"/></svg><span class="tabular-nums">' + comments.length + '</span><span class="sr-only"> comments</span></button>' +
-      (full ? saveButton + (isMine(post) ? '<div class="' + (saveButton ? '' : 'ml-auto') + '">' + editButton(post) + '</div>' : '') : cardActions(post, saveButton)) +
+      (full ? saveButton + (isMine(post) ? '<div class="' + (saveButton ? '' : 'ml-auto') + '">' + postMenu(post) + '</div>' : '') : cardActions(post, saveButton)) +
     '</div>' +
     (full || openComments.has(post.id) ? commentsBlock(post, comments, full) : '');
 
@@ -625,6 +697,7 @@ function continueDraft(id) {
 // ----- Editing your own posts (D045) -----
 // The same form, filled in. The type can't change: an opportunity may already have applicants.
 function editPost(id) {
+  closePostMenus();
   const post = postById(id);
   if (!post || !isMine(post)) return;
   openComposer(post.type);
@@ -640,7 +713,7 @@ function editPost(id) {
   else if (post.type === 'resource') Object.assign(values, { 'cp-kind': post.kind, 'cp-tags': (post.tags || []).join(', ') });
   fillComposer({ radios, values });
   $('cp-type-group').classList.add('hidden');
-  $('sheet-title').textContent = 'Edit your ' + POST_TYPES[post.type].label.toLowerCase();
+  $('sheet-title').textContent = 'Edit your ' + POST_NOUNS[post.type];
   $('cp-draft').classList.add('hidden');
   $('cp-submit').textContent = 'Save changes';
 }
