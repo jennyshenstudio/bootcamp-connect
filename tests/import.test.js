@@ -45,7 +45,7 @@ module.exports = async (browser, t) => {
     f.exps.length === 3 && f.skills.length === 10 && f.skills.includes('User research') && f.projects[0] === 'ShiftSwap|github.com/mayaokafor/shiftswap' && f.projects.length === 2, JSON.stringify(f));
   await page.click('#pf-goals-1 + .chip'); await page.click('#pf-hours-2 + .chip');
   await page.click('#profile-form button[type=submit]'); await sleep(400);
-  t.ok('saved name replaces the sign-up name everywhere', (await page.$eval('#user-avatar', e => e.textContent)) === 'MO' && (await page.$eval('#pv-name', e => e.textContent)) === 'Maya Okafor');
+  t.ok('saved name replaces the sign-up name everywhere', (await page.$eval('#user-avatar', e => e.textContent)) === 'MO' && (await page.$eval('#profile-name', e => e.textContent)) === 'Maya Okafor');
   await page.close();
 
   // Claude path (published page) with a stand-in that returns fixed data

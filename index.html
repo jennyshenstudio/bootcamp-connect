@@ -333,14 +333,190 @@
           <button type="button" id="profile-cancel" class="btn btn-gray btn-sm" data-on-click="cancelEditProfile()">Cancel</button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
+        <!-- Laid out like your profile page (specs/15-profile-page.md): main column, then the side column -->
+        <form id="profile-form" novalidate data-on-submit="saveProfile(event)" class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
+          <div class="space-y-4 min-w-0">
 
-          <form id="profile-form" novalidate data-on-submit="saveProfile(event)" class="space-y-4 min-w-0">
+            <!-- Top card: photo, name, headline, track, stage, location -->
+            <div id="pf-section-basics" class="card !p-0 overflow-hidden">
+              <div class="h-24 sm:h-32 bg-gradient-to-br from-[#0A84FF] to-[#BF5AF2]"></div>
+              <div class="px-5 sm:px-7 pb-6 -mt-12 space-y-4">
+                <div class="flex flex-wrap items-end gap-4">
+                  <div id="pf-photo-preview" class="avatar w-24 h-24 sm:w-28 sm:h-28 text-title1 ring-4 ring-[var(--surface)]"></div>
+                  <div class="space-y-1.5">
+                    <div class="flex flex-wrap gap-2">
+                      <label for="pf-photo" class="btn btn-secondary btn-sm">Upload photo</label>
+                      <input id="pf-photo" type="file" accept="image/*" class="sr-only" data-on-change="handlePhoto(this)">
+                      <button type="button" id="pf-photo-remove" data-on-click="removePhoto()" class="hidden btn btn-gray btn-sm">Remove</button>
+                    </div>
+                    <p class="pf-hint">JPG or PNG. A square, well-lit headshot works best.</p>
+                    <p id="pf-photo-error" class="pf-error hidden"></p>
+                  </div>
+                </div>
+                <h3 class="font-semibold text-title3">Name, headline and stage</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="pf-first" class="pf-label">First name *</label>
+                    <input id="pf-first" type="text" autocomplete="given-name" class="pf-input">
+                    <p id="pf-first-error" class="pf-error hidden">Enter your first name.</p>
+                  </div>
+                  <div>
+                    <label for="pf-last" class="pf-label">Last name *</label>
+                    <input id="pf-last" type="text" autocomplete="family-name" class="pf-input">
+                    <p id="pf-last-error" class="pf-error hidden">Enter your last name.</p>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex items-baseline justify-between">
+                    <label for="pf-headline" class="pf-label">Headline *</label>
+                    <span id="pf-headline-count" class="pf-hint tabular-nums">0/80</span>
+                  </div>
+                  <input id="pf-headline" type="text" maxlength="80" placeholder="e.g. Full-stack developer · ex-teacher · building edtech" class="pf-input">
+                  <p id="pf-headline-error" class="pf-error hidden">Add a headline so people know what you do.</p>
+                </div>
+                <div>
+                  <div class="flex items-baseline justify-between">
+                    <label for="pf-currently" class="pf-label">Currently working on (optional)</label>
+                    <span id="pf-currently-count" class="pf-hint tabular-nums">0/100</span>
+                  </div>
+                  <input id="pf-currently" type="text" maxlength="100" placeholder="e.g. Building a budgeting app for students" class="pf-input">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="pf-track" class="pf-label">Bootcamp track *</label>
+                    <select id="pf-track" class="pf-input" data-on-change="onTrackChange()">
+                      <option value="Software Developer">Software Developer</option>
+                      <option value="Business Developer">Business Developer</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="pf-stage" class="pf-label">Stage</label>
+                    <select id="pf-stage" class="pf-input" aria-describedby="pf-stage-hint"></select>
+                    <p id="pf-stage-hint" class="pf-hint mt-1">Shown with your experience and finished projects.</p>
+                  </div>
+                  <div>
+                    <label for="pf-location" class="pf-label">Location</label>
+                    <input id="pf-location" type="text" autocomplete="address-level2" placeholder="e.g. Manchester" class="pf-input">
+                  </div>
+                </div>
+                <div>
+                  <span class="pf-label">Work setting</span>
+                  <div id="pf-setting" class="flex flex-wrap gap-2"></div>
+                </div>
+              </div>
+            </div>
 
-            <!-- 0. Import from CV or LinkedIn (specs/03-profile-import.md) -->
-            <div id="pf-section-import" class="card p-5 sm:p-6 space-y-4">
+            <!-- About -->
+            <div id="pf-section-about" class="card p-5 sm:p-6 space-y-3">
+              <div class="flex items-baseline justify-between gap-3">
+                <h3 class="font-semibold text-title3"><label for="pf-about">About</label></h3>
+                <span id="pf-about-count" class="pf-hint tabular-nums">0/500</span>
+              </div>
+              <textarea id="pf-about" rows="4" maxlength="500" placeholder="What you've built, what you're great at, and what you want to work on next." class="pf-input resize-y"></textarea>
+            </div>
+
+            <!-- Work to show (specs/11-profile-work-to-show.md) -->
+            <div id="pf-section-work" class="card p-5 sm:p-6 space-y-4">
+              <div class="flex items-baseline justify-between gap-3">
+                <div>
+                  <h3 class="font-semibold text-title3">Work to show</h3>
+                  <p class="pf-hint mt-0.5">Real projects, written up as short case studies: the problem, your role, what you did and what happened. Up to 6. The first 3 show on your profile.</p>
+                </div>
+                <span id="work-count" class="pf-hint tabular-nums">0/6</span>
+              </div>
+              <div id="work-list" class="space-y-3"></div>
+              <button type="button" id="work-add" data-on-click="addWork()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add a piece of work</button>
+            </div>
+
+            <!-- Skills and currently learning -->
+            <div id="pf-section-skills" class="card p-5 sm:p-6 space-y-4">
+              <div class="flex items-baseline justify-between gap-3">
+                <div>
+                  <h3 class="font-semibold text-title3">Skills</h3>
+                  <p class="pf-hint mt-0.5">Add up to 10. Put your strongest first.</p>
+                </div>
+                <span id="skill-count" class="pf-hint tabular-nums">0/10</span>
+              </div>
+              <div class="pf-input flex flex-wrap items-center gap-1.5 cursor-text" data-on-click="focusField('pf-skill-input')">
+                <div id="skill-tags" class="contents"></div>
+                <input id="pf-skill-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-body focus:outline-none" data-on-keydown="onSkillKey(event)">
+              </div>
               <div>
-                <h3 class="font-semibold text-title3">Import from your CV or LinkedIn</h3>
+                <p class="pf-hint mb-2">Suggested for your track. Skills you use in work to show appear as proven on your profile.</p>
+                <div id="skill-suggestions" class="flex flex-wrap gap-2"></div>
+              </div>
+              <div class="pt-4 border-t border-hairline space-y-3">
+                <div class="flex items-baseline justify-between gap-3">
+                  <div>
+                    <p class="font-semibold text-body">Currently learning</p>
+                    <p class="pf-hint mt-0.5">Up to 5. Projects that need these rank higher for you, so you get stretch work.</p>
+                  </div>
+                  <span id="learn-count" class="pf-hint tabular-nums">0/5</span>
+                </div>
+                <div class="pf-input flex flex-wrap items-center gap-1.5 cursor-text" data-on-click="focusField('pf-learn-input')">
+                  <div id="learn-tags" class="contents"></div>
+                  <label for="pf-learn-input" class="sr-only">Add a skill you want to learn</label>
+                  <input id="pf-learn-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-body focus:outline-none" data-on-keydown="onLearnKey(event)">
+                </div>
+                <div id="learn-suggestions" class="flex flex-wrap gap-2"></div>
+              </div>
+            </div>
+
+            <!-- Experience -->
+            <div id="pf-section-experience" class="card p-5 sm:p-6 space-y-4">
+              <div>
+                <h3 class="font-semibold text-title3">Experience</h3>
+                <p class="pf-hint mt-0.5">Jobs, internships, freelance, and volunteer work all count. Lead with results.</p>
+              </div>
+              <div id="exp-list" class="space-y-3"></div>
+              <button type="button" data-on-click="addExperience()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add experience</button>
+            </div>
+
+            <!-- Education (specs/11-profile-work-to-show.md) -->
+            <div id="pf-section-education" class="card p-5 sm:p-6 space-y-4">
+              <div>
+                <h3 class="font-semibold text-title3">Education</h3>
+                <p class="pf-hint mt-0.5">Up to 3. Members who studied at the same place are suggested to each other.</p>
+              </div>
+              <div id="edu-list" class="space-y-3"></div>
+              <button type="button" data-on-click="addEducation()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add education</button>
+            </div>
+
+            <!-- Verified experience (specs/07-project-loop.md) -->
+            <div id="pf-section-verified" class="card p-5 sm:p-6 space-y-4">
+              <div class="flex items-baseline justify-between gap-3">
+                <div>
+                  <h3 class="font-semibold text-title3">Verified experience</h3>
+                  <p class="pf-hint mt-0.5">Projects completed on Bootcamp Connect, with teammate ratings and skill endorsements.</p>
+                </div>
+                <span id="verified-count" class="text-footnote font-semibold text-greenText"></span>
+              </div>
+              <div id="verified-list" class="space-y-4"></div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <p class="pf-hint">Members can use AI to help write their profiles.</p>
+              <button type="submit" class="btn btn-primary">Save profile</button>
+            </div>
+          </div>
+
+          <!-- Side column, as on your page: profile strength, import from a CV, available for, links -->
+          <aside class="space-y-4 min-w-0" aria-label="More about you">
+            <div id="pf-section-strength" class="card p-5 space-y-3">
+              <div class="flex items-baseline justify-between">
+                <p class="font-semibold text-body">Profile strength</p>
+                <p id="strength-pct" class="text-body font-semibold tabular-nums">0%</p>
+              </div>
+              <div class="h-1.5 rounded-full bg-fill overflow-hidden">
+                <div id="strength-bar" class="h-full rounded-full bg-appleBlue transition-all duration-500 ease-apple w-0"></div>
+              </div>
+              <ul id="strength-list" class="space-y-0.5 text-subhead"></ul>
+              <button type="submit" class="btn btn-primary w-full">Save profile</button>
+            </div>
+            <!-- Import from CV or LinkedIn (specs/03-profile-import.md) -->
+            <div id="pf-section-import" class="card p-5 space-y-4">
+              <div>
+                <h3 class="font-semibold text-body">Import from your CV or LinkedIn</h3>
                 <p class="pf-hint mt-0.5">Upload a CV or your LinkedIn profile PDF to fill in your experience, skills, and more. You review everything before it's added.</p>
               </div>
 
@@ -387,172 +563,10 @@
               </div>
             </div>
 
-            <!-- 1. Basics -->
-            <div id="pf-section-basics" class="card p-5 sm:p-6 space-y-4">
-              <div>
-                <h3 class="font-semibold text-title3">Basics</h3>
-                <p class="pf-hint mt-0.5">Your name, photo, headline and stage.</p>
-              </div>
-
-              <div class="flex flex-wrap items-center gap-4">
-                <div id="pf-photo-preview" class="avatar w-20 h-20 text-title2"></div>
-                <div class="space-y-1.5">
-                  <div class="flex flex-wrap gap-2">
-                    <label for="pf-photo" class="btn btn-secondary btn-sm">Upload photo</label>
-                    <input id="pf-photo" type="file" accept="image/*" class="sr-only" data-on-change="handlePhoto(this)">
-                    <button type="button" id="pf-photo-remove" data-on-click="removePhoto()" class="hidden btn btn-gray btn-sm">Remove</button>
-                  </div>
-                  <p class="pf-hint">JPG or PNG. A square, well-lit headshot works best.</p>
-                  <p id="pf-photo-error" class="pf-error hidden"></p>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label for="pf-first" class="pf-label">First name *</label>
-                  <input id="pf-first" type="text" autocomplete="given-name" class="pf-input">
-                  <p id="pf-first-error" class="pf-error hidden">Enter your first name.</p>
-                </div>
-                <div>
-                  <label for="pf-last" class="pf-label">Last name *</label>
-                  <input id="pf-last" type="text" autocomplete="family-name" class="pf-input">
-                  <p id="pf-last-error" class="pf-error hidden">Enter your last name.</p>
-                </div>
-              </div>
-
-              <div>
-                <div class="flex items-baseline justify-between">
-                  <label for="pf-headline" class="pf-label">Headline *</label>
-                  <span id="pf-headline-count" class="pf-hint tabular-nums">0/80</span>
-                </div>
-                <input id="pf-headline" type="text" maxlength="80" placeholder="e.g. Full-stack developer · ex-teacher · building edtech" class="pf-input">
-                <p id="pf-headline-error" class="pf-error hidden">Add a headline so people know what you do.</p>
-              </div>
-
-              <div>
-                <div class="flex items-baseline justify-between">
-                  <label for="pf-currently" class="pf-label">Currently working on (optional)</label>
-                  <span id="pf-currently-count" class="pf-hint tabular-nums">0/100</span>
-                </div>
-                <input id="pf-currently" type="text" maxlength="100" placeholder="e.g. Building a budgeting app for students" class="pf-input">
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label for="pf-track" class="pf-label">Bootcamp track *</label>
-                  <select id="pf-track" class="pf-input" data-on-change="onTrackChange()">
-                    <option value="Software Developer">Software Developer</option>
-                    <option value="Business Developer">Business Developer</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="pf-stage" class="pf-label">Stage</label>
-                  <select id="pf-stage" class="pf-input" aria-describedby="pf-stage-hint"></select>
-                  <p id="pf-stage-hint" class="pf-hint mt-1">Shown with your experience and finished projects.</p>
-                </div>
-                <div>
-                  <label for="pf-location" class="pf-label">Location</label>
-                  <input id="pf-location" type="text" autocomplete="address-level2" placeholder="e.g. Manchester" class="pf-input">
-                </div>
-              </div>
-
-              <div>
-                <span class="pf-label">Work setting</span>
-                <div id="pf-setting" class="flex flex-wrap gap-2"></div>
-              </div>
-
-              <div>
-                <div class="flex items-baseline justify-between">
-                  <label for="pf-about" class="pf-label">About</label>
-                  <span id="pf-about-count" class="pf-hint tabular-nums">0/500</span>
-                </div>
-                <textarea id="pf-about" rows="4" maxlength="500" placeholder="What you've built, what you're great at, and what you want to work on next." class="pf-input resize-y"></textarea>
-              </div>
-            </div>
-
-            <!-- 2. Work to show (specs/11-profile-work-to-show.md) -->
-            <div id="pf-section-work" class="card p-5 sm:p-6 space-y-4">
-              <div class="flex items-baseline justify-between gap-3">
-                <div>
-                  <h3 class="font-semibold text-title3">Work to show</h3>
-                  <p class="pf-hint mt-0.5">Real projects, written up as short case studies: the problem, your role, what you did and what happened. Up to 6. The first 3 show on your profile.</p>
-                </div>
-                <span id="work-count" class="pf-hint tabular-nums">0/6</span>
-              </div>
-              <div id="work-list" class="space-y-3"></div>
-              <button type="button" id="work-add" data-on-click="addWork()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add a piece of work</button>
-            </div>
-
-            <!-- 3. Skills and currently learning -->
-            <div id="pf-section-skills" class="card p-5 sm:p-6 space-y-4">
-              <div class="flex items-baseline justify-between gap-3">
-                <div>
-                  <h3 class="font-semibold text-title3">Skills</h3>
-                  <p class="pf-hint mt-0.5">Add up to 10. Put your strongest first.</p>
-                </div>
-                <span id="skill-count" class="pf-hint tabular-nums">0/10</span>
-              </div>
-              <div class="pf-input flex flex-wrap items-center gap-1.5 cursor-text" data-on-click="focusField('pf-skill-input')">
-                <div id="skill-tags" class="contents"></div>
-                <input id="pf-skill-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-body focus:outline-none" data-on-keydown="onSkillKey(event)">
-              </div>
-              <div>
-                <p class="pf-hint mb-2">Suggested for your track. Skills you use in work to show appear as proven on your profile.</p>
-                <div id="skill-suggestions" class="flex flex-wrap gap-2"></div>
-              </div>
-              <div class="pt-4 border-t border-hairline space-y-3">
-                <div class="flex items-baseline justify-between gap-3">
-                  <div>
-                    <p class="font-semibold text-body">Currently learning</p>
-                    <p class="pf-hint mt-0.5">Up to 5. Projects that need these rank higher for you, so you get stretch work.</p>
-                  </div>
-                  <span id="learn-count" class="pf-hint tabular-nums">0/5</span>
-                </div>
-                <div class="pf-input flex flex-wrap items-center gap-1.5 cursor-text" data-on-click="focusField('pf-learn-input')">
-                  <div id="learn-tags" class="contents"></div>
-                  <label for="pf-learn-input" class="sr-only">Add a skill you want to learn</label>
-                  <input id="pf-learn-input" type="text" placeholder="Type a skill and press Enter" class="flex-1 min-w-[10rem] bg-transparent text-body focus:outline-none" data-on-keydown="onLearnKey(event)">
-                </div>
-                <div id="learn-suggestions" class="flex flex-wrap gap-2"></div>
-              </div>
-            </div>
-
-            <!-- Work experience -->
-            <div id="pf-section-experience" class="card p-5 sm:p-6 space-y-4">
-              <div>
-                <h3 class="font-semibold text-title3">Work experience</h3>
-                <p class="pf-hint mt-0.5">Jobs, internships, freelance, and volunteer work all count. Lead with results.</p>
-              </div>
-              <div id="exp-list" class="space-y-3"></div>
-              <button type="button" data-on-click="addExperience()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add experience</button>
-            </div>
-
-            <!-- Education (specs/11-profile-work-to-show.md) -->
-            <div id="pf-section-education" class="card p-5 sm:p-6 space-y-4">
-              <div>
-                <h3 class="font-semibold text-title3">Education</h3>
-                <p class="pf-hint mt-0.5">Up to 3. Members who studied at the same place are suggested to each other.</p>
-              </div>
-              <div id="edu-list" class="space-y-3"></div>
-              <button type="button" data-on-click="addEducation()" class="btn btn-plain btn-sm -ml-2"><svg class="icon w-4 h-4"><use href="#i-plus"/></svg>Add education</button>
-            </div>
-
-            <!-- Verified experience (specs/07-project-loop.md) -->
-            <div id="pf-section-verified" class="card p-5 sm:p-6 space-y-4">
-              <div class="flex items-baseline justify-between gap-3">
-                <div>
-                  <h3 class="font-semibold text-title3">Verified experience</h3>
-                  <p class="pf-hint mt-0.5">Projects completed on Bootcamp Connect, with teammate ratings and skill endorsements.</p>
-                </div>
-                <span id="verified-count" class="text-footnote font-semibold text-greenText"></span>
-              </div>
-              <div id="verified-list" class="space-y-4"></div>
-            </div>
-
             <!-- Available for (formerly What I'm looking for) -->
-            <div id="pf-section-looking" class="card p-5 sm:p-6 space-y-5">
+            <div id="pf-section-looking" class="card p-5 space-y-5">
               <div>
-                <h3 class="font-semibold text-title3">Available for</h3>
+                <h3 class="font-semibold text-body">Available for</h3>
                 <p class="pf-hint mt-0.5">Used to match you with projects in Connect.</p>
               </div>
               <div>
@@ -576,16 +590,16 @@
                 <div id="pf-open" class="flex flex-wrap gap-2"></div>
                 <p class="pf-hint mt-1.5">Projects with other pay types are hidden from your "For you" list.</p>
               </div>
-              <div class="sm:w-1/2">
+              <div>
                 <label for="pf-available" class="pf-label">Available from</label>
                 <input id="pf-available" type="date" class="pf-input">
               </div>
             </div>
 
             <!-- Links -->
-            <div id="pf-section-links" class="card p-5 sm:p-6 space-y-4">
+            <div id="pf-section-links" class="card p-5 space-y-4">
               <div>
-                <h3 class="font-semibold text-title3">Links</h3>
+                <h3 class="font-semibold text-body">Links</h3>
                 <p class="pf-hint mt-0.5">Let people check your work and background.</p>
               </div>
               <div>
@@ -605,45 +619,8 @@
               </div>
             </div>
 
-            <div class="flex flex-wrap items-center justify-between gap-3">
-              <p class="pf-hint">Members can use AI to help write their profiles.</p>
-              <button type="submit" class="btn btn-primary">Save profile</button>
-            </div>
-          </form>
-
-          <!-- Side panel: preview + strength -->
-          <aside class="order-first lg:order-none lg:sticky lg:top-20 space-y-4 min-w-0">
-            <div class="card p-5 space-y-3">
-              <p class="text-caption uppercase tracking-[0.06em] font-semibold text-label-2">How others see you</p>
-              <div class="flex items-center gap-3">
-                <div id="pv-photo" class="avatar w-14 h-14 text-title3"></div>
-                <div class="min-w-0">
-                  <p id="pv-name" class="font-semibold text-body truncate"></p>
-                  <p id="pv-headline" class="text-footnote text-label-2 line-clamp-2"></p>
-                </div>
-              </div>
-              <div class="flex flex-wrap items-center gap-1.5 text-footnote">
-                <span id="pv-track" class="px-2.5 py-0.5 rounded-full font-semibold"></span>
-                <span id="pv-location" class="text-label-2"></span>
-              </div>
-              <div id="pv-skills" class="flex flex-wrap gap-1"></div>
-              <p id="pv-looking" class="text-footnote text-label-2"></p>
-              <p id="pv-verified" class="text-footnote text-greenText font-semibold inline-flex items-center gap-1"></p>
-            </div>
-
-            <div class="card p-5 space-y-3">
-              <div class="flex items-baseline justify-between">
-                <p class="font-semibold text-body">Profile strength</p>
-                <p id="strength-pct" class="text-body font-semibold tabular-nums">0%</p>
-              </div>
-              <div class="h-1.5 rounded-full bg-fill overflow-hidden">
-                <div id="strength-bar" class="h-full rounded-full bg-appleBlue transition-all duration-500 ease-apple w-0"></div>
-              </div>
-              <ul id="strength-list" class="space-y-0.5 text-subhead"></ul>
-              <button type="submit" form="profile-form" class="btn btn-primary w-full">Save profile</button>
-            </div>
           </aside>
-        </div>
+        </form>
         </div>
       </section>
 

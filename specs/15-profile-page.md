@@ -38,6 +38,7 @@ At the bottom: "Members can use AI to help write their profiles."
 - The **Profile** tab shows your page as others see it, plus Saved and a hint where something is missing ("Pin up to 3 pieces of work or posts to show them first").
 - **Edit profile** opens today's profile form, including **Import from your CV or LinkedIn**, which fills in the form from an uploaded CV. **Save profile** saves and returns to your page. **Cancel** returns without saving and puts the form back as it was.
 - A new member still starts on the form, with the banner, until they first save.
+- **The form is laid out like the page** (D051): a top card (banner, photo, name, headline, currently working on, track, stage, location and work setting), then About, Work to show, Skills, Experience, Education and Verified experience in the page's order. The side column has Profile strength (with Save profile), Import from your CV or LinkedIn, Available for and Links. On phones the side column comes after the main sections, as on the page. There is no separate preview card: the form itself looks like the page.
 
 ## Pinning
 - On your own page, each piece of work and each of your posts has **Pin** (or **Unpin**). Pinning saves straight away.

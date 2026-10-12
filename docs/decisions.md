@@ -58,6 +58,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D048 | The "…" menu sits in the card's top-right corner; no description or hint lines on the Feed | Accepted (built) | Feed |
 | D049 | No cohort: no Cohort or Alumni filter, no cohort on profiles or cards, and no cohort reason in suggestions | Accepted (built) | Connect, profile, matching, demo content |
 | D050 | The profile is a page (LinkedIn style): pinned work and posts, posts, a CV made from the profile, Saved on your own page; the Profile tab shows your page with Edit profile | Accepted (built) | Profile, Feed, Connect |
+| D051 | The profile form is laid out like the profile page; no separate preview card | Accepted (built) | Profile |
 
 ## Entries
 
@@ -468,3 +469,12 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Risks:** the page is long on phones. Printing may be blocked inside the claude.ai preview. Pins and saved posts are personal data for the live site's privacy notice. Your work is pinned by its lasting id, so renaming keeps the pin; sample members' pins use titles.
 - **Reviewed:** 2026-10-12, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review.
 - **Affects:** Profile, Feed, Connect. Changes how spec 11's profile is shown.
+
+### D051 The profile form follows the page's layout
+- **Date:** 2026-10-12 · **Status:** Accepted (built), the owner's request · **Spec:** `specs/15-profile-page.md`
+- **Context:** after the profile became a page (D050), the owner asked for the editor to follow the same layout and sections. The form had its own order (Import, Basics with About inside, Work to show, Skills, Work experience, Education, Verified experience, Available for, Links) and a "How others see you" preview card.
+- **Decision:** the form uses the page's two columns. Main column: a top card like the page's, then About (now its own section), Work to show, Skills, Experience (was "Work experience"), Education and Verified experience. Side column: Profile strength with Save profile, Import from your CV or LinkedIn, Available for and Links. The preview card is removed, because the form now looks like the page.
+- **Options considered:** editing in place on the page, section by section, as LinkedIn does (more work; possible later); keeping the old order (rejected by the owner).
+- **Risks:** on phones, Import from your CV and Profile strength are now near the bottom, after the main sections. A new member may want them first; worth looking at in the phone pass.
+- **Reviewed:** 2026-10-12, checked in session: a layout change that's easy to undo, so no separate review.
+- **Affects:** Profile.

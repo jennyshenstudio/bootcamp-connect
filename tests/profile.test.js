@@ -33,7 +33,7 @@ module.exports = async (browser, t) => {
   t.ok('Open to lists the three pay types', (await page.$$eval('#pf-open .chip', x => x.map(e => e.textContent).join('|'))) === 'Paid (fixed fee)|Unpaid / volunteer|Equity / co-founder');
 
   await (await page.$('#pf-photo')).uploadFile(fixture('photo.png')); await sleep(800);
-  t.ok('photo appears in the preview', (await page.$eval('#pv-photo', e => e.style.backgroundImage)).startsWith('url("data:image/jpeg'));
+  t.ok('photo appears in the top card', (await page.$eval('#pf-photo-preview', e => e.style.backgroundImage)).startsWith('url("data:image/jpeg'));
   t.ok('strength reaches 100%', (await page.$eval('#strength-pct', e => e.textContent)) === '100%');
 
   await page.type('#pf-website', 'not a url');

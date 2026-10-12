@@ -352,25 +352,10 @@ function loadProfileForm(account) {
   updatePhotoUI();
 }
 
+// Keeps the top card's photo initials and the profile strength in step with the form
 function updatePreview() {
   const d = collectProfile();
-  setAvatar($('pv-photo'), d.photo, initials(d.first, d.last));
-  $('pv-name').textContent = (d.first + ' ' + d.last).trim() || 'Your name';
-  const headline = $('pv-headline');
-  headline.textContent = d.headline || 'Your headline appears here';
-  headline.classList.toggle('text-label-3', !d.headline);
-  const track = $('pv-track');
-  const isBiz = d.track === 'Business Developer';
-  track.textContent = isBiz ? 'Business Dev' : 'Software Dev';
-  track.className = 'px-2.5 py-0.5 rounded-full font-semibold ' + (isBiz ? 'bg-applePurple/15 text-purpleText' : 'bg-appleBlue/10 text-blueText');
-  $('pv-location').textContent = [d.location, d.setting].filter(Boolean).join(' · ');
-  $('pv-skills').innerHTML = d.skills.slice(0, 5).map(s => '<span class="bg-fill text-label text-caption px-2 py-0.5 rounded-md">' + esc(s) +
-    (demo && demo.endorsements[s] ? ' <span class="text-greenText font-semibold">' + demo.endorsements[s] + '</span>' : '') + '</span>').join('');
-  const nVerified = demo ? demo.verified.length : 0;
-  $('pv-verified').innerHTML = nVerified ? '<svg class="icon w-4 h-4"><use href="#i-check"/></svg>' + nVerified + ' verified project' + (nVerified > 1 ? 's' : '') : '';
-  $('pv-looking').textContent = d.goals.length
-    ? 'Looking for: ' + d.goals.join(', ') + (d.hours ? ' · ' + d.hours + ' hrs/week' : '')
-    : '';
+  setAvatar($('pf-photo-preview'), d.photo, initials(d.first, d.last));
   updateStrength(d);
 }
 
@@ -379,7 +364,7 @@ function strengthChecks(d) {
   return [
     ['Add a profile photo', !!d.photo, 15, 'basics'],
     ['Write a headline', !!d.headline, 10, 'basics'],
-    ['Write your About section', !!d.about, 10, 'basics'],
+    ['Write your About section', !!d.about, 10, 'about'],
     ['Add a work experience', d.experience.some(e => e.title && e.company), 15, 'experience'],
     ['Add at least 3 skills', d.skills.length >= 3, 15, 'skills'],
     ['Add skills you\'re learning', d.learn.length > 0, 10, 'skills'],

@@ -10,6 +10,13 @@ module.exports = async (browser, t) => {
 
   // ---------- Your Profile tab: the form first, then your page ----------
   t.ok('a new member starts on the form, with the banner', await visible(page, 'profile-edit') && await visible(page, 'profile-banner') && !(await visible(page, 'profile-page')));
+  const form = await page.evaluate(() => ({
+    main: [...document.querySelectorAll('#profile-form > div > [id^="pf-section-"]')].map(e => e.id.replace('pf-section-', '')),
+    side: [...document.querySelectorAll('#profile-form > aside > [id^="pf-section-"]')].map(e => e.id.replace('pf-section-', '')),
+    preview: !!document.getElementById('pv-photo'),
+  }));
+  t.ok('the form is laid out like the page: top card and main sections, then the side column (D051)',
+    form.main.join() === 'basics,about,work,skills,experience,education,verified' && form.side.join() === 'strength,import,looking,links' && !form.preview, JSON.stringify(form));
   await page.type('#pf-headline', 'Full-stack developer · ex-teacher');
   await page.click('#profile-form button[type=submit]'); await sleep(300);
   t.ok('Save profile returns to your page', await visible(page, 'profile-page') && !(await visible(page, 'profile-edit')) && (await text('profile-page')).includes('Full-stack developer · ex-teacher'));

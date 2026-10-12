@@ -39,6 +39,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Licence:** `LICENSE` makes the code "all rights reserved" (D031). It can be read on GitHub but not copied or reused without permission.
 
 ### Changed
+- **The profile form is laid out like your profile page** (D051): a top card with your photo, name and headline, then About, Work to show, Skills, Experience, Education and Verified experience, with Profile strength, Import from your CV, Available for and Links beside them. About has its own section. The "How others see you" preview card is gone.
 - **The "…" menu is in the top-right corner** of your own posts (D048), after the post type, on every screen width. It's no longer in the button row. Its menu has a solid background, so the post's text no longer shows through it.
 - **Your activity fits one screen** (D046): Needs you (applicants to review, invitations, unread conversations, projects to mark complete), In progress (applications and projects), Your profile (how complete it is, with the next step) and a one-line drafts link that opens the drafts list. The header card and New for you are gone. Lists show a few rows, then "N more". It now ends about 610px down a 1440×900 window, where it used to run to about 1,070px.
 - **See details only when there's more** (D045): updates, questions and resources show See details only when their text runs past 3 lines or they have hidden attachments. Opportunities always have it.
