@@ -70,9 +70,22 @@ module.exports = async (browser, t) => {
   // D043: one row of buttons, and the files wait on the opportunity page
   const row = await page.$eval('[data-post="p-tableturn"] .border-t', e => [...e.querySelectorAll('button')].map(b => b.textContent.trim()));
   t.ok('Apply and See details share the row with likes and comments', row.includes('Apply') && row.includes('See details') && row.length === 4, JSON.stringify(row));
-  t.ok('opportunity cards show no attachments', !(await page.$('[data-post="p-tableturn"] img[alt="tableturn-mockup.png"]')) &&
-    !(await page.$eval('[data-post="p-refill"]', e => e.innerText)).includes('Pharmacy interview notes.pdf'));
-  t.ok('other posts still show their attachments on the card', (await page.evaluate(() => renderPost(postById('p-unit-econ')))).includes('Unit economics template.pdf'));
+  // D044: photos stay on the card in a small frame; documents wait in the details, with a count
+  t.ok('an opportunity photo shows in a frame 220px tall', (await page.$eval('[data-post="p-tableturn"] img[alt="tableturn-mockup.png"]', e => Math.round(e.closest('button').getBoundingClientRect().height))) === 220);
+  t.ok('documents are not on the card, which counts them instead', await page.$eval('[data-post="p-refill"]', e => !e.innerText.includes('Pharmacy interview notes.pdf') && e.innerText.includes('1 attachment')));
+  const cardHtml = id => page.evaluate(id => renderPost(postById(id)), id);
+  t.ok("a resource's document waits in the details too", !(await cardHtml('p-unit-econ')).includes('Unit economics template.pdf') && (await cardHtml('p-unit-econ')).includes('1 attachment'));
+  t.ok("a resource's link stays on the card as one line, and isn't counted", (await cardHtml('p-rls')).includes('Row Level Security') && !(await cardHtml('p-rls')).includes('attachment'));
+  t.ok('long text on a card stops after 3 lines', (await cardHtml('p-footprint')).includes('line-clamp-3'));
+  await page.evaluate(() => openPost('p-unit-econ')); await sleep(300);
+  t.ok('See details shows the whole post with its documents and comments', await page.$eval('#sheet-panel', e => e.innerText.includes('Unit economics template.pdf') && !!e.querySelector('#comment-full-p-unit-econ') && !e.querySelector('.line-clamp-3')));
+  t.ok('the details have a heading for screen readers and no repeated ids', await page.evaluate(() => !!document.querySelector('#sheet-panel #sheet-title') && !document.querySelector('#sheet-panel [id^="post-"]')));
+  await page.type('#comment-full-p-unit-econ', 'Thanks, very useful'); await page.keyboard.press('Enter'); await sleep(200);
+  t.ok('a comment can be added from the details', (await page.$eval('#sheet-panel', e => e.innerText)).includes('Thanks, very useful') && await page.evaluate(() => document.activeElement.id === 'comment-full-p-unit-econ'));
+  await page.evaluate(() => closeSheet()); await sleep(200);
+  await page.evaluate(() => openPost('p-tableturn')); await sleep(300);
+  t.ok("an opportunity's See details opens its page", (await page.$$eval('#sheet-panel h3', x => x.map(e => e.textContent))).includes('At a glance'));
+  await page.evaluate(() => closeSheet()); await sleep(200);
   await page.evaluate(() => openOpportunity('p-tableturn')); await sleep(300);
   t.ok('the opportunity page shows its attachments', !!(await page.$('#sheet-panel img[alt="tableturn-mockup.png"]')));
   const sections = await page.$$eval('#sheet-panel h3', x => x.map(e => e.textContent));
@@ -97,6 +110,7 @@ module.exports = async (browser, t) => {
   // ---------- Updates (spec 13) ----------
   const filters = await page.$$eval('#feed-filters button', x => x.map(e => e.textContent));
   t.ok('filters are For you, All, Opportunities, Updates, Support and Resources', filters.join('|') === 'For you|All|Opportunities|Updates|Support|Resources', filters.join('|'));
+  t.ok('the post box has no type buttons: the form asks for the type', await page.evaluate(() => !document.querySelector('#tab-feed [data-on-click^="openComposer(\'work\')"]') && document.querySelector('#tab-feed .card button').textContent.includes('question')));
   t.ok('no Personal project or Community composer buttons', await page.evaluate(() => !document.querySelector('[data-on-click="openComposer(\'personal\')"], [data-on-click="openComposer(\'community\')"]') && !POST_TYPES.personal && !POST_TYPES.community));
   await page.evaluate(() => { setFeedFilter('update'); }); await sleep(100);
   const labels = await page.$$eval('#feed-list article', x => x.map(e => (e.querySelector('p > span') || {}).textContent || ''));
@@ -136,7 +150,8 @@ module.exports = async (browser, t) => {
   await page.evaluate(() => { $('cp-link-url').value = 'stripe.com/docs/payments/checkout'; $('cp-link-title').value = 'Stripe Checkout docs'; addComposerLink(); });
   t.ok('photo, video, 2 documents, and a link attached', (await page.evaluate(() => cp.attachments.map(a => a.kind).sort().join())) === 'doc,doc,image,link,video');
   await page.click('#cp-submit'); await sleep(900);
-  t.ok('new post shows photo, video, and link', await page.$eval('#feed-list article', e => e.dataset.post.startsWith('u-') && e.querySelectorAll('img').length === 1 && e.querySelectorAll('video').length === 1 && e.querySelectorAll('a[target=_blank]').length === 1));
+  t.ok('a new post shows its photo and video side by side, and counts its 2 documents and link', await page.$eval('#feed-list article', e => e.dataset.post.startsWith('u-') && e.querySelectorAll('img').length === 1 && e.querySelectorAll('video').length === 1 && !e.querySelector('a[target=_blank]') && e.innerText.includes('3 attachments')));
+  t.ok('See details shows the documents and the link', await page.evaluate(() => { openPost(demo.posts[0].id); const t = $('sheet-panel').innerText; closeSheet(); return t.includes('notes.txt') && t.includes('Stripe Checkout docs'); }));
   t.ok('a posted update shows its label and its text', await page.$eval('#feed-list article', e => e.querySelector('p > span').textContent === 'Project' && e.innerText.includes('Booking flow demo from today')));
   t.ok("a title typed for another post type isn't saved on an update", await page.evaluate(() => demo.posts[0].title === '' && !document.querySelector('#feed-list article:first-child h3')));
   t.ok('uploaded photo loads from browser storage', await page.$eval('#feed-list article img', e => e.src.startsWith('blob:') && e.naturalWidth > 0));

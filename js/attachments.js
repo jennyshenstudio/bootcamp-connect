@@ -189,6 +189,34 @@ function renderAttachments(post) {
   return '<div class="space-y-2">' + html + '</div>';
 }
 
+// ----- On a Feed card (D044): photos and videos in a small frame, a resource's link as one line, the rest behind See details -----
+function cardMedia(post) {
+  const media = (post.attachments || []).filter(a => a.kind === 'image' || a.kind === 'video');
+  if (!media.length) return '';
+  if (media.length === 1) return attTile(post, media[0], 'block w-full h-[220px] rounded-2xl [&>img]:object-top');
+  return '<div class="grid ' + (media.length === 2 ? 'grid-cols-2' : 'grid-cols-3') + ' gap-1 rounded-2xl overflow-hidden">' + media.slice(0, 3).map((a, i) =>
+    attTile(post, a, 'block h-[160px] [&>img]:object-top', i === 2 && media.length > 3 ? '<span class="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-title2 font-semibold">+' + (media.length - 3) + '</span>' : '')).join('') + '</div>';
+}
+
+// A resource's first link is the resource itself, so it stays on the card
+function mainLink(post) {
+  return post.type === 'resource' ? (post.attachments || []).find(a => a.kind === 'link') : null;
+}
+
+function cardLink(post) {
+  const a = mainLink(post);
+  return a ? '<a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer" class="entry !py-2.5 !px-3 flex items-center gap-2.5 text-subhead hover:bg-[var(--glass-control-hover)] transition">' +
+    '<svg class="icon w-4 h-4 text-blueText shrink-0"><use href="#i-link"/></svg>' +
+    '<span class="font-semibold truncate min-w-0">' + esc(a.title || domainOf(a.url)) + '</span>' +
+    '<span class="text-footnote text-label-2 shrink-0">' + esc(domainOf(a.url)) + '</span></a>' : '';
+}
+
+// Documents and links that only show in the post's details
+function hiddenAttachments(post) {
+  const main = mainLink(post);
+  return (post.attachments || []).filter(a => a.kind === 'doc' || (a.kind === 'link' && a !== main)).length;
+}
+
 // Swap placeholders for object URLs of files stored in IndexedDB
 function hydrateAttachments(root) {
   root.querySelectorAll('[data-att-id]').forEach(async el => {

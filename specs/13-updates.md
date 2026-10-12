@@ -13,7 +13,7 @@ Members share professional announcements about their career or a project, like a
 No title: the first line does that job. No "feedback wanted" option.
 
 ## In the Feed
-The author, their pathway and when they posted, a Career or Project label in words, the text, attachments, likes and comments. Filter: **Updates**.
+The author, their pathway and when they posted, a Career or Project label in words, the text (up to 3 lines on the card), photos and videos in a small frame, a count of other attachments, likes and comments. See details shows the full text and every attachment (D044). Filter: **Updates**.
 
 ## Sample posts
 The 2 personal project posts become Project updates. The 2 community posts (Demo Day sign-ups and the welcome post) are removed, because they're cohort announcements rather than career or project news. A career update is added.
@@ -26,7 +26,7 @@ Personal project posts load as Project updates and community posts as updates wi
 
 ## Acceptance criteria
 1. The composer offers Update with Career or Project, the news box (required, up to 1,000 characters) and attachments, and no title or feedback option.
-2. A posted update shows its label in words, its text and its attachments.
+2. A posted update shows its label in words, its text and its photos and videos on the card, and all its attachments in its details.
 3. The Updates filter shows only updates. There are no Personal or Community filters, post types or composer buttons.
 4. Saved personal project and community posts still load, as updates.
 5. Everything works by keyboard, at 320px wide, and in light and dark mode. All tests pass.

@@ -126,9 +126,12 @@ module.exports = async (browser, t) => {
   await signUp(page);
   await collect(); // profile
   await page.click('button[data-on-click="switchTab(\'feed\')"]'); await sleep(400); await collect();
-  await page.click('button[data-on-click="openComposer(\'work\')"]'); await sleep(400); await collect();
+  await page.click('#tab-feed button[data-on-click="openComposer(\'update\')"]'); await sleep(400);
+  await page.click('label:has(input[name="cp-type"][value="work"])'); await sleep(300); await collect();
   await page.keyboard.press('Escape'); await sleep(300);
-  await page.$eval('#feed-list button[data-on-click^="openOpportunity"]', b => b.click()); await sleep(400); await collect();
+  await page.$eval('#feed-list [data-post="p-tableturn"] button[data-on-click^="openPost"]', b => b.click()); await sleep(400); await collect();
+  await page.keyboard.press('Escape'); await sleep(300);
+  await page.$eval('#feed-list [data-post="p-unit-econ"] button[data-on-click^="openPost"]', b => b.click()); await sleep(400); await collect();
   await page.keyboard.press('Escape'); await sleep(300);
   await page.click('button[data-on-click="switchTab(\'matching\')"]'); await sleep(400); await collect();
   await page.$eval('#people-grid button[data-on-click^="openPerson"]', b => b.click()); await sleep(400); await collect();

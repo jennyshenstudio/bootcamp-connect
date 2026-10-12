@@ -72,8 +72,7 @@ function upgradeToUpdate(p) {
 
 function refreshPost(id) {
   document.querySelectorAll('[data-post="' + id + '"]').forEach(el => {
-    const compact = el.dataset.compact === '1';
-    el.outerHTML = renderPost(postById(id), { compact });
+    el.outerHTML = renderPost(postById(id), { compact: el.dataset.compact === '1', full: el.dataset.full === '1' });
   });
   document.querySelectorAll('[data-post="' + id + '"]').forEach(el => hydrateAttachments(el));
 }
@@ -110,18 +109,34 @@ function workBlock(post) {
   return html;
 }
 
-// An opportunity's buttons share the row with likes and comments (D043)
-function workActions(post) {
-  return '<div class="flex flex-wrap gap-2 ml-auto">' + opportunityActions(post) +
-    '<button type="button" class="btn btn-gray btn-sm" data-on-click="openOpportunity(\'' + post.id + '\')">See details</button></div>';
+// Right of the likes row: how many files wait in the details, Save, an opportunity's buttons and See details (D043, D044)
+function cardActions(post, saveButton) {
+  const hidden = hiddenAttachments(post);
+  return '<div class="flex flex-wrap items-center gap-2 ml-auto">' +
+    (hidden ? '<span class="inline-flex items-center gap-1 text-footnote text-label-2 px-1"><svg class="icon w-4 h-4"><use href="#i-doc"/></svg>' + hidden + ' attachment' + (hidden === 1 ? '' : 's') + '</span>' : '') +
+    saveButton + (post.type === 'work' ? opportunityActions(post) : '') +
+    '<button type="button" class="btn btn-gray btn-sm" data-on-click="openPost(\'' + post.id + '\')">See details</button></div>';
 }
 
-function renderPost(post, { compact = false } = {}) {
+// A post's details: all its text, attachments and comments. Opportunities have their own page (D044)
+function openPost(id) {
+  const post = postById(id);
+  if (post.type === 'work') return openOpportunity(id);
+  openSheet('<div class="relative">' + sheetClose() +
+    '<h2 id="sheet-title" class="sr-only">' + esc(post.title || POST_TYPES[post.type].label + ' from ' + memberName(post.author, true)) + '</h2>' +
+    renderPost(post, { full: true }) + '</div>', 'post:' + id);
+  hydrateAttachments($('sheet-panel'));
+  $('sheet-close').focus();
+}
+
+// The card is short (D044); the details (full) show everything
+function renderPost(post, { compact = false, full = false } = {}) {
   const ps = postState(post.id);
   const comments = postComments(post);
   let body = '';
   if (post.title) body += '<h3 class="font-semibold text-body">' + esc(post.title) + '</h3>';
-  if (post.body && post.type !== 'work') body += '<p class="text-subhead text-label-2 whitespace-pre-line' + (compact ? ' line-clamp-2' : '') + '">' + esc(post.body) + '</p>';
+  // On a card, a blank line between paragraphs would use up one of its 3 lines
+  if (post.body && post.type !== 'work') body += '<p class="text-subhead text-label-2 whitespace-pre-line' + (compact ? ' line-clamp-2' : full ? '' : ' line-clamp-3') + '">' + esc(full ? post.body : post.body.replace(/\n\s*\n/g, '\n')) + '</p>';
   if (post.type === 'work') body += workBlock(post);
   if (post.type === 'resource' && (post.tags || []).length) body += '<div class="flex flex-wrap gap-1">' + post.tags.map(t => '<span class="bg-fill text-label-2 text-caption px-2 py-0.5 rounded-md">#' + esc(t) + '</span>').join('') + '</div>';
   if (post.type === 'update' && post.label) body = '<p><span class="text-footnote font-semibold px-2.5 py-0.5 rounded-full bg-fill text-label-2">' + esc(post.label) + '</span></p>' + body;
@@ -131,36 +146,40 @@ function renderPost(post, { compact = false } = {}) {
       '<span class="text-footnote text-label-2">' + comments.length + ' answer' + (comments.length === 1 ? '' : 's') + '</span>' +
       (isMine(post) && !solved ? '<button type="button" class="btn btn-plain btn-sm !min-h-[32px]" data-on-click="markSolved(\'' + post.id + '\')">Mark solved</button>' : '') + '</div>';
   }
-  // An opportunity's files show on its page, so its card stays short (D043)
-  if (!compact && post.type !== 'work') body += renderAttachments(post);
-  if (compact && post.type === 'work') body += workActions(post);
+  if (full) body += renderAttachments(post);
+  else if (!compact) body += cardMedia(post) + cardLink(post);
 
   const likeCount = (post.likes || 0) + (ps.liked ? 1 : 0);
+  const saveButton = post.type !== 'resource' ? '' : '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] ' + (full ? 'ml-auto ' : '') + (ps.saved ? '!text-blueText' : '!text-label-2') + '" data-on-click="toggleSave(\'' + post.id + '\')" aria-pressed="' + ps.saved + '">' +
+    '<svg class="icon w-[18px] h-[18px]"' + (ps.saved ? ' style="fill:currentColor"' : '') + '><use href="#i-bookmark"/></svg>' + (ps.saved ? 'Saved' : 'Save') + ' <span class="tabular-nums">' + ((post.saves || 0) + (ps.saved ? 1 : 0)) + '</span></button>';
   const footer = compact ? '' :
     '<div class="pt-2 border-t border-hairline flex flex-wrap items-center gap-1 -mx-2">' +
       '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] ' + (ps.liked ? '!text-redText' : '!text-label-2') + '" data-on-click="toggleLike(\'' + post.id + '\')" aria-pressed="' + ps.liked + '" aria-label="Like">' +
         '<svg class="icon w-[18px] h-[18px]"' + (ps.liked ? ' style="fill:currentColor"' : '') + '><use href="#i-heart"/></svg><span class="tabular-nums">' + likeCount + '</span></button>' +
-      '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="toggleComments(\'' + post.id + '\')" aria-expanded="' + openComments.has(post.id) + '">' +
+      (full ? '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="focusField(\'comment-full-' + post.id + '\')">'
+        : '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] !text-label-2" data-on-click="toggleComments(\'' + post.id + '\')" aria-expanded="' + openComments.has(post.id) + '">') +
         '<svg class="icon w-[18px] h-[18px]"><use href="#i-chat"/></svg><span class="tabular-nums">' + comments.length + '</span><span class="sr-only"> comments</span></button>' +
-      (post.type === 'resource' ? '<button type="button" class="btn btn-plain btn-sm !min-h-[36px] ml-auto ' + (ps.saved ? '!text-blueText' : '!text-label-2') + '" data-on-click="toggleSave(\'' + post.id + '\')" aria-pressed="' + ps.saved + '">' +
-        '<svg class="icon w-[18px] h-[18px]"' + (ps.saved ? ' style="fill:currentColor"' : '') + '><use href="#i-bookmark"/></svg>' + (ps.saved ? 'Saved' : 'Save') + ' <span class="tabular-nums">' + ((post.saves || 0) + (ps.saved ? 1 : 0)) + '</span></button>' : '') +
-      (post.type === 'work' ? workActions(post) : '') +
+      (full ? saveButton : cardActions(post, saveButton)) +
     '</div>' +
-    (openComments.has(post.id) ? commentsBlock(post, comments) : '');
+    (full || openComments.has(post.id) ? commentsBlock(post, comments, full) : '');
 
   // Opportunities get a coloured edge for their pathway (D040); the pathway is also named in words
   const edge = post.type !== 'work' ? '' : isBizTrack(post.lookingFor) ? ' border-l-[6px] border-l-applePurple' : ' border-l-[6px] border-l-appleBlue';
-  return '<article id="post-' + post.id + '" data-post="' + post.id + '" data-compact="' + (compact ? 1 : 0) + '" class="card p-5 space-y-3 scroll-mt-24' + edge + '">' + authorBlock(post) + body + footer + '</article>';
+  // The details sit in a sheet, so they drop the card look and the Feed's id, and leave room for the close button
+  return '<article' + (full ? '' : ' id="post-' + post.id + '"') + ' data-post="' + post.id + '" data-compact="' + (compact ? 1 : 0) + '" data-full="' + (full ? 1 : 0) + '" class="' +
+    (full ? 'p-5 sm:p-7 pt-14 sm:pt-14 space-y-3' : 'card p-5 space-y-3 scroll-mt-24' + edge) + '">' + authorBlock(post) + body + footer + '</article>';
 }
 
-function commentsBlock(post, comments) {
+// The details use their own ids, so a post open in both places doesn't repeat them
+function commentsBlock(post, comments, full = false) {
+  const inputId = (full ? 'comment-full-' : 'comment-') + post.id;
   return '<div class="space-y-3">' +
     comments.map(c => '<div class="flex items-start gap-2.5">' + memberAvatar(c.from, 'w-7 h-7 text-caption2') +
       '<div class="min-w-0 flex-1 entry !py-2 !px-3"><p class="text-footnote"><span class="font-semibold">' + esc(memberName(c.from, true)) + '</span> <span class="text-label-3">· ' + esc(c.ts ? relTime(c.ts) : c.time) + '</span></p>' +
       '<p class="text-subhead whitespace-pre-line">' + esc(c.text) + '</p></div></div>').join('') +
     '<form class="flex items-end gap-2" data-on-submit="addComment(event, \'' + post.id + '\')">' + myAvatar('w-7 h-7 text-caption2 mb-1.5') +
-      '<label for="comment-' + post.id + '" class="sr-only">Add a comment</label>' +
-      '<input id="comment-' + post.id + '" class="pf-input !min-h-[38px] !py-1.5 !text-subhead !rounded-full" placeholder="' + (post.type === 'support' ? 'Write an answer…' : 'Add a comment…') + '" maxlength="500">' +
+      '<label for="' + inputId + '" class="sr-only">Add a comment</label>' +
+      '<input id="' + inputId + '" class="pf-input !min-h-[38px] !py-1.5 !text-subhead !rounded-full" placeholder="' + (post.type === 'support' ? 'Write an answer…' : 'Add a comment…') + '" maxlength="500">' +
       '<button type="submit" class="btn btn-primary !min-h-[38px] !w-[38px] !p-0 shrink-0" aria-label="Send"><svg class="icon w-4 h-4"><use href="#i-up"/></svg></button></form>' +
   '</div>';
 }
@@ -175,13 +194,13 @@ function toggleComments(id) {
 }
 function addComment(e, id) {
   e.preventDefault();
-  const input = $('comment-' + id);
+  const input = e.target.querySelector('input');
   const text = input.value.trim();
   if (!text) return;
   postState(id).comments.push({ from: 'me', text, ts: Date.now() });
   saveDemo();
   refreshPost(id);
-  $('comment-' + id)?.focus();
+  $(input.id)?.focus();
 }
 
 function scrollToPost(id) {

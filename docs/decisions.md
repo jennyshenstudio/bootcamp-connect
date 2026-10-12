@@ -19,7 +19,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D009 | Design: Apple Human Interface Guidelines with Liquid Glass, automatic dark mode | Accepted (built) | All screens |
 | D010 | Navigation: Feed, Connect, Messages, Profile | Accepted (built) | Navigation |
 | D011 | Sample community for demos, clearly labelled | Accepted (built) | Demo content |
-| D012 | Typed feed with the same attachments on every post type | Accepted (built); opportunity cards show attachments on the opportunity page instead (D043) | Feed |
+| D012 | Typed feed with the same attachments on every post type | Accepted (built); where they show changed by D044 (photos on cards, the rest in See details) | Feed |
 | D013 | Pay types: Paid (fixed fee), Unpaid / volunteer, Equity / co-founder | Accepted (built); for posting, superseded by D040 (Paid or Unpaid, pounds only) | Projects, matching |
 | D014 | Matching v2: hard filters, weighted fit, two-way person fit, team suggestions | Accepted (built); person fit superseded by D038; project fit percentage and skills superseded by D040 | Feed, Connect |
 | D015 | Project loop ending in verified experience | Accepted (built) | Projects, profile |
@@ -50,7 +50,8 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D040 | Opportunities replace projects in the Feed: Paid or Unpaid, commitment, workplace, dates, job-listing layout, coloured edge for the pathway, short application; Connect is People only | Accepted (built) | Feed, projects, matching, Connect, demo content |
 | D041 | Updates replace Personal project and Community posts: Career or Project, professional announcements with attachments, no title or feedback option | Accepted (built) | Feed, demo content |
 | D042 | The Feed sidebar becomes "Your activity" (new, current, people, to do, drafts; empty sections hidden); drafts saved automatically | Accepted (built) | Feed, posts |
-| D043 | Opportunity cards have one row of buttons (with likes and comments) and show their attachments on the opportunity page, not the card | Accepted (built) | Feed |
+| D043 | Opportunity cards have one row of buttons (with likes and comments) and show their attachments on the opportunity page, not the card | Accepted (built); attachments rule superseded by D044 | Feed |
+| D044 | Compact Feed cards: no type buttons under the post box; photos and videos in a small frame; documents and other links in See details, with a count; text up to 3 lines; See details on every post | Accepted (built) | Feed |
 
 ## Entries
 

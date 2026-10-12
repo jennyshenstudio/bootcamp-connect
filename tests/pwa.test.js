@@ -80,7 +80,8 @@ module.exports = async (browser, t) => {
     await signUp(page);
     t.ok('sign-up works under the CSP', await page.$eval('#app-dashboard', e => !e.classList.contains('hidden')));
     await page.click('.tab-bar button[data-tab="feed"]'); await sleep(400);
-    await page.click('button[data-on-click="openComposer(\'work\')"]'); await sleep(300);
+    await page.click('#tab-feed button[data-on-click="openComposer(\'update\')"]'); await sleep(300);
+    await page.click('label:has(input[name="cp-type"][value="work"])'); await sleep(200);
     t.ok('composer opens under the CSP', await page.$('#cp-title') !== null);
     await page.keyboard.press('Escape'); await sleep(200);
     await page.evaluate(() => openViewer('p-unit-econ', 'a-ue')); await sleep(2500);
