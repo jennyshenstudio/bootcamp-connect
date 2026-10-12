@@ -14,19 +14,17 @@ module.exports = async (browser, t) => {
   let page = await openApp(browser, t);
   await signUp(page);
   const community = await page.evaluate(() => {
-    const cohorts = {};
-    DEMO_PEOPLE.forEach(p => { cohorts[p.cohort] = (cohorts[p.cohort] || 0) + 1; });
     return {
-      total: DEMO_PEOPLE.length, cohorts,
+      total: DEMO_PEOPLE.length, noCohort: DEMO_PEOPLE.every(p => !('cohort' in p)),
       allUK: DEMO_PEOPLE.every(p => p.location.endsWith(', UK')),
-      complete: DEMO_PEOPLE.every(p => p.stage && p.cohort && p.education.length && p.skills.length),
+      complete: DEMO_PEOPLE.every(p => p.stage && p.education.length && p.skills.length),
       linksBothWays: Object.entries(DEMO_LINKS).every(([a, list]) => list.every(b => DEMO_LINKS[b].includes(a))),
       invites: DEMO_INVITES.every(i => person(i.from) && i.note),
     };
   });
-  t.ok('99 sample members: 24 in Cohort 12 (25 with you) and 25 in each of Cohorts 9 to 11', community.total === 99 && community.cohorts[12] === 24 && [9, 10, 11].every(c => community.cohorts[c] === 25), JSON.stringify(community.cohorts));
+  t.ok('99 sample members, none with a cohort (D049)', community.total === 99 && community.noCohort);
   t.ok('every sample member lives in the UK', community.allUK);
-  t.ok('every sample member has a stage, cohort, education and skills', community.complete);
+  t.ok('every sample member has a stage, education and skills', community.complete);
   t.ok('connections between members go both ways', community.linksBothWays);
   t.ok('waiting connection requests come from real sample members, with a note', community.invites);
   t.ok('Messages badge starts at 7 unread', (await page.$eval('#btn-chat [data-badge]', e => e.hidden ? '' : e.textContent)) === '7');
@@ -44,17 +42,19 @@ module.exports = async (browser, t) => {
   await page.click('#people-more'); await sleep(100);
   t.ok('Show more adds 24 more and moves focus to the first new card', (await count()) === 48 && await page.evaluate(() => document.activeElement.closest('article') === document.querySelectorAll('#people-grid article')[24]));
   const card = await page.$eval('#people-grid article', e => e.innerText);
-  t.ok('cards show stage, cohort and mutual connections, and no match percentage', /Cohort \d+/.test(card) && /mutual connection/.test(card) && !/%/.test(card) && !(await page.$eval('#people-view', e => e.innerText)).includes('%'));
+  t.ok('cards show stage and mutual connections, with no cohort and no match percentage', !/cohort/i.test(card) && /(Learning|Junior|Mid-level|Senior|Exploring|Running|Experienced)/.test(card) && /mutual connection/.test(card) && !/%/.test(card) && !(await page.$eval('#people-view', e => e.innerText)).includes('%'));
 
   // Search and filters
   const setFilter = async (id, value) => { await page.select('#' + id, value); await sleep(100); };
   await setFilter('people-conn', 'connected'); t.ok('Connected filter shows your 5 connections', (await shown()) === 'Showing 5 of 5 members');
   await setFilter('people-conn', 'not'); t.ok('Not connected filter shows the other 94', (await shown()) === 'Showing 24 of 94 members');
   await setFilter('people-conn', '');
-  await setFilter('people-cohort', 'alumni'); t.ok('Alumni filter shows 75 members', (await shown()) === 'Showing 24 of 75 members');
+  t.ok('there is no Cohort filter: Track, Stage and Connection only', await page.evaluate(() => !$('people-cohort') && [...document.querySelectorAll('[role="search"] label')].map(l => l.textContent).join() === 'Search members,Track,Stage,Connection'));
+  await setFilter('people-conn', 'not');
   await setFilter('people-track', 'Business Developer');
-  const combined = await page.evaluate(() => [...document.querySelectorAll('#people-grid article')].map(a => person(a.dataset.person)));
-  t.ok('filters work together (alumni and Business Developer)', combined.length > 0 && combined.every(p => p.cohort !== 12 && p.track === 'Business Developer'));
+  const combined = await page.evaluate(() => [...document.querySelectorAll('#people-grid article')].map(a => ({ track: person(a.dataset.person).track, connected: !!demo.connected[a.dataset.person] })));
+  t.ok('filters work together (not connected and Business Developer)', combined.length > 0 && combined.every(p => !p.connected && p.track === 'Business Developer'));
+  await setFilter('people-conn', '');
   await setFilter('people-stage', 'Junior (under 2 years)');
   t.ok('a stage from the other track finds no one', (await shown()) === 'No members found');
   t.ok('Clear filters appears when filtering', await visible(page, 'people-clear'));
@@ -73,8 +73,10 @@ module.exports = async (browser, t) => {
   await page.type('#connect-note', 'Hi Aisha, I loved StudySprint.');
   t.ok('the note shows how many characters are left', (await page.$eval('#connect-note-count', e => e.textContent)) === 'You have 270 characters remaining');
   await page.evaluate(() => [...document.querySelectorAll('#sheet-panel button')].find(b => b.textContent === 'Send request').click()); await sleep(100);
+  await search('Aisha Bello');
   t.ok('sending saves the request with its note and offers Withdraw', await page.evaluate(() => demo.requested.aisha && demo.requested.aisha.note === 'Hi Aisha, I loved StudySprint.') &&
     (await page.$eval('#people-grid [data-person=aisha]', e => e.innerText)).includes('Withdraw request'));
+  await page.click('#people-clear'); await sleep(100);
   await sleep(1700);
   t.ok('a connection request is accepted', await page.evaluate(() => demo.connected.aisha === true && !demo.requested.aisha));
   const waiting = await page.evaluate(() => DEMO_PEOPLE.find(p => leavesWaiting(p.id)).id);
@@ -94,30 +96,30 @@ module.exports = async (browser, t) => {
 
   // Suggestion score (spec 10, criterion 7)
   const score = await page.evaluate(() => {
-    const id = DEMO_PEOPLE.find(p => p.cohort === 9 && !demo.connected[p.id] && p.experience.some(e => e.company !== 'Self-employed' && !e.company.startsWith('Bootcamp'))).id;
+    const id = DEMO_PEOPLE.find(p => !demo.connected[p.id] && p.experience.some(e => e.company !== 'Self-employed' && !e.company.startsWith('Bootcamp'))).id;
     const target = person(id);
     const before = suggestionFor(id);
     const acc = currentAccount();
     updateProfile(acc, { goals: ['Co-founder', 'Hiring teammates'], stage: 'Senior (5 years or more)' });
     const sameGoals = suggestionFor(id).score === before.score;
     const company = target.experience.find(e => e.company !== 'Self-employed' && !e.company.startsWith('Bootcamp')).company;
-    updateProfile(acc, { experience: [{ title: 'Analyst', company, start: '2020-01', end: '2022-01' }], education: [{ school: target.education[0].school, course: 'BA', start: '2016', end: '2019' }], cohort: 9 });
+    updateProfile(acc, { experience: [{ title: 'Analyst', company, start: '2020-01', end: '2022-01' }], education: [{ school: target.education[0].school, course: 'BA', start: '2016', end: '2019' }] });
     const after = suggestionFor(id);
     const friend = DEMO_LINKS[id].find(x => !demo.connected[x]);
     demo.connected[friend] = true;
     const withFriend = suggestionFor(id);
-    delete demo.connected[friend]; updateProfile(acc, { cohort: null, experience: [], education: [] });
+    delete demo.connected[friend]; updateProfile(acc, { experience: [], education: [] });
     return { sameGoals, rise: after.score - before.score, reasons: after.reasons, mutualRise: withFriend.mutual.length - after.mutual.length, mutualReason: withFriend.reasons[0] };
   });
   t.ok('changing goals or stage doesn\'t change the score', score.sameGoals);
-  t.ok('same cohort, company and school raise the score by 30, each with a reason', score.rise === 30 && score.reasons.some(r => r.startsWith('Both in Cohort 9')) && score.reasons.some(r => r.startsWith('Both worked at')) && score.reasons.some(r => r.startsWith('Both studied at')), JSON.stringify(score));
+  t.ok('same company and school raise the score by 25, each with a reason, and no cohort reason', score.rise === 25 && !score.reasons.some(r => /cohort/i.test(r)) && score.reasons.some(r => r.startsWith('Both worked at')) && score.reasons.some(r => r.startsWith('Both studied at')), JSON.stringify(score));
   t.ok('a mutual connection counts, with a reason', score.mutualRise === 1 && /mutual connection/.test(score.mutualReason));
 
   await page.evaluate(() => openPerson('elena')); await sleep(200);
   const sheet = await page.$eval('#sheet-panel', e => e.innerText);
   const why = await page.$eval('#sheet-panel .entry', e => e.innerText);
   t.ok('profile sheet shows reasons without a percentage, the stage evidence line, verified experience and skills to learn',
-    why.includes('Why you might connect') && !why.includes('%') && sheet.includes('Available from 1 Nov') && sheet.includes('Exploring an idea · ') && sheet.includes('Cohort 12') && sheet.includes('Verified experience') && sheet.includes('Currently learning'), sheet.slice(0, 400));
+    why.includes('Why you might connect') && !why.includes('%') && sheet.includes('Available from 1 Nov') && sheet.includes('Exploring an idea · ') && !/cohort/i.test(sheet) && sheet.includes('Verified experience') && sheet.includes('Currently learning'), sheet.slice(0, 400));
   await page.keyboard.press('Escape');
   t.ok('Escape closes the sheet', await page.$eval('#sheet', e => e.classList.contains('hidden')));
 

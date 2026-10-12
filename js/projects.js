@@ -118,7 +118,7 @@ function openOpportunity(postId, { focusSave = false } = {}) {
     listSection('Nice to have', post.niceToHave) +
     renderAttachments(post) +
     '<section class="space-y-1.5"><h3 class="font-semibold text-body">About ' + esc(memberName(a)) + '</h3><p class="text-subhead text-label-2">' +
-      esc([who.track, who.cohort ? 'Cohort ' + who.cohort : '', who.headline].filter(Boolean).join(' · ')) + '</p></section>' +
+      esc([who.track, who.headline].filter(Boolean).join(' · ')) + '</p></section>' +
   '</div>';
   openSheet(html, 'opportunity:' + post.id);
   hydrateAttachments($('sheet-panel'));

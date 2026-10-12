@@ -68,7 +68,7 @@ function toResume(d, account) {
     skills: (d.skills || []).map(name => ({ name })),
     interests: (d.industries || []).map(name => ({ name })),
     bootcampConnect: {
-      stage: d.stage || '', cohort: d.cohort || null, currently: d.currently || '', setting: d.setting || '', learn: d.learn || [],
+      stage: d.stage || '', currently: d.currently || '', setting: d.setting || '', learn: d.learn || [],
       openTo: d.openTo || [], goals: d.goals || [], hours: d.hours || '', idea: d.idea || '', available: d.available || '',
     },
   };
@@ -92,7 +92,7 @@ function profileOf(account) {
     education: (p.education || []).map(e => ({ school: e.institution || '', course: e.area || '', start: e.startDate || '', end: e.endDate || '' })),
     work: (p.projects || []).map(pr => ({ ...emptyWork(), title: pr.name || '', link: pr.url || '', summary: pr.description || '', skills: pr.keywords || [], ...(pr.bootcampConnect || {}) })),
     skills: (p.skills || []).map(s => britishSkill(s.name)), industries: (p.interests || []).map(i => i.name),
-    stage: x.stage || '', cohort: x.cohort || null, currently: x.currently || '', setting: x.setting || '', learn: (x.learn || []).map(britishSkill),
+    stage: x.stage || '', currently: x.currently || '', setting: x.setting || '', learn: (x.learn || []).map(britishSkill),
     openTo: x.openTo || [], goals: x.goals || [], hours: x.hours || '', idea: x.idea || '', available: x.available || '',
   };
 }
@@ -293,7 +293,6 @@ function collectProfile() {
     headline: $('pf-headline').value.trim(),
     currently: $('pf-currently').value.trim(),
     stage: $('pf-stage').value,
-    cohort: Number($('pf-cohort').value) || null,
     location: $('pf-location').value.trim(),
     setting: getChecked('pf-setting')[0] || '',
     about: $('pf-about').value.trim(),
@@ -322,7 +321,6 @@ function loadProfileForm(account) {
   $('pf-track').value = account.track || 'Software Developer';
   $('pf-headline').value = p.headline || '';
   $('pf-currently').value = p.currently || '';
-  $('pf-cohort').value = String(p.cohort || CURRENT_COHORT);
   $('pf-location').value = p.location || '';
   $('pf-about').value = p.about || '';
   $('pf-linkedin').value = p.linkedin || '';

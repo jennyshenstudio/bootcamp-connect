@@ -55,6 +55,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Project folder:** the project now lives in `~/code/bootcamp-connect`, next to `~/code/foundation` (D037). `CLAUDE.md` and the setup test point at `../foundation`.
 
 ### Removed
+- **Cohort** (D049): the Cohort and Alumni filter in Connect, the cohort field on the profile, "Cohort 12" on member cards and profiles, and "Both in Cohort 12" in suggestions. Suggestions now give more weight to mutual connections, past companies and schools. Sample members and their text no longer mention cohorts.
 - **Feed hint lines** (D048): the description under the Feed title and the line under the filters for For you.
 - The old Feed sidebar cards (Opportunities for you, Your projects, Verified experience count), replaced by Your activity (D042).
 - The Personal project and Community post types, their filters and composer buttons (D041). Saved posts of those types load as updates, keeping their title and text. The Demo Day and welcome sample posts are gone; a career update from Elena is new.

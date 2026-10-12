@@ -45,8 +45,8 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D035 | GitHub secret scanning, push protection and Dependabot security alerts switched on | Accepted (built) | Security, release |
 | D036 | Stage: alpha (GOV.UK phases); CI secret scan; stronger Claude settings and pre-commit check | Accepted (built) | How we work, security |
 | D037 | Project folder moves to `~/code/bootcamp-connect`, next to `~/code/foundation` (Foundation F015) | Accepted (built) | How we work |
-| D038 | Connect is a networking app: LinkedIn-style requests, all members visible, no match percentage, suggestions from mutual connections and shared context, stage scale | Accepted (built) | Connect, matching, demo content |
-| D039 | Profile built around work to show: guided case studies, facts line, skills proven by work, teammates confirm, AI helper, "Built with" instead of an AI badge, JSON Resume shape | Accepted (built) | Profile, AI, matching, demo content |
+| D038 | Connect is a networking app: LinkedIn-style requests, all members visible, no match percentage, suggestions from mutual connections and shared context, stage scale | Accepted (built); cohort removed by D049 | Connect, matching, demo content |
+| D039 | Profile built around work to show: guided case studies, facts line, skills proven by work, teammates confirm, AI helper, "Built with" instead of an AI badge, JSON Resume shape | Accepted (built); cohort removed by D049 | Profile, AI, matching, demo content |
 | D040 | Opportunities replace projects in the Feed: Paid or Unpaid, commitment, workplace, dates, job-listing layout, coloured edge for the pathway, short application; Connect is People only | Accepted (built) | Feed, projects, matching, Connect, demo content |
 | D041 | Updates replace Personal project and Community posts: Career or Project, professional announcements with attachments, no title or feedback option | Accepted (built) | Feed, demo content |
 | D042 | The Feed sidebar becomes "Your activity" (new, current, people, to do, drafts; empty sections hidden); drafts saved automatically | Accepted (built); sidebar sections superseded by D046 | Feed, posts |
@@ -56,6 +56,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D046 | Your activity fits one screen: Needs you, In progress, profile progress and a drafts line; no header card or New for you | Accepted (built) | Feed |
 | D047 | Delete your own posts, after confirming; Edit and Delete in a "…" menu; opportunities only while open | Accepted (built); menu position superseded by D048 | Feed, posts |
 | D048 | The "…" menu sits in the card's top-right corner; no description or hint lines on the Feed | Accepted (built) | Feed |
+| D049 | No cohort: no Cohort or Alumni filter, no cohort on profiles or cards, and no cohort reason in suggestions | Accepted (built) | Connect, profile, matching, demo content |
 
 ## Entries
 
@@ -439,3 +440,16 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Risks:** at 320px wide the name and time beside the avatar get narrower and wrap onto more lines. To look at in the phone pass.
 - **Reviewed:** 2026-10-12, checked in session: a small layout change, easy to undo, so no separate review.
 - **Affects:** Feed.
+
+### D049 No cohort
+- **Date:** 2026-10-12 · **Status:** Accepted (built), the owner's request and choice · **Spec:** `specs/10-networking.md`, `specs/11-profile-work-to-show.md`
+- **Context:** the owner asked to remove cohort as a filter in Connect and on the profile. Cohort was in 4 places: the Cohort filter (with Alumni), the profile field, "Cohort 12" on member cards and profiles, and a suggestion reason worth 15 points ("Both in Cohort 12").
+- **Decision:**
+  - Remove cohort everywhere. Members no longer have a cohort, and there is no Cohort or Alumni filter. The stage evidence line shows years of experience and finished projects only.
+  - Suggestions share out cohort's 15 points so the total stays 100: mutual connections 35 (was 30), same company 15 (was 10), same school 10 (was 5).
+  - Sample members no longer have a cohort. The generating script still creates them in 4 groups that did the bootcamp at different times, so their histories and connections vary. The sample text no longer mentions cohorts; the bootcamp appears as "Bootcamp Connect" in experience.
+  - Saved profiles that have a cohort load without it.
+- **Options considered:** remove only the Connect filter; remove the filter and profile but keep cohort as a hidden suggestion reason. The owner chose to remove it everywhere.
+- **Risks:** members can no longer find people from their own intake directly; mutual connections and shared companies and schools partly cover that. Less personal data to hold on the live site.
+- **Reviewed:** 2026-10-12, checked in session: easy to undo while the app is in alpha with made-up data, so no separate review.
+- **Affects:** Connect, profile, matching, demo content. Changes parts of D038 and D039.

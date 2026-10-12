@@ -12,7 +12,7 @@ module.exports = async (browser, t) => {
   const order = ['Work to show', 'About', 'Skills', 'Experience', 'Education', 'Verified experience', 'Available for'];
   t.ok('profile sections follow the spec 11 order', order.every((h, i) => headings.indexOf(h) === headings.indexOf(order[0]) + i), headings.join(' | '));
   const marcus = await page.$eval('#sheet-panel', e => e.innerText);
-  t.ok('the top of the profile shows currently working on, stage and cohort', marcus.includes('Currently working on:') && marcus.includes('Learning (in bootcamp) · ') && marcus.includes('Cohort 12'));
+  t.ok('the top of the profile shows currently working on and stage, and no cohort', marcus.includes('Currently working on:') && marcus.includes('Learning (in bootcamp) · ') && !/cohort/i.test(marcus));
   t.ok('a piece of work shows its facts line and teammate confirmation', marcus.includes('Contributed · team of 4 to 6 · 1 to 3 months · Live') && marcus.includes('Confirmed by Sarah Jenkins'));
   t.ok('every profile says members can use AI to help write it', marcus.includes('Members can use AI to help write their profiles.'));
   t.ok('no AI badge on profiles or work', !/AI badge|Written with AI|AI-written/i.test(marcus));
@@ -56,7 +56,6 @@ module.exports = async (browser, t) => {
   await page.type('#pf-headline', 'Full-stack developer · ex-teacher');
   await page.type('#pf-currently', 'Building a budgeting app for students');
   await page.select('#pf-stage', 'Junior (under 2 years)');
-  await page.select('#pf-cohort', '11');
   await page.type('#edu-list [data-field=school]', 'University of Ashworth');
   await page.type('#edu-list [data-field=course]', 'BSc Physics');
   await page.type('#pf-skill-input', 'React'); await page.keyboard.press('Enter');
@@ -107,7 +106,7 @@ module.exports = async (browser, t) => {
 
   await page.click('#profile-form button[type=submit]'); await sleep(300);
   const saved = await page.evaluate(() => profileOf(currentAccount()));
-  t.ok('stage, cohort, currently working on, education and work are saved', saved.stage === 'Junior (under 2 years)' && saved.cohort === 11 && saved.currently.startsWith('Building') &&
+  t.ok('stage, currently working on, education and work are saved, with no cohort', saved.stage === 'Junior (under 2 years)' && !('cohort' in saved) && await page.evaluate(() => !('cohort' in currentAccount().profile.bootcampConnect)) && saved.currently.startsWith('Building') &&
     saved.education[0].school === 'University of Ashworth' && saved.work.length === 1 && saved.work[0].facts.reached === 'Live' && saved.work[0].builtWith[0] === 'Claude Code', JSON.stringify(saved).slice(0, 300));
   await sleep(1700);
   t.ok('the teammate confirms after a moment', await page.evaluate(() => profileOf(currentAccount()).work[0].teammates[0].confirmed === true) &&
@@ -118,7 +117,7 @@ module.exports = async (browser, t) => {
 
   await page.evaluate(() => openPerson('me')); await sleep(200);
   const me = await page.$eval('#sheet-panel', e => e.innerText);
-  t.ok('your full profile shows the new fields and the piece of work', me.includes('Currently working on: Building a budgeting app') && me.includes('Cohort 11 alumni') && me.includes('University of Ashworth') && me.includes('SplitHouse') && me.includes('Confirmed by Tom Nguyen'));
+  t.ok('your full profile shows the new fields and the piece of work', me.includes('Currently working on: Building a budgeting app') && !/cohort/i.test(me) && me.includes('University of Ashworth') && me.includes('SplitHouse') && me.includes('Confirmed by Tom Nguyen'));
   t.ok('skills used in your work show as proven or confirmed', await page.evaluate(() => { const p = profileView('me'); return skillGroups(p, workFor(p)).groups.confirmed.includes('React'); }));
   await page.keyboard.press('Escape');
 

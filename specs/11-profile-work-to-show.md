@@ -7,17 +7,17 @@ A list of skills says what someone claims to know, not what they've done or at w
 
 ## Where it applies
 The demo, with made-up members (alpha, D036). Before the live site:
-- `docs/personal-data.md` and the privacy notice must list the new fields (cohort, education, screenshots, links, teammates).
+- `docs/personal-data.md` and the privacy notice must list the new fields (education, screenshots, links, teammates).
 - Tagging teammates and showing work to other members is user-to-user content, so it waits for step 2 of D034 (online safety).
 - The AI helper meets the AI features trigger: test sets, a fixed model version and no personal data in AI logs, written before it reaches real members.
 
 ## Profile, in the order others see it
-1. **Top of the profile:** photo, name, headline, **currently working on** (one line, up to 100 characters, optional), track, stage with its evidence line (spec 10), cohort, location and work setting. For the viewer only: mutual connections and up to 3 reasons (spec 10).
+1. **Top of the profile:** photo, name, headline, **currently working on** (one line, up to 100 characters, optional), track, stage with its evidence line (spec 10), location and work setting. For the viewer only: mutual connections and up to 3 reasons (spec 10).
 2. **Work to show:** see below.
 3. **About:** up to 500 characters, as now.
 4. **Skills** (proven or listed, see below) and **Currently learning** (today's "skills I want to learn", up to 5).
 5. **Experience:** as now.
-6. **Education:** new. School, college, university or bootcamp, course, start and end years. Up to 3 entries, plus the bootcamp cohort (current cohort, or alumni of a cohort number).
+6. **Education:** new. School, college, university or bootcamp, course, start and end years. Up to 3 entries. There is no cohort field (D049).
 7. **Verified experience:** finished projects and endorsements (spec 07), as now.
 8. **Available for:** today's "What I'm looking for": open to (paid, unpaid or equity), goals, hours per week, available from, industries.
 9. **Links:** LinkedIn, GitHub, website.
@@ -77,7 +77,7 @@ On the published claude.ai page, after the viewer allows it:
 **No AI badge** on people or write-ups (D039). AI drafting is open to everyone, can't be detected reliably, and a badge would penalise members who rely on it for good reasons, such as dyslexia or writing in a second language. Built with and the app-wide note cover openness.
 
 ## Data shape
-- Profile data follows the shape of **JSON Resume**, an open standard for CV data (basics, work, education, projects, skills, interests). Fields JSON Resume doesn't have, such as track, stage, cohort, the guided answers, facts, Built with and teammates, are added in a clearly named extra section.
+- Profile data follows the shape of **JSON Resume**, an open standard for CV data (basics, work, education, projects, skills, interests). Fields JSON Resume doesn't have, such as track, stage, the guided answers, facts, Built with and teammates, are added in a clearly named extra section.
 - Profiles saved in today's format are converted when they load, as "Paid gig" was.
 - Later, on the live site: members can download their profile as a JSON Resume file.
 
@@ -85,7 +85,7 @@ On the published claude.ai page, after the viewer allows it:
 The generated members (spec 10) have 1 to 3 pieces of work each, with every field filled in, a mix of facts lines, some teammates confirmed between members, and some AI tools in Built with.
 
 ## Acceptance criteria
-1. The profile shows its sections in the order above. Currently working on, cohort and education can be added, are saved, and show on the profile.
+1. The profile shows its sections in the order above. Currently working on and education can be added, are saved, and show on the profile.
 2. A piece of work can be added with all its fields. It shows on the profile with its title, screenshot, facts line and summary, and Read more shows the full case study.
 3. The guided questions and hints match the member's track.
 4. Up to 6 pieces can be added. The first 3 show on the profile in the member's order, and Show all work shows the rest.

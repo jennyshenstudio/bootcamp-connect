@@ -4,7 +4,6 @@
 // ----- Connect › People (specs/10-networking.md) -----
 const PEOPLE_PAGE = 24;
 let peopleShown = PEOPLE_PAGE;
-const cohortLabel = p => p.cohort === CURRENT_COHORT ? 'Cohort ' + p.cohort : 'Cohort ' + p.cohort + ' alumni';
 const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
 const invitedBy = id => (demo.invites || []).find(i => i.from === id);
 
@@ -12,7 +11,7 @@ const invitedBy = id => (demo.invites || []).find(i => i.from === id);
 function yearsOfExperience(p) {
   const months = s => { const [y, m] = s.split('-').map(Number); return y * 12 + m; };
   const now = new Date(), today = now.getFullYear() * 12 + now.getMonth() + 1;
-  const total = (p.experience || []).filter(e => e.start && !(e.company || '').startsWith('Bootcamp Connect Cohort'))
+  const total = (p.experience || []).filter(e => e.start && (e.company || '') !== 'Bootcamp Connect')
     .reduce((n, e) => n + Math.max(0, (e.current || !e.end ? today : months(e.end)) - months(e.start)), 0);
   const years = Math.floor(total / 12);
   if (years < 1) return 'under a year\'s experience';
@@ -20,22 +19,19 @@ function yearsOfExperience(p) {
 }
 function stageEvidence(p) {
   const done = (p.verified || []).length;
-  return [p.stage, yearsOfExperience(p), cohortLabel(p), done ? plural(done, 'finished project') : '']
+  return [p.stage, yearsOfExperience(p), done ? plural(done, 'finished project') : '']
     .filter(Boolean).join(' · ');
 }
 
 function peopleFilters() {
   return {
     q: $('people-q').value.trim().toLowerCase(), track: $('people-track').value, stage: $('people-stage').value,
-    cohort: $('people-cohort').value, conn: $('people-conn').value,
+    conn: $('people-conn').value,
   };
 }
 function peopleMatch(p, f) {
   if (f.track && p.track !== f.track) return false;
   if (f.stage && p.stage !== f.stage) return false;
-  if (f.cohort === 'current' && p.cohort !== CURRENT_COHORT) return false;
-  if (f.cohort === 'alumni' && p.cohort === CURRENT_COHORT) return false;
-  if (/^\d+$/.test(f.cohort) && p.cohort !== Number(f.cohort)) return false;
   if (f.conn === 'connected' && !demo.connected[p.id]) return false;
   if (f.conn === 'not' && demo.connected[p.id]) return false;
   if (!f.q) return true;
@@ -44,7 +40,7 @@ function peopleMatch(p, f) {
 }
 function filterPeople() { peopleShown = PEOPLE_PAGE; renderPeopleGrid(); }
 function clearPeopleFilters() {
-  ['people-q', 'people-track', 'people-stage', 'people-cohort', 'people-conn'].forEach(id => { $(id).value = ''; });
+  ['people-q', 'people-track', 'people-stage', 'people-conn'].forEach(id => { $(id).value = ''; });
   filterPeople();
   $('people-q').focus();
 }
@@ -81,7 +77,7 @@ function personCard(p, s, reasons) {
       '</div>' +
     '</div>' +
     '<div class="flex flex-wrap items-center gap-x-2 gap-y-1.5">' + trackBadge(p.track) +
-      '<span class="text-footnote text-label-2">' + esc([p.stage, cohortLabel(p)].filter(Boolean).join(' · ')) + '</span>' +
+      '<span class="text-footnote text-label-2">' + esc(p.stage || '') + '</span>' +
     '</div>' +
     '<p class="text-footnote text-label-2 inline-flex items-center gap-1"><svg class="icon w-3.5 h-3.5"><use href="#i-users"/></svg>' + plural(s.mutual.length, 'mutual connection') + ' · ' + esc(p.location.replace(/, UK$/, '')) + '</p>' +
     (listed.length ? '<ul class="space-y-1">' + listed.map(r => '<li class="flex items-start gap-1.5 text-footnote text-label-2"><svg class="icon w-4 h-4 text-greenText mt-px shrink-0"><use href="#i-check"/></svg>' + esc(r) + '</li>').join('') + '</ul>' : '') +
@@ -113,7 +109,7 @@ function renderInvites() {
           '<div class="min-w-0 flex-1">' +
             '<button type="button" class="font-semibold text-body text-left hover:underline" data-on-click="openPerson(\'' + p.id + '\')">' + esc(fullName(p)) + '</button>' +
             '<p class="text-footnote text-label-2">' + esc(p.headline) + '</p>' +
-            '<p class="text-footnote text-label-2">' + esc([p.stage, cohortLabel(p)].filter(Boolean).join(' · ')) + '</p>' +
+            '<p class="text-footnote text-label-2">' + esc(p.stage || '') + '</p>' +
           '</div>' +
         '</div>' +
         (i.note ? '<blockquote class="entry !p-3 text-subhead">' + esc(i.note) + '</blockquote>' : '') +
@@ -133,7 +129,7 @@ function rankedPeople() {
 function renderSuggested() {
   const list = rankedPeople().filter(({ p }) => !demo.connected[p.id] && !demo.requested[p.id] && !invitedBy(p.id)).slice(0, 5);
   $('people-suggested').innerHTML = '<div><h3 id="people-suggested-title" class="text-title3 font-bold">Suggested for you</h3>' +
-    '<p class="text-subhead text-label-2">Based on mutual connections, your cohort, where people have worked and studied, and skills.</p></div>' +
+    '<p class="text-subhead text-label-2">Based on mutual connections, where people have worked and studied, and skills.</p></div>' +
     (list.length ? '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">' + list.map(({ p, s }) => personCard(p, s, 2)).join('') + '</div>'
       : '<p class="text-subhead text-label-2">You\'re connected with everyone we\'d suggest. Search all members below.</p>');
 }
@@ -258,7 +254,7 @@ function profileView(id) {
   if (id !== 'me') return person(id);
   const d = collectProfile();
   return {
-    ...d, id: 'me', colors: ['#0A84FF', '#BF5AF2'], cohort: d.cohort || CURRENT_COHORT,
+    ...d, id: 'me', colors: ['#0A84FF', '#BF5AF2'],
     verified: (demo && demo.verified) || [], endorsements: (demo && demo.endorsements) || {},
   };
 }

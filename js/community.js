@@ -3,8 +3,6 @@
 
 let demo = null;              // per-user demo state, saved in this browser
 let openChatId = null;
-// The current cohort. The demo account joins it until the profile has a cohort field (spec 11).
-const CURRENT_COHORT = 12;
 const typing = {};
 const replyTimers = {};
 let sheetReturnFocus = null;

@@ -18,7 +18,7 @@ function memberView(id) {
     const p = profileOf(acc);
     return {
       id: 'me', first: acc.first || 'You', track: acc.track || '',
-      cohort: p.cohort || CURRENT_COHORT, experience: p.experience || [], education: p.education || [],
+      experience: p.experience || [], education: p.education || [],
       skills: p.skills || [], learn: p.learn || [], openTo: p.openTo || [],
       hours: p.hours || '', setting: p.setting || '', industries: p.industries || [],
       goals: p.goals || [], stage: p.stage || '', work: p.work || [],
@@ -67,30 +67,28 @@ function projectFit(post, m) {
 }
 
 // ----- People suggestions (spec 10, D038) -----
-// Points (sum to 100): mutual connections 30 (5 or more gets full points), same cohort 15, same
-// company 10, same school 5, other track 10, they have skills you want to learn 10, you have skills
+// Points (sum to 100): mutual connections 35 (5 or more gets full points), same company 15,
+// same school 10, other track 10, they have skills you want to learn 10, you have skills
 // they want to learn 10, fewer than 8 connections 10. Goals and stage don't count, so newer members
 // aren't pushed down. The score only sets the order; members see the reasons, never the number.
-const companiesOf = m => (m.experience || []).map(e => e.company).filter(c => c && c !== 'Self-employed' && !c.startsWith('Bootcamp Connect Cohort'));
+const companiesOf = m => (m.experience || []).map(e => e.company).filter(c => c && c !== 'Self-employed' && c !== 'Bootcamp Connect');
 const schoolsOf = m => (m.education || []).map(e => e.school).filter(Boolean);
 const mutualConnections = id => (DEMO_LINKS[id] || []).filter(x => demo && demo.connected[x]);
 
 function suggestionFor(id) {
   const me = memberView('me'), them = memberView(id);
   const mutual = mutualConnections(id);
-  const cohort = me.cohort === them.cohort;
   const company = overlap(companiesOf(me), companiesOf(them))[0];
   const school = overlap(schoolsOf(me), schoolsOf(them))[0];
   const otherTrack = !!me.track && them.track !== me.track;
   const theyTeach = overlap(me.learn, them.skills);
   const iTeach = overlap(them.learn, me.skills);
   const newer = them.connections < 8;
-  const score = 30 * Math.min(mutual.length, 5) / 5 + (cohort ? 15 : 0) + (company ? 10 : 0) + (school ? 5 : 0) +
+  const score = 35 * Math.min(mutual.length, 5) / 5 + (company ? 15 : 0) + (school ? 10 : 0) +
     (otherTrack ? 10 : 0) + (theyTeach.length ? 10 : 0) + (iTeach.length ? 10 : 0) + (newer ? 10 : 0);
 
   const reasons = [];
   if (mutual.length) reasons.push(mutual.length + ' mutual connection' + (mutual.length > 1 ? 's' : ''));
-  if (cohort) reasons.push('Both in Cohort ' + them.cohort);
   if (company) reasons.push('Both worked at ' + company);
   if (school) reasons.push('Both studied at ' + school);
   if (theyTeach.length) reasons.push('Can help you learn ' + theyTeach.join(', '));

@@ -53,7 +53,7 @@ const DEMO_POSTS = [
   },
   {
     id: 'u-elena-client', type: 'update', label: 'Career', author: 'elena', rank: 38, time: '3h',
-    body: "Some news: I've signed my first consulting client, a small fintech in London. Over the next 8 weeks I'll help them test pricing with 50 customers.\n\nThe unit economics template I shared here was the first thing they asked to see. Thank you to everyone in Cohort 12 who gave me practice pitches.",
+    body: "Some news: I've signed my first consulting client, a small fintech in London. Over the next 8 weeks I'll help them test pricing with 50 customers.\n\nThe unit economics template I shared here was the first thing they asked to see. Thank you to everyone here who gave me practice pitches.",
     likes: 31, comments: [
       { from: 'sarah', time: '2h', text: 'Congratulations, Elena! Well deserved.' },
       { from: 'diego', time: '1h', text: 'Brilliant news. Pricing tests are exactly where you shine.' },
