@@ -19,10 +19,10 @@ This project follows Foundation's software rules (imported above), adopted in D0
 - `npm test` runs the browser tests in `tests/` (headless Chrome via puppeteer-core; set `CHROME_PATH` if Chrome isn't in the usual place). `npm test -- feed` runs one suite. `npm run test:dist` runs them all against the built site (`dist/`, with its CSP and service worker).
 - New tests go in the matching `tests/*.test.js`, or a new suite.
 - Test files are synthetic: `npm run test:fixtures` rebuilds them. No real people's data.
-- The pre-commit check (`.githooks/pre-commit`) runs the secret scan and `npm test` before every commit. On a new copy of the repo, switch it on with `git config core.hooksPath .githooks`.
+- The pre-commit check (`.githooks/pre-commit`) runs the secret scan and the fast checks in `.githooks/test` (the setup and structure suites) before every commit (D052). Run the whole `npm test` once before committing; CI runs everything on every push. On a new copy of the repo, switch it on with `git config core.hooksPath .githooks`.
 
 ## Finishing a change
-1. If you added or changed classes, `npm run build:css` (and commit `css/tailwind.css`). `npm run test:dist` passes as well as `npm test`.
+1. If you added or changed classes, `npm run build:css` (and commit `css/tailwind.css`). Run `npm run test:dist` only when the build, the Content Security Policy, the service worker or outside addresses changed; CI runs it on every push (D052).
 2. Add the change to **Unreleased** in `CHANGELOG.md`.
 3. Push to `jennyshenstudio/bootcamp-connect`. The repo is public: commit with the noreply email in the repo's local git config, and never commit anything personal.
 4. If the app changed, republish the shared prototype: `npm run build:artifact`, then publish `build/artifact/index.html` with the files listed in `build/artifact/files.json` to the existing artifact link.

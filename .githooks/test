@@ -1,0 +1,4 @@
+#!/bin/sh
+# Fast checks the pre-commit check runs before each commit (D052): the set-up and structure suites.
+# The whole suite runs before committing and in CI on every push.
+npm test --silent -- setup && npm test --silent -- structure

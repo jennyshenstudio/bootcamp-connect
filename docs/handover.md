@@ -2,6 +2,13 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-20 (faster checks)
+- **What changed:** took up Foundation 1.1 (D052). The pre-commit check now runs only the setup and structure suites, the built-site tests run only when the build changes, and only important decisions go in the decision log. Handovers now have a problems line. No app changes.
+- **Problems:** sessions had been started in `~/code`, so this project's own memory hadn't loaded since 9 October. Fix: open VS Code at `~/code/bootcamp-connect`.
+- **What's next:** as in the entry below: whether your own page shows empty sections with an Add button, then the phone pass. Optional: make the tests faster (run suites in parallel, replace fixed pauses).
+- **Open questions:** as in the entry below.
+- **Worth learning:** a check that runs on every commit should be fast. Slow checks belong in CI, where nobody waits for them.
+
 ## 2026-10-12 (profile form follows the page)
 - **What changed:** the owner asked why About, Experience, Education and Skills were missing from their page (they're hidden while empty, so a new account shows few sections) and then asked for the editor to follow the page's layout. The form now has the page's two columns (D051): a top card, then About (its own section now), Work to show, Skills, Experience, Education and Verified experience; beside them Profile strength, Import from your CV, Available for and Links. The "How others see you" preview card is gone. New test that the form keeps the page's order. 409 tests pass, on the source and the built site. Shared prototype republished.
 - **What's next:** the owner hasn't answered whether your own page should show empty sections with an Add button (recommended, LinkedIn does it). Then the phone pass, including where Import and Profile strength sit on phones.

@@ -59,6 +59,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D049 | No cohort: no Cohort or Alumni filter, no cohort on profiles or cards, and no cohort reason in suggestions | Accepted (built) | Connect, profile, matching, demo content |
 | D050 | The profile is a page (LinkedIn style): pinned work and posts, posts, a CV made from the profile, Saved on your own page; the Profile tab shows your page with Edit profile | Accepted (built) | Profile, Feed, Connect |
 | D051 | The profile form is laid out like the profile page; no separate preview card | Accepted (built) | Profile |
+| D052 | Faster checks: fast suites before each commit, built-site tests only when the build changes, only important decisions logged (Foundation 1.1) | Accepted (built) | How we work |
 
 ## Entries
 
@@ -478,3 +479,11 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Risks:** on phones, Import from your CV and Profile strength are now near the bottom, after the main sections. A new member may want them first; worth looking at in the phone pass.
 - **Reviewed:** 2026-10-12, checked in session: a layout change that's easy to undo, so no separate review.
 - **Affects:** Profile.
+
+### D052 Faster checks (Foundation 1.1)
+- **Date:** 2026-10-20
+- **Decision:** follow Foundation 1.1 (F020). The pre-commit check runs only the setup and structure suites (`.githooks/test`, about 16 seconds). The whole suite runs once before committing, and `npm run test:dist` only when the build, the Content Security Policy, the service worker or outside addresses changed. CI still runs both on every push. Only important decisions get an entry here; small design choices go in the changelog and spec.
+- **Why:** each change ran the full suite 3 times, about 10.7 minutes, and about 3.3 hours in total from 9 to 18 October.
+- **Options considered:** keep running everything (rejected: slow); tests only in CI (rejected: a broken change would reach GitHub more often).
+- **Risks:** a broken change can reach GitHub if the full run is skipped. CI catches it, and nothing is live in alpha.
+- **Reviewed:** 2026-10-19, short check: sound, easy to undo. Approved by the owner 2026-10-20.
