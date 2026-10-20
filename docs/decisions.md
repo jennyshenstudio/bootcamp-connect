@@ -60,6 +60,7 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 | D050 | The profile is a page (LinkedIn style): pinned work and posts, posts, a CV made from the profile, Saved on your own page; the Profile tab shows your page with Edit profile | Accepted (built) | Profile, Feed, Connect |
 | D051 | The profile form is laid out like the profile page; no separate preview card | Accepted (built) | Profile |
 | D052 | Faster checks: fast suites before each commit, built-site tests only when the build changes, only important decisions logged (Foundation 1.1) | Accepted (built) | How we work |
+| D053 | Quiet test output and screen checks at the owner's window size (Foundation F021) | Accepted (built) | How we work, tests |
 
 ## Entries
 
@@ -487,3 +488,10 @@ Every product, design, and technical decision for Bootcamp Connect, newest last.
 - **Options considered:** keep running everything (rejected: slow); tests only in CI (rejected: a broken change would reach GitHub more often).
 - **Risks:** a broken change can reach GitHub if the full run is skipped. CI catches it, and nothing is live in alpha.
 - **Reviewed:** 2026-10-19, short check: sound, easy to undo. Approved by the owner 2026-10-20.
+
+### D053 Quiet tests and screen checks (Foundation F021)
+- **Date:** 2026-10-20
+- **Decision:** `npm test` prints only failures, each under its suite's name, and the total; `npm test -- --verbose` lists every test. `CLAUDE.md` states the owner's window size (about 1470×695), and screen changes are compared with the approved design at that size.
+- **Why:** each run printed all 409 passing lines (about 22 KB) into Claude's context, about 130 times from 9 to 18 October. Screens were checked at other sizes than the owner's, which led to the squashed sign-up screen on 9 October.
+- **Options considered:** filtering the output with a Claude Code hook (rejected in F021: it can hide a failing result).
+- **Reviewed:** 2026-10-20, short check: sound, easy to undo. Asked for by the owner 2026-10-20.

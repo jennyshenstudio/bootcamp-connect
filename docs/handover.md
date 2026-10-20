@@ -2,6 +2,13 @@
 
 Newest entry first. Each session adds an entry: what changed, what's next, open questions, and one thing worth learning.
 
+## 2026-10-20 (quiet tests, screen checks)
+- **What changed:** `npm test` now prints only failures and the total, with `--verbose` for the full list (D053, Foundation F021). `CLAUDE.md` states your window size, about 1470×695, for screen checks. 409 tests pass; a full run now prints 3 lines instead of 436.
+- **Problems:** none in this project. Foundation's own commit check hung once while making a fake key for its tests (fixed there).
+- **What's next:** as below. To try: `/project-report` for this project's case study.
+- **Open questions:** as below.
+- **Worth learning:** passing tests are only worth reading when you're looking for one. Printing failures alone keeps the result easy to see, for you and for Claude.
+
 ## 2026-10-20 (faster checks)
 - **What changed:** took up Foundation 1.1 (D052). The pre-commit check now runs only the setup and structure suites, the built-site tests run only when the build changes, and only important decisions go in the decision log. Handovers now have a problems line. No app changes.
 - **Problems:** sessions had been started in `~/code`, so this project's own memory hadn't loaded since 9 October. Fix: open VS Code at `~/code/bootcamp-connect`.

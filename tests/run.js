@@ -2,6 +2,7 @@
 //   npm test                 all suites against index.html opened from disk
 //   npm test -- feed         suites whose name contains "feed"
 //   npm run test:dist        build, then all suites against dist/ served over http (CSP and service worker on)
+//   npm test -- --verbose    also list every passing test (by default only failures and the total print)
 // Screenshots go to tests/output/ (not committed). Exits non-zero if anything fails.
 const fs = require('fs');
 const path = require('path');
@@ -9,6 +10,7 @@ const { launch, setAppUrl, ROOT } = require('./helpers');
 
 const args = process.argv.slice(2);
 const dist = args.includes('--dist');
+const verbose = args.includes('--verbose');
 const filter = args.find(a => !a.startsWith('--')) || '';
 const suites = fs.readdirSync(__dirname).filter(f => f.endsWith('.test.js') && f.includes(filter)).sort();
 
@@ -28,14 +30,18 @@ const suites = fs.readdirSync(__dirname).filter(f => f.endsWith('.test.js') && f
   const browser = await launch();
   let passed = 0, failed = 0;
   for (const file of suites) {
-    console.log('\n' + file.replace('.test.js', ''));
+    // The suite's name prints before its first failure, or always with --verbose
+    const name = file.replace('.test.js', '');
+    let named = false;
+    const heading = () => { if (!named) { console.log('\n' + name); named = true; } };
+    if (verbose) heading();
     const t = {
       dist,
       ok(label, cond, detail) {
-        if (cond) { passed++; console.log('  ✓ ' + label); }
-        else { failed++; console.log('  ✗ ' + label + (detail ? '  [' + detail + ']' : '')); }
+        if (cond) { passed++; if (verbose) console.log('  ✓ ' + label); }
+        else { failed++; heading(); console.log('  ✗ ' + label + (detail ? '  [' + detail + ']' : '')); }
       },
-      fail(label) { failed++; console.log('  ✗ ' + label); },
+      fail(label) { failed++; heading(); console.log('  ✗ ' + label); },
     };
     try { await require(path.join(__dirname, file))(browser, t); }
     catch (e) { t.fail('suite crashed: ' + e.message); }

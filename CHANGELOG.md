@@ -39,6 +39,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follo
 - **Licence:** `LICENSE` makes the code "all rights reserved" (D031). It can be read on GitHub but not copied or reused without permission.
 
 ### Changed
+- Quieter tests (D053): `npm test` prints only failures and the total; `--verbose` lists every test. `CLAUDE.md` states the owner's window size for screen checks.
 - Faster checks (D052, Foundation 1.1): the pre-commit check runs only the setup and structure suites; the built-site tests run when the build changes; CI still runs everything.
 - **The profile form is laid out like your profile page** (D051): a top card with your photo, name and headline, then About, Work to show, Skills, Experience, Education and Verified experience, with Profile strength, Import from your CV, Available for and Links beside them. About has its own section. The "How others see you" preview card is gone.
 - **The "…" menu is in the top-right corner** of your own posts (D048), after the post type, on every screen width. It's no longer in the button row. Its menu has a solid background, so the post's text no longer shows through it.
