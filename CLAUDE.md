@@ -18,7 +18,7 @@ This project follows Foundation's software rules (imported above), adopted in D0
 ## Tests
 - `npm test` runs the browser tests in `tests/` (headless Chrome via puppeteer-core; set `CHROME_PATH` if Chrome isn't in the usual place). `npm test -- feed` runs one suite. Only failures and the total print; add `--verbose` to list every test. `npm run test:dist` runs them all against the built site (`dist/`, with its CSP and service worker).
 - New tests go in the matching `tests/*.test.js`, or a new suite.
-- **Screen checks:** the owner views the app at about **1470×695** (a browser inside claude.ai). After a screen change, take a screenshot at that size and compare it with the approved design.
+- **Screen checks:** the owner views the app at about **1470×695** (a browser inside claude.ai). After a screen change, compare screenshots with the approved design at 320px wide, at a laptop size and at that size (Foundation F022).
 - Test files are synthetic: `npm run test:fixtures` rebuilds them. No real people's data.
 - The pre-commit check (`.githooks/pre-commit`) runs the secret scan and the fast checks in `.githooks/test` (the setup and structure suites) before every commit (D052). Run the whole `npm test` once before committing; CI runs everything on every push. On a new copy of the repo, switch it on with `git config core.hooksPath .githooks`.
 
